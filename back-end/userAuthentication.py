@@ -33,7 +33,7 @@ API_BASE_URL = 'https://api.spotify.com/v1/'
 
 # Welcome to app, with a hyperlink to login to spotify app
 def index():
-    return "Welcome to my Tune Timer<a href='/login'>Login with Spotify</a>" #planning on making this separate where it includes a react front end page for this 
+    return "Welcome to my Tune Timer <a href='/login'>Login with Spotify</a>" #planning on making this separate where it includes a react front end page for this 
  
 #Redirect to Spotify Login Page, Need to declare scope/permissions
 @app.route('/login')
