@@ -9,22 +9,20 @@ app.secret_key = 'adagrgar34543-sdfvsdff334553'
 
 # When you deploy this application make sure to copy over your own client id and secret.
 
-# # Swetha's Client ID, Client Secret 
+# Swetha's Client ID, Client Secret 
 # CLIENT_ID = '179f1cd011c44c25ab2e3658ac37b756'
 # CLIENT_SECRET = '5460d929319845f19937d7441ad4ee51'
+# REDIRECT_URL = 'http://localhost:5000/callback'
 
 # Saniya's Client ID, Client Secret
-CLIENT_ID = 'e3d039b9bbc04b89993bfbb702620590'
-CLIENT_SECRET = 'f75cfd2182944ea490482d50c0cd308f'
+# CLIENT_ID = 'e3d039b9bbc04b89993bfbb702620590'
+# CLIENT_SECRET = 'f75cfd2182944ea490482d50c0cd308f'
+# REDIRECT_URL = 'http://localhost:7000/callback'
 
 # Maggie's Client ID, Client Secret
 # CLIENT_ID = ''
 # CLIENT_SECRET = ''
 
-# REDIRECT_URL = 'http://localhost:5000/callback'
-
-# Saniya's URL 
-REDIRECT_URL = 'http://localhost:7000/callback'
 
 AUTH_URL = 'https://accounts.spotify.com/authorize'
 TOKEN_URL = 'https://accounts.spotify.com/api/token'
