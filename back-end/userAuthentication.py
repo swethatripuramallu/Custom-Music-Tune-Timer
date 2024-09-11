@@ -18,9 +18,9 @@ app.secret_key = 'adagrgar34543-sdfvsdff334553'
 # CLIENT_SECRET = ''
 
 # Swetha's Client ID, Client Secret 
-# CLIENT_ID = '179f1cd011c44c25ab2e3658ac37b756'
-# CLIENT_SECRET = '5460d929319845f19937d7441ad4ee51'
-# REDIRECT_URL = 'http://localhost:5000/callback'
+# CLIENT_ID = ''
+# CLIENT_SECRET = ''
+# REDIRECT_URL = ''
 
 AUTH_URL = 'https://accounts.spotify.com/authorize'
 TOKEN_URL = 'https://accounts.spotify.com/api/token'
