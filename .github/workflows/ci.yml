@@ -9,17 +9,17 @@ on:
     branches: 
       - main
       - ms-testing-build
-  
+
 jobs:
   build:
     runs-on: macos-latest
 
     strategy:
       matrix:
-        node-version: [20.17.0]
+        node-version: [18.x] # Trying different Node.js versions
 
     steps:
-    # checkout code
+    # Checkout code
     - uses: actions/checkout@v4
 
     # Setup Node.js version
@@ -28,18 +28,25 @@ jobs:
       with:
         node-version: ${{ matrix.node-version }}
 
+    # Clean npm cache and remove node_modules for recent issue
+    - name: Clean npm cache
+      run: npm cache clean --force
+
+    - name: Remove node_modules
+      run: rm -rf node_modules
+
     # Install dependencies
     - name: Install dependencies
       run: npm install
 
-    # Install new Expo CLI
-    - name: Install new Expo CLI
-      run: npm install -g expo
-    
+    # Install latest Expo CLI
+    - name: Install latest Expo CLI
+      run: npm install -g expo-cli
+
     # Install TypeScript types if using TypeScript
     - name: Install TypeScript types
       run: npm install --save-dev @types/react-native
 
-    # build project
-    - name: Build project
+    # Start Expo project
+    - name: Start Expo project
       run: expo start --no-dev --minify
