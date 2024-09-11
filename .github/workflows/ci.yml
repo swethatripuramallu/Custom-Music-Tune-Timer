@@ -1,4 +1,5 @@
 name: Tune Timer CI
+
 on:
   push: 
     branches: [ $default-branch ]
@@ -7,10 +8,27 @@ on:
 
 jobs:
   build:
-    runs-on: ubuntu-latest
+    runs-on: macos-latest
 
     steps:
-      - uses: actions/checkout@v4
+    - uses: actions/checkout@v4
 
-      - name: Run a one-line script
-        run: echo Hello from Tune Timer
+    # Testing and setup of the work environment
+    - name: Run a one-line script as a test
+      run: echo Hi! from Tune Timer
+   
+    # Build the project
+    - name: Build
+      run: swift build -v
+
+    # Run tests
+    - name: Run tests
+      run: swift test -v
+
+    # Upload test results (optional)
+    - name: Upload test results
+      if: failure()
+      uses: actions/upload-artifact@v2
+      with:
+        name: test-results
+        path: .build/debug/test-results
