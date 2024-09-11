@@ -38,4 +38,4 @@ jobs:
 
     # build project
     - name: Build project
-      run: npm run ios
+      run: expo start --no-dev --minify
