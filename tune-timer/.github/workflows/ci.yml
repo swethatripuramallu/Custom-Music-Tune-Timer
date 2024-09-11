@@ -1,0 +1,33 @@
+name: Node.js CI
+
+on:
+  push: 
+    branches: 
+      - main
+      - ms-testing-build
+  pull_request: 
+    branches: 
+      - main
+      - ms-testing-build
+  
+jobs:
+  build:
+    runs-on: macos-latest
+
+    strategy:
+      matrix:
+        node-version: [20.17.0]
+
+    steps:
+    # checkout code
+    - uses: actions/checkout@v4
+
+    # build project
+    - name: Build project
+      run: npm run ios
+
+    # run code
+    # - name: Run React Native tests
+    #   run: npm test
+    
+    # run: npm run test
