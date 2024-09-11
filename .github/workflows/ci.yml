@@ -47,6 +47,19 @@ jobs:
     - name: Install TypeScript types
       run: npm install --save-dev @types/react-native
 
-    # Start npm project
-    - name: Start project
-      run: npm run ios
+    # Debugging steps
+    - name: Print Expo CLI version
+      run: expo --version
+
+    - name: List directory contents
+      run: ls -la
+
+    - name: Print current working directory
+      run: pwd
+
+    - name: Run Expo diagnostics
+      run: expo diagnostics
+    
+      # Start Expo project without simulator
+    - name: Start Expo project
+      run: expo start --no-dev --minify --no-android --no-ios
