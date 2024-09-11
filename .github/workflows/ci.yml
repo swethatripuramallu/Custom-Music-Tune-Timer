@@ -49,4 +49,4 @@ jobs:
 
     # Start Expo project
     - name: Start Expo project
-      run: expo start --no-dev --minify
+      run: npm run ios
