@@ -47,6 +47,6 @@ jobs:
     - name: Install TypeScript types
       run: npm install --save-dev @types/react-native
 
-    # Start Expo project
-    - name: Start Expo project
+    # Start npm project
+    - name: Start project
       run: npm run ios
