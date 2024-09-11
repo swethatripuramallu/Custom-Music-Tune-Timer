@@ -1,0 +1,30 @@
+name: Node.js CI
+
+on:
+  push: 
+    branches: 
+      - main
+      - ms-testing-build
+  pull_request: 
+    branches: 
+      - main
+      - ms-testing-build
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    strategy:
+      matrix:
+        node-version: [20.17.0]
+    
+    steps:
+    - uses: actions/checkout@v4
+    - name: Use Node.js 20.17.0
+      uses: actions/setup-node@v4
+      with:
+        node-version: 20.17.0
+        cache: 'npm'
+    - run: npm ci
+    - run: npm run ios
+    # - run: npm test
