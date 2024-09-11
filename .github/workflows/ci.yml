@@ -1,4 +1,4 @@
-name: Node.js CI
+name: CI Workflow
 
 on:
   push: 
@@ -9,24 +9,33 @@ on:
     branches: 
       - main
       - ms-testing-build
-
+  
 jobs:
   build:
-    # runs-on: ubuntu-latest
     runs-on: macos-latest
 
     strategy:
       matrix:
         node-version: [20.17.0]
-    
+
     steps:
+    # checkout code
     - uses: actions/checkout@v4
-    - name: Use Node.js 20.17.0
-      uses: actions/setup-node@v4
+
+    # Setup Node.js version
+    - name: Use Node.js ${{ matrix.node-version }}
+      uses: actions/setup-node@v3
       with:
-        node-version: 20.17.0
-        cache: 'npm'
-    - run: npm ci
-    - run: npm run ios
-    
-    # run: npm run test
+        node-version: ${{ matrix.node-version }}
+
+    # Install dependencies
+    - name: Install dependencies
+      run: npm install
+
+    # Install Expo CLI
+    - name: Install Expo CLI
+      run: npm install -g expo-cli
+
+    # build project
+    - name: Build project
+      run: npm run ios
