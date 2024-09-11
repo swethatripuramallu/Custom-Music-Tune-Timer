@@ -8,12 +8,6 @@ app = Flask(__name__)
 app.secret_key = 'adagrgar34543-sdfvsdff334553'
 
 # When you deploy this application make sure to copy over your own client id and secret.
-
-# Swetha's Client ID, Client Secret 
-# CLIENT_ID = ''
-# CLIENT_SECRET = ''
-# REDIRECT_URL = ''
-
 # Saniya's Client ID, Client Secret
 # CLIENT_ID = ''
 # CLIENT_SECRET = ''
@@ -23,6 +17,10 @@ app.secret_key = 'adagrgar34543-sdfvsdff334553'
 # CLIENT_ID = ''
 # CLIENT_SECRET = ''
 
+# Swetha's Client ID, Client Secret 
+# CLIENT_ID = ''
+# CLIENT_SECRET = ''
+# REDIRECT_URL = ''
 
 AUTH_URL = 'https://accounts.spotify.com/authorize'
 TOKEN_URL = 'https://accounts.spotify.com/api/token'
