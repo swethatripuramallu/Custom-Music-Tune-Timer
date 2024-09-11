@@ -1,39 +1,30 @@
-name: Tune Timer CI
+name: Node.js CI
 
 on:
   push: 
-    branches: ms-testing-build
+    branches: 
+      - main
+      - ms-testing-build
   pull_request: 
-    branches: ms-testing-build
+    branches: 
+      - main
+      - ms-testing-build
 
 jobs:
   build:
-    # working_directory: ~/tune-timer
-    runs-on: macos-latest
+    runs-on: ubuntu-latest
 
+    strategy:
+      matrix:
+        node-version: [20.17.0]
+    
     steps:
     - uses: actions/checkout@v4
-
-    # Testing and setup of the work environment
-    - name: Run a one-line script as a test
-      run: echo Hello! from Tune Timer
-
-    # Installing dependencies
-    - name: Install Dependencies
-      run: npm install
-   
-    # Build the project
-    - name: Build
-      run: npm run ios
-
-    # # Run tests
-    # - name: Run tests
-    #   run: swift test -v
-
-    # Upload test results (optional)
-    # - name: Upload test results
-    #   if: failure()
-    #   uses: actions/upload-artifact@v2
-    #   with:
-    #     name: test-results
-    #     path: .build/debug/test-results 
+    - name: Use Node.js 20.17.0
+      uses: actions/setup-node@v4
+      with:
+        node-version: 20.17.0
+        cache: 'npm'
+    - run: npm ci
+    - run: npm run ios
+    # - run: npm test
