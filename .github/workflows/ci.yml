@@ -32,9 +32,13 @@ jobs:
     - name: Install dependencies
       run: npm install
 
-    # Install Expo CLI
-    - name: Install Expo CLI
-      run: npm install -g expo-cli
+    # Install new Expo CLI
+    - name: Install new Expo CLI
+      run: npm install -g expo
+    
+    # Install TypeScript types if using TypeScript
+    - name: Install TypeScript types
+      run: npm install --save-dev @types/react-native
 
     # build project
     - name: Build project
