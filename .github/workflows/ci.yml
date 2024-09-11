@@ -16,7 +16,7 @@ jobs:
 
     strategy:
       matrix:
-        node-version: [18.x] # Trying different Node.js versions
+        node-version: [18.x]  # Use a stable Node.js version
 
     steps:
     # Checkout code
@@ -28,24 +28,24 @@ jobs:
       with:
         node-version: ${{ matrix.node-version }}
 
-    # Clean npm cache and remove node_modules for recent issue
+    # Uninstall old Expo CLI
+    - name: Uninstall old Expo CLI
+      run: npm uninstall -g expo-cli
+
+    # Clean npm cache and remove node_modules
     - name: Clean npm cache
       run: npm cache clean --force
 
     - name: Remove node_modules
       run: rm -rf node_modules
 
-    # Install dependencies
+    # Install dependencies with npm
     - name: Install dependencies
       run: npm install
 
     # Install latest Expo CLI
     - name: Install latest Expo CLI
       run: npm install -g expo-cli
-
-    # Install TypeScript types if using TypeScript
-    - name: Install TypeScript types
-      run: npm install --save-dev @types/react-native
 
     # Debugging steps
     - name: Print Expo CLI version
@@ -59,7 +59,7 @@ jobs:
 
     - name: Run Expo diagnostics
       run: expo diagnostics
-    
-      # Start Expo project without simulator
+
+    # Start Expo project without simulator
     - name: Start Expo project
       run: expo start --no-dev --minify
