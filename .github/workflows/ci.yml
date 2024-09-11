@@ -62,4 +62,4 @@ jobs:
     
       # Start Expo project without simulator
     - name: Start Expo project
-      run: expo start --no-dev --minify --no-ios
+      run: expo start --no-dev --minify
