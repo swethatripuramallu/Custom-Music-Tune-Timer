@@ -1,4 +1,4 @@
-name: Node.js CI
+name: CI Workflow
 
 on:
   push: 
@@ -12,21 +12,49 @@ on:
 
 jobs:
   build:
-    # runs-on: ubuntu-latest
     runs-on: macos-latest
 
     strategy:
       matrix:
         node-version: [20.17.0]
-    
+
     steps:
     - uses: actions/checkout@v4
-    - name: Use Node.js 20.17.0
-      uses: actions/setup-node@v4
+
+    - name: Use Node.js ${{ matrix.node-version }}
+      uses: actions/setup-node@v3
       with:
-        node-version: 20.17.0
-        cache: 'npm'
-    - run: npm ci
-    - run: npm run ios
-    
-    # run: npm run test
+        node-version: ${{ matrix.node-version }}
+
+    - name: Uninstall old Expo CLI
+      run: npm uninstall -g expo-cli
+
+    - name: Clean npm cache
+      run: npm cache clean --force
+
+    - name: Remove node_modules
+      run: rm -rf node_modules
+
+    - name: Install dependencies
+      run: npm install
+
+    - name: Install latest Expo CLI
+      run: npm install -g expo-cli
+
+    - name: Print Expo CLI version
+      run: expo --version
+
+    - name: Start Expo project in background
+      run: npx expo start --no-dev --minify & echo $! > expo.pid
+
+    # Add a delay or timeout here (adjust time as needed)
+    - name: Wait for 60 seconds
+      run: sleep 60
+
+    # Kill the Expo process
+    - name: End Expo project
+      run: kill -9 $(cat expo.pid) || true
+
+    # Clean up
+    - name: Remove PID file
+      run: rm expo.pid || true
