@@ -16,53 +16,45 @@ jobs:
 
     strategy:
       matrix:
-        node-version: [20.17.0] 
+        node-version: [20.17.0]
 
     steps:
-    # Checkout code
     - uses: actions/checkout@v4
 
-    # Setup Node.js version
     - name: Use Node.js ${{ matrix.node-version }}
       uses: actions/setup-node@v3
       with:
         node-version: ${{ matrix.node-version }}
 
-    # Uninstall old Expo CLI
     - name: Uninstall old Expo CLI
       run: npm uninstall -g expo-cli
 
-    # Clean npm cache and remove node_modules
     - name: Clean npm cache
       run: npm cache clean --force
 
     - name: Remove node_modules
       run: rm -rf node_modules
 
-    # Install dependencies with npm
     - name: Install dependencies
       run: npm install
 
-    # Install latest Expo CLI
     - name: Install latest Expo CLI
       run: npm install -g expo-cli
 
-    # Debugging steps
     - name: Print Expo CLI version
       run: expo --version
 
-    - name: List directory contents
-      run: ls -la
+    - name: Start Expo project in background
+      run: npx expo start --no-dev --minify & echo $! > expo.pid
 
-    - name: Print current working directory
-      run: pwd
+    # Add a delay or timeout here (adjust time as needed)
+    - name: Wait for 60 seconds
+      run: sleep 60
 
-    - name: Run Expo diagnostics
-      run: expo diagnostics
+    # Kill the Expo process
+    - name: End Expo project
+      run: kill -9 $(cat expo.pid) || true
 
-    # Start Expo project without simulator
-    - name: Start Expo project
-      run: npx expo start --no-dev --minify
-    
-    - name: End expo project
-      run: kill -INT 888
+    # Clean up
+    - name: Remove PID file
+      run: rm expo.pid || true
