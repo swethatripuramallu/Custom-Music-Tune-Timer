@@ -41,17 +41,14 @@ jobs:
     - name: Install latest Expo CLI
       run: npm install -g expo-cli
 
-    - name: Print Expo CLI version
-      run: expo --version
-
     - name: Start Expo project in background
       run: npx expo start --no-dev --minify & echo $! > expo.pid
 
-    # Add a delay or timeout here (adjust time as needed)
+    # Add a delay or timeout here
     - name: Wait for 60 seconds
       run: sleep 60
 
-    # Kill the Expo process
+    # Kill the Expo process so it doesn't timeout
     - name: End Expo project
       run: kill -9 $(cat expo.pid) || true
 
