@@ -16,7 +16,7 @@ jobs:
 
     strategy:
       matrix:
-        node-version: [18.x]  # Use a stable Node.js version
+        node-version: [16.x]  # Use a stable Node.js version
 
     steps:
     # Checkout code
