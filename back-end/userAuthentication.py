@@ -4,9 +4,6 @@ import urllib.parse
 from flask import Flask, redirect, request, jsonify, session
 from datetime import datetime, timedelta
 
-app = Flask(__name__)
-app.secret_key = 'adagrgar34543-sdfvsdff334553'
-
 # When you deploy this application make sure to copy over your own client id and secret.
 # Saniya's Client ID, Client Secret
 # CLIENT_ID = ''
@@ -26,15 +23,7 @@ AUTH_URL = 'https://accounts.spotify.com/authorize'
 TOKEN_URL = 'https://accounts.spotify.com/api/token'
 API_BASE_URL = 'https://api.spotify.com/v1/'
 
-# Route to the flask app
-@app.route('/')
 
-# Welcome to app, with a hyperlink to login to spotify app
-def index():
-    return "Welcome to my Tune Timer <a href='/login'>Login with Spotify</a>" #planning on making this separate where it includes a react front end page for this 
- 
-#Redirect to Spotify Login Page, Need to declare scope/permissions
-@app.route('/login')
 def login():
     scope = 'user-read-private user-read-email'
     params = {
@@ -53,7 +42,6 @@ def login():
 
 
 #Scenario for when the user fails to login successfully
-@app.route('/callback')
 def callback():
     #check if spotify threw an error
     if 'error' in request.args:
@@ -83,7 +71,6 @@ def callback():
     return  redirect('/playlists') #retrieves all the playlists
 
 
-@app.route('/playlists')
 def get_playlists():
     if 'access_token' not in session: #check the access token 
         return redirect('/login')
@@ -100,7 +87,6 @@ def get_playlists():
 
     return jsonify(playlists)
 
-@app.route('/refresh-token')
 def refresh_token():
     if 'refresh_token' not in session: #check the refresh token
         return redirect('/login')
@@ -121,7 +107,3 @@ def refresh_token():
     session['expires_at'] = datetime.now().timestamp() + new_token_info['expires_in']
 
     return redirect('/playlist')
-
-if __name__ == '__main__':
-    app.run(host='0.0.0.0', debug=True) #any changes we make in the code the 
-                                        #server will automatically refresh
