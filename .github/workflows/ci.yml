@@ -64,7 +64,7 @@ jobs:
 
     # Install Python dependencies from requirements.txt
     - name: Install Python dependencies
-      run: pip install -r requirements.txt
+      run: pip install -r tests/requirements.txt
 
     # Run Python unit tests using unittest
     - name: Run Unit Tests
