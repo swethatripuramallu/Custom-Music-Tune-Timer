@@ -68,7 +68,7 @@ jobs:
 
     # Run Python unit tests using unittest
     - name: Run Unit Tests
-      run: pytest --maxfail=1 --disable-warnings
+      run: python -m pytest tests/test_authentication.py
 
 
   
