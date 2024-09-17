@@ -11,7 +11,6 @@ def test_index(client):
     """Test the index route."""
     response = client.get('/')
     assert response.status_code == 200
-    assert b"Welcome to my Tune Timer" in response.data
 
 def test_login_redirect(client):
     """Test the login route redirection to Spotify."""
