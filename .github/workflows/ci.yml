@@ -55,3 +55,20 @@ jobs:
     # Clean up
     - name: Remove PID file
       run: rm expo.pid || true
+
+    # Set up Python environment
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.x'
+
+    # Install Python dependencies from requirements.txt
+    - name: Install Python dependencies
+      run: pip install -r requirements.txt
+
+    # Run Python unit tests using unittest
+    - name: Run Unit Tests
+      run: python -m unittest discover -s tests
+
+
+  
