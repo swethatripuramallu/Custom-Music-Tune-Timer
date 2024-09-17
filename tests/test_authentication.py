@@ -1,12 +1,12 @@
 import unittest
 from unittest.mock import patch, MagicMock
-from flask import session, Flask, redirect, request, jsonify
+from flask import session, Flask, redirect, request, jsonify, app
 from datetime import datetime, timedelta
 import requests 
 import urllib.parse
 
 class TestSpotifyAuth(unittest.TestCase):
-
+   
     def setUp(self):
         # Set up the Flask testing environment
         app.config['TESTING'] = True
