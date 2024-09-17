@@ -1,12 +1,12 @@
 import unittest
 from unittest.mock import patch, MagicMock
-from flask import session, Flask, redirect, request, jsonify, app
+from flask import session, Flask, redirect, request, jsonify
 from datetime import datetime, timedelta
 import requests 
 import urllib.parse
 
 # import unittest
-# from app import app  # Adjust the import as necessary
+from app import app  # Adjust the import as necessary
 
 class BasicTestCase(unittest.TestCase):
     def test_index(self):
