@@ -68,7 +68,7 @@ jobs:
 
     # Run Python unit tests using unittest
     - name: Run Unit Tests
-      run: python -m unittest discover -s tests
+      run: pytest --maxfail=1 --disable-warnings
 
 
   

@@ -1,2 +1,4 @@
-requests-mock
-flask-testing
+flask
+requests
+pytest
+pytest-flask
