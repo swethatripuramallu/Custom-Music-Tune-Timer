@@ -1,16 +1,57 @@
-name: Tune Timer CI
+name: CI Workflow
+
 on:
   push: 
-    branches: [ $default-branch ]
+    branches: 
+      - main
+      - ms-testing-build
   pull_request: 
-    branches: [ $default-branch ]
+    branches: 
+      - main
+      - ms-testing-build
 
 jobs:
   build:
-    runs-on: ubuntu-latest
+    runs-on: macos-latest
+
+    strategy:
+      matrix:
+        node-version: [20.17.0]
 
     steps:
-      - uses: actions/checkout@v4
+    - uses: actions/checkout@v4
 
-      - name: Run a one-line script
-        run: echo Hello from Tune Timer
+    - name: Use Node.js ${{ matrix.node-version }}
+      uses: actions/setup-node@v3
+      with:
+        node-version: ${{ matrix.node-version }}
+
+    - name: Uninstall old Expo CLI
+      run: npm uninstall -g expo-cli
+
+    - name: Clean npm cache
+      run: npm cache clean --force
+
+    - name: Remove node_modules
+      run: rm -rf node_modules
+
+    - name: Install dependencies
+      run: npm install
+
+    - name: Install latest Expo CLI
+      run: npm install -g expo-cli
+
+    - name: Start Expo project in background
+      run: npx expo start --no-dev --minify & echo $! > expo.pid
+
+    # Add a delay or timeout here
+    - name: Wait for 60 seconds
+      run: sleep 60
+
+    # Kill the Expo process so it doesn't timeout
+    - name: End Expo project
+      run: kill -9 $(cat expo.pid) || true
+
+    # Clean up
+    - name: Remove PID file
+      run: rm expo.pid || true
