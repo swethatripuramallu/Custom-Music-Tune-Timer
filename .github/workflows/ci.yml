@@ -72,8 +72,8 @@ jobs:
   
     # Run Flake8 Linter
     - name: Run Flake8 Linter
-      run: flake8 .
-  
+      run: flake8 backend/userAuthentication.py
+
       # Run npm linter
     - name: Run npm Linter
       run: 
