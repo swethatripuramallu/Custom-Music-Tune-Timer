@@ -1,11 +1,26 @@
-import { Image, StyleSheet, Platform, Button } from 'react-native';
+import { Image, StyleSheet, Platform, Button, Linking } from 'react-native';
 
 import { HelloWave } from '@/components/HelloWave';
 import ParallaxScrollView from '@/components/ParallaxScrollView';
 import { ThemedText } from '@/components/ThemedText';
 import { ThemedView } from '@/components/ThemedView';
+import { useState } from 'react';
+
+const [login, setLogin] = useState(false);
 
 async function loginWithSpotify() {
+  try {
+    const response = await fetch('http://localhost:5000/login', {
+      method: 'GET',
+      redirect: 'follow',
+    });
+    const url = response.url;
+    if(response.redirected) {
+      Linking.openURL(url);
+    }
+  } catch(error) {
+    console.error('Error logging in with Spotify:', error);
+  }
   // Implement login with Spotify here
   console.log('Login with Spotify');
 }
