@@ -1,27 +1,22 @@
-import requests
+from pip._vendor import requests
 import urllib.parse
 
 from flask import Flask, redirect, request, jsonify, session
 from datetime import datetime
+from dotenv import load_dotenv
+import os
+
+# load environement variables
+load_dotenv()
 
 app = Flask(__name__)
 app.secret_key = 'adagrgar34543-sdfvsdff334553'
 
-# When you deploy this application, copy over your own client id and secret.
-# Saniya's Client ID, Client Secret
-# CLIENT_ID = ''
-# CLIENT_SECRET = ''
-# REDIRECT_URL = ''
-
-# Maggie's Client ID, Client Secret
-CLIENT_ID = ''
-CLIENT_SECRET = ''
-REDIRECT_URL = ''
-
-# Swetha's Client ID, Client Secret 
-# CLIENT_ID = ''
-# CLIENT_SECRET = ''
-# REDIRECT_URL = ''
+# Your client_id, client_secret, and url should be contained in .env file
+# This is to keep your information secure and not exposed to the public
+CLIENT_ID = os.getenv('CLIENT_ID')
+CLIENT_SECRET = os.getenv('CLIENT_SECRET')
+REDIRECT_URL = os.getenv('REDIRECT_URL')
 
 AUTH_URL = 'https://accounts.spotify.com/authorize'
 TOKEN_URL = 'https://accounts.spotify.com/api/token'
