@@ -3,6 +3,7 @@ import base64
 import os
 import urllib.parse
 from flask import Flask, redirect, request, jsonify, session
+from datetime import datetime, timedelta
 
 app = Flask(__name__)
 app.secret_key = os.getenv('SECRET_KEY')
@@ -53,7 +54,35 @@ def callback():
         return jsonify({"error": "Authorization code not found"}), 400
     token_data = get_token_data(CLIENT_ID, CLIENT_SECRET, code, REDIRECT_URI)
     session['token_data'] = token_data
+
+    # session['refresh_token']= token_data['refresh_token']
+    # session['expires_at']= datetime.now().timestamp() + token_data['expires_in']
+    
     return jsonify(token_data)
+
+@app.route('/refresh-token')
+def refresh_token():
+    if 'refresh_token' not in session: #check the refresh token
+        return redirect('/login')
+    
+    if datetime.now().timestamp() . session['expires_at']:
+        #make a request to get a fresh access token
+        req_body = {
+            'grant_type': 'refresh_token',
+            'refresh_token': session['refresh_token'],
+            'client_id': CLIENT_ID,
+            'client_secret': CLIENT_SECRET
+        }
+    
+    response = request.post(TOKEN_URL, data= req_body)
+    new_token_info = response.json()
+
+    session['access_token'] = new_token_info['access_token']
+    session['expires_at'] = datetime.now().timestamp() + new_token_info['expires_in']
+
+    return redirect('/playlist')
 
 if __name__ == '__main__':
     app.run(debug=True)
+
+
