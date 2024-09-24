@@ -16,6 +16,7 @@ async function loginWithSpotify() {
     });
     const url = response.url;
     if(response.redirected) {
+      // console.log('url', url);
       Linking.openURL(url);
     }
   } catch(error) {

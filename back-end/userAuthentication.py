@@ -35,6 +35,9 @@ def index():
 # Redirect to Spotify Login Page, Need to declare scope/permissions
 @app.route('/login')
 def login():
+    # print out success message to console
+    print("reached /login function in userAuthentication.py")
+
     scope = 'user-read-private user-read-email'
     params = {
         'client_id': CLIENT_ID,
@@ -49,6 +52,7 @@ def login():
     }
     # make a get request to user's data, also encoded the users params
     auth_url = f"{AUTH_URL}?{urllib.parse.urlencode(params)}"
+    print(auth_url)  # check auth_url
     return redirect(auth_url)
 
 
@@ -59,7 +63,7 @@ def callback():
     if 'error' in request.args:
         return jsonify({"error": request.args['error']})
     # just throwing back and error 404 page
-   
+
     # assume the spotify didn't throw an error
     if 'code' in request.args:
         # build up a request body to acquire access token
