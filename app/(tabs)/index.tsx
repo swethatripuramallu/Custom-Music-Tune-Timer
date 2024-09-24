@@ -4,26 +4,42 @@ import { HelloWave } from '@/components/HelloWave';
 import ParallaxScrollView from '@/components/ParallaxScrollView';
 import { ThemedText } from '@/components/ThemedText';
 import { ThemedView } from '@/components/ThemedView';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 
+import * as dotenv from 'dotenv';
+dotenv.config();
+
+const baseUrl = process.env.BASE_URL;
 const [login, setLogin] = useState(false);
 
 async function loginWithSpotify() {
-  try {
-    const response = await fetch('http://localhost:5000/login', {
-      method: 'GET',
-      redirect: 'follow',
-    });
-    const url = response.url;
-    if(response.redirected) {
-      // console.log('url', url);
-      Linking.openURL(url);
-    }
-  } catch(error) {
-    console.error('Error logging in with Spotify:', error);
+  // try {
+  //   const response = await fetch('http://localhost:5000/login', {
+  //     method: 'GET',
+  //     redirect: 'follow',
+  //   });
+  //   const url = response.url;
+  //   if(response.redirected) {
+  //     // console.log('url', url);
+  //     Linking.openURL(url);
+  //   }
+  // } catch(error) {
+  //   console.error('Error logging in with Spotify:', error);
+  // }
+  // // Implement login with Spotify here
+  // console.log('Login with Spotify');
+  useEffect(() => {
+    fetch(`${baseUrl}/login`).then(
+      res => res.json()
+    ).then(
+      data => {
+        setLogin(data)
+        console.log(data)
+      }
+    )
+  }, []);
+  return {
   }
-  // Implement login with Spotify here
-  console.log('Login with Spotify');
 }
 
 export default function HomeScreen() {
