@@ -51,9 +51,39 @@ def callback():
     code = request.args.get('code')
     if code is None:
         return jsonify({"error": "Authorization code not found"}), 400
+
     token_data = get_token_data(CLIENT_ID, CLIENT_SECRET, code, REDIRECT_URI)
-    session['token_data'] = token_data
-    return jsonify(token_data)
+    session['access_token'] = token_data['access_token']
+    return redirect('/recently-played')
+
+@app.route('/recently-played')
+def recently_played():
+    access_token = session.get('access_token')
+    if not access_token:
+        return redirect('/login')
+
+    headers = {
+        'Authorization': f'Bearer {access_token}'
+    }
+    
+    songs = []
+    limit = 50
+    offset = 0
+
+    while len(songs) < 100:
+        response = requests.get(
+            'https://api.spotify.com/v1/me/player/recently-played',
+            headers=headers,
+            params={'limit': limit, 'offset': offset}
+        )
+        data = response.json()
+        items = data.get('items', [])
+        if not items:
+            break
+        songs.extend(items)
+        offset += limit
+
+    return jsonify(songs[:100])
 
 if __name__ == '__main__':
     app.run(debug=True)
