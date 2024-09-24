@@ -62,9 +62,8 @@ def callback():
         return jsonify({"error": "Authorization code not found"}), 400
     token_data = get_token_data(CLIENT_ID, CLIENT_SECRET, code, REDIRECT_URI)
     session['token_data'] = token_data
-
-    # session['refresh_token']= token_data['refresh_token']
-    # session['expires_at']= datetime.now().timestamp() + token_data['expires_in']
+    session['refresh_token']= token_data['refresh_token']
+    session['expires_at']= datetime.now().timestamp() + token_data['expires_in']
     
     return jsonify(token_data)
 
@@ -94,5 +93,5 @@ def refresh_token():
 
 
 if __name__ == '__main__':
-    app.run(debug=True)
+     app.run(host='0.0.0.0', debug=True)
 
