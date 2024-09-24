@@ -5,7 +5,7 @@ import urllib.parse
 from flask import Flask, redirect, request, jsonify, session
 from datetime import datetime, timedelta
 from dotenv import load_dotenv
-import os
+
 
 # load environement variables
 load_dotenv()
