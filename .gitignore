@@ -20,3 +20,9 @@ web-build/
 
 expo-env.d.ts
 # @end expo-cli
+
+# Ignore environment file - for spotify user authentication tokens
+.env
+
+# virtual environment folders for the dotenv files and secret keys
+venv/
