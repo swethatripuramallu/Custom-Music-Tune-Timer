@@ -5,12 +5,13 @@ import urllib.parse
 from flask import Flask, redirect, request, jsonify, session
 from datetime import datetime, timedelta
 from dotenv import load_dotenv
-
+from flask_cors import CORS
 
 # load environement variables
 load_dotenv()
 
 app = Flask(__name__)
+CORS(app, supports_credentials=True)
 app.secret_key = os.getenv('SECRET_KEY')
 
 CLIENT_ID = os.getenv('CLIENT_ID')
