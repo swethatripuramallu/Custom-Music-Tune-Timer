@@ -6,9 +6,10 @@ import { ThemedText } from '@/components/ThemedText';
 import { ThemedView } from '@/components/ThemedView';
 import { useState } from 'react';
 
-import Config from 'react-native-config'
+//import * as dotenv from 'dotenv';
 
-const baseUrl = Config.BASE_URL;
+//require('dotenv').config();
+//const baseUrl = process.env.BASE_URL;
 const [login, setLogin] = useState(false);
 
 async function loginWithSpotify() {
