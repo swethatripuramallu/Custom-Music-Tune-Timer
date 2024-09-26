@@ -3,9 +3,10 @@ import os
 import requests 
 import urllib.parse
 from flask import Flask, redirect, request, jsonify, session
-from datetime import datetime, timedelta
+from datetime import datetime
 from dotenv import load_dotenv
 from flask_cors import CORS
+
 
 # load environement variables
 load_dotenv()
@@ -24,31 +25,33 @@ API_BASE_URL = 'https://api.spotify.com/v1/'
 
 
 def get_auth_url(client_id, redirect_uri):
-    scopes = 'user-read-recently-played user-library-read'
-    auth_url = (
-        'https://accounts.spotify.com/authorize?'
-        f'client_id={client_id}'
-        f'&response_type=code'
-        f'&redirect_uri={urllib.parse.quote(redirect_uri)}'
-        f'&scope={urllib.parse.quote(scopes)}'
-    )
+    scope = 'user-read-recently-played user-library-read'
+    params = {
+        'client_id': client_id,
+        'response_type': 'code',
+        'scope': scope,
+        'redirect_uri': redirect_uri,
+        'show_dialog': True
+        # Force the user to login everytime into application by setting show_dialog true 
+        # to make debugging easier for local server purpose, can change at the end
+    }
+
+    auth_url = f"{AUTH_URL}?{urllib.parse.urlencode(params)}"
     return auth_url
 
   
 def get_token_data(client_id, client_secret, code, redirect_uri):
-    auth_header = base64.b64encode(f"{client_id}:{client_secret}".encode()).decode()
-    token_data = {
-        'grant_type': 'authorization_code',
-        'code': code,
-        'redirect_uri': redirect_uri
+   #build up a request body to acquire access token
+    req_body = {
+            'code': request.args['code'],
+            'grant_type': 'authorization_code',
+            'redirect_uri': redirect_uri,
+            'client_id': client_id,
+            'client_secret': client_secret
     }
-    token_headers = {
-        'Authorization': f'Basic {auth_header}',
-        'Content-Type': 'application/x-www-form-urlencoded'
-    }
-
-    token_response = requests.post(TOKEN_URL, data=token_data, headers=token_headers)
-    return token_response.json()
+    response = requests.post(TOKEN_URL, data=req_body) #sent the body off to spotify
+    token_info = response.json()
+    return token_info
 
   
 @app.route('/login')
@@ -68,13 +71,29 @@ def callback():
     
     return jsonify(token_data)
 
+# @app.route('/get_recommendations')
+# def getrecSongs():
+#     if 'access_token' not in session: #check the access token 
+#         return redirect('/login')
+    
+#     if datetime.now().timestamp() > session['expires_at']:
+#         return redirect('/refresh-token') #automatically refresh it for them so we don't interrupt the user interface
+
+#     headers = {
+#         'Authorization': f"Bearer {session['access_token']}"
+#     }
+
+#     response = requests.get(API_BASE_URL + 'me/top/tracks', headers = headers)
+#     tracks = response.json()
+
+#     return tracks
 
 @app.route('/refresh-token')
 def refresh_token():
     if 'refresh_token' not in session:  # check the refresh token
         return redirect('/login')
 
-    if datetime.now().timestamp() . session['expires_at']:
+    if datetime.now().timestamp() > session['expires_at']:
         # make a request to get a fresh access token
         req_body = {
             'grant_type': 'refresh_token',
@@ -83,16 +102,17 @@ def refresh_token():
             'client_secret': CLIENT_SECRET
         }
 
-    response = request.post(TOKEN_URL, data=req_body)
+    response = requests.post(TOKEN_URL, data=req_body)
     new_token_info = response.json()
 
     session['access_token'] = new_token_info['access_token']
     session['expires_at'] = datetime.now().timestamp()
     + new_token_info['expires_in']
 
-    return redirect('/playlist')
+    return jsonify(new_token_info)
 
 
 if __name__ == '__main__':
      app.run(host='0.0.0.0', debug=True)
+
 
