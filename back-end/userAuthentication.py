@@ -22,14 +22,35 @@ AUTH_URL = 'https://accounts.spotify.com/authorize'
 TOKEN_URL = 'https://accounts.spotify.com/api/token'
 API_BASE_URL = 'https://api.spotify.com/v1/'
 
-# Route to the flask app
-@app.route('/')
 
-# Welcome to app, with a hyperlink to login to spotify app
-def index():
-    return "Welcome to my Tune Timer <a href='/login'>Login with Spotify</a>" #planning on making this separate where it includes a react front end page for this 
- 
-#Redirect to Spotify Login Page, Need to declare scope/permissions
+def get_auth_url(client_id, redirect_uri):
+    scopes = 'user-read-recently-played user-library-read'
+    auth_url = (
+        'https://accounts.spotify.com/authorize?'
+        f'client_id={client_id}'
+        f'&response_type=code'
+        f'&redirect_uri={urllib.parse.quote(redirect_uri)}'
+        f'&scope={urllib.parse.quote(scopes)}'
+    )
+    return auth_url
+
+  
+def get_token_data(client_id, client_secret, code, redirect_uri):
+    auth_header = base64.b64encode(f"{client_id}:{client_secret}".encode()).decode()
+    token_data = {
+        'grant_type': 'authorization_code',
+        'code': code,
+        'redirect_uri': redirect_uri
+    }
+    token_headers = {
+        'Authorization': f'Basic {auth_header}',
+        'Content-Type': 'application/x-www-form-urlencoded'
+    }
+
+    token_response = requests.post(TOKEN_URL, data=token_data, headers=token_headers)
+    return token_response.json()
+
+  
 @app.route('/login')
 def login():
     auth_url = get_auth_url(CLIENT_ID, REDIRECT_URI)
