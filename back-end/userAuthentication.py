@@ -1,16 +1,17 @@
-import requests
 import base64
 import os
+import requests 
 import urllib.parse
 from flask import Flask, redirect, request, jsonify, session
-from datetime import datetime
+from datetime import datetime, timedelta
 from dotenv import load_dotenv
-import os
+from flask_cors import CORS
 
 # load environement variables
 load_dotenv()
 
 app = Flask(__name__)
+CORS(app, supports_credentials=True)
 app.secret_key = os.getenv('SECRET_KEY')
 
 CLIENT_ID = os.getenv('CLIENT_ID')
@@ -62,9 +63,8 @@ def callback():
         return jsonify({"error": "Authorization code not found"}), 400
     token_data = get_token_data(CLIENT_ID, CLIENT_SECRET, code, REDIRECT_URI)
     session['token_data'] = token_data
-
-    # session['refresh_token']= token_data['refresh_token']
-    # session['expires_at']= datetime.now().timestamp() + token_data['expires_in']
+    session['refresh_token']= token_data['refresh_token']
+    session['expires_at']= datetime.now().timestamp() + token_data['expires_in']
     
     return jsonify(token_data)
 
@@ -94,5 +94,5 @@ def refresh_token():
 
 
 if __name__ == '__main__':
-    app.run(debug=True)
+     app.run(host='0.0.0.0', debug=True)
 

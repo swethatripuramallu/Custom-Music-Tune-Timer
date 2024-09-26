@@ -6,24 +6,21 @@ import { ThemedText } from '@/components/ThemedText';
 import { ThemedView } from '@/components/ThemedView';
 import { useState } from 'react';
 
+//import * as dotenv from 'dotenv';
+
+//require('dotenv').config();
+//const baseUrl = process.env.BASE_URL;
 const [login, setLogin] = useState(false);
 
 async function loginWithSpotify() {
-  try {
-    const response = await fetch('http://localhost:5000/login', {
-      method: 'GET',
-      redirect: 'follow',
-    });
-    const url = response.url;
-    if(response.redirected) {
-      // console.log('url', url);
-      Linking.openURL(url);
+   try {
+       //const spotifyAuthUrl = `$(baseUrl)/login`; //couldn't get this to work
+       const spotifyAuthUrl = 'http://10.0.2.15:5000/login'; //replace with your port number like mine, dont use locahost link
+       Linking.openURL(spotifyAuthUrl);
     }
-  } catch(error) {
-    console.error('Error logging in with Spotify:', error);
-  }
-  // Implement login with Spotify here
-  console.log('Login with Spotify');
+   catch(error) {
+     console.error('Error logging in with Spotify:', error);
+   }
 }
 
 export default function HomeScreen() {
