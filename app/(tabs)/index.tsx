@@ -18,6 +18,10 @@ async function loginWithSpotify() {
    }
 }
 
+async function creatingPage() {
+  console.log('Creating page');
+}
+
 export default function HomeScreen() {
   return (
     <ParallaxScrollView
@@ -25,19 +29,26 @@ export default function HomeScreen() {
       headerImage={
         <Image
           source={require('@/assets/images/tune-timer.png')}
-          style={styles.reactLogo}
+          style={styles.tuneTimerLogo}
         />
       }>
       <ThemedView style={styles.titleContainer}>
-        <ThemedText type="title">Welcome to Tune Timer!</ThemedText>
+        <ThemedText type="title" style={styles.text}>Welcome to Tune Timer!</ThemedText>
         <MusicNote />
       </ThemedView>
       <ThemedView style={styles.stepContainer}>
-        <ThemedText type="subtitle">Step 1: Login with Spotify</ThemedText>
-        <ThemedText>
+        <ThemedText type="subtitle" style={styles.text}>Step 1: Login with Spotify</ThemedText>
+        <ThemedText style={styles.text}>
           Click the button below to login with your Spotify account.
         </ThemedText>
         <Button title="Login with Spotify" onPress={loginWithSpotify} />
+      </ThemedView>
+      <ThemedView style={styles.stepContainer}>
+        <ThemedText type="subtitle" style={styles.text}>Step 2: Begin Creating Custom Playlists</ThemedText>
+        <ThemedText style={styles.text}>
+          Input your desired time and mood and let Tune Timer create a custom playlist for you!
+        </ThemedText>
+        <Button title="Begin Creating" onPress={creatingPage} />
       </ThemedView>
     </ParallaxScrollView>
   );
@@ -48,16 +59,22 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     gap: 8,
+    // backgroundColor: '#CEABB1',
   },
   stepContainer: {
     gap: 8,
     marginBottom: 8,
+    // backgroundColor: '#CEABB1',
   },
-  reactLogo: {
-    height: 178,
-    width: 290,
-    bottom: 0,
-    left: 0,
-    position: 'absolute',
+  tuneTimerLogo: {
+    height: 250,
+    width: 400,
+    // bottom: 0,
+    // left: 0,
+    // position: 'absolute',
+    // resizeMode: 'cover',
   },
+  text: {
+    color: '#444545',
+  }
 });
