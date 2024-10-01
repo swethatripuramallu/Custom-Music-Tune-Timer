@@ -1,29 +1,26 @@
 import { Image, StyleSheet, Platform, Button, Linking } from 'react-native';
 
-import { HelloWave } from '@/components/HelloWave';
+import { MusicNote } from '@/components/MusicNote';
 import ParallaxScrollView from '@/components/ParallaxScrollView';
 import { ThemedText } from '@/components/ThemedText';
 import { ThemedView } from '@/components/ThemedView';
 import { useState } from 'react';
 
+//import * as dotenv from 'dotenv';
+
+//require('dotenv').config();
+//const baseUrl = process.env.BASE_URL;
 const [login, setLogin] = useState(false);
 
 async function loginWithSpotify() {
-  try {
-    const response = await fetch('http://localhost:5000/login', {
-      method: 'GET',
-      redirect: 'follow',
-    });
-    const url = response.url;
-    if(response.redirected) {
-      // console.log('url', url);
-      Linking.openURL(url);
+   try {
+       //const spotifyAuthUrl = `$(baseUrl)/login`; //couldn't get this to work
+       const spotifyAuthUrl = 'http://127.0.0.1:5001/login'; //replace with your port number like mine, dont use locahost link
+       Linking.openURL(spotifyAuthUrl);
     }
-  } catch(error) {
-    console.error('Error logging in with Spotify:', error);
-  }
-  // Implement login with Spotify here
-  console.log('Login with Spotify');
+   catch(error) {
+     console.error('Error logging in with Spotify:', error);
+   }
 }
 
 export default function HomeScreen() {
@@ -32,13 +29,13 @@ export default function HomeScreen() {
       headerBackgroundColor={{ light: '#A1CEDC', dark: '#1D3D47' }}
       headerImage={
         <Image
-          source={require('@/assets/images/partial-react-logo.png')}
+          source={require('@/assets/images/tune-timer.png')}
           style={styles.reactLogo}
         />
       }>
       <ThemedView style={styles.titleContainer}>
         <ThemedText type="title">Welcome to Tune Timer!</ThemedText>
-        <HelloWave />
+        <MusicNote />
       </ThemedView>
       <ThemedView style={styles.stepContainer}>
         <ThemedText type="subtitle">Step 1: Login with Spotify</ThemedText>
