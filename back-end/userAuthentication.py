@@ -1,9 +1,9 @@
 import base64
 import os
-import requests 
+import requests
 import urllib.parse
 from flask import Flask, redirect, request, jsonify, session
-from datetime import datetime, timedelta
+from datetime import datetime
 from dotenv import load_dotenv
 from flask_cors import CORS
 
@@ -94,5 +94,4 @@ def refresh_token():
 
 
 if __name__ == '__main__':
-     app.run(host='0.0.0.0', debug=True)
-
+    app.run(port='3002', debug=True)  # REMEMBER TO CHANGE HOST TO PORT NUMBER

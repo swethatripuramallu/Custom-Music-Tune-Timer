@@ -6,16 +6,11 @@ import { ThemedText } from '@/components/ThemedText';
 import { ThemedView } from '@/components/ThemedView';
 import { useState } from 'react';
 
-//import * as dotenv from 'dotenv';
-
-//require('dotenv').config();
-//const baseUrl = process.env.BASE_URL;
 const [login, setLogin] = useState(false);
 
 async function loginWithSpotify() {
    try {
-       //const spotifyAuthUrl = `$(baseUrl)/login`; //couldn't get this to work
-       const spotifyAuthUrl = 'http://10.0.2.15:5000/login'; //replace with your port number like mine, dont use locahost link
+       const spotifyAuthUrl = 'http://127.0.0.1:3002/login'; // REMEMBER TO REPLACE THIS W/ YOUR PORT NUMBER
        Linking.openURL(spotifyAuthUrl);
     }
    catch(error) {
