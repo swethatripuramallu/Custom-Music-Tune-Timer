@@ -1,17 +1,21 @@
-# from flask import Blueprint, session, redirect, jsonify
-# import requests
-# import os
-# import logging
-# import time
+# from flask import Flask, app, session, redirect, jsonify
+# import os, time, logging, requests
 
-# liked_songs_bp = Blueprint('liked_songs', __name__)
+# app = Flask(__name__)
+# app.secret_key = os.getenv('SECRET_KEY')
 
+# CLIENT_ID = os.getenv('CLIENT_ID')
+# CLIENT_SECRET = os.getenv('CLIENT_SECRET')
+# REDIRECT_URI = os.getenv('REDIRECT_URI')
+
+# AUTH_URL = 'https://accounts.spotify.com/authorize'
+# TOKEN_URL = 'https://accounts.spotify.com/api/token'
 # API_BASE_URL = 'https://api.spotify.com/v1/'
 
 # # Configure logging
 # logging.basicConfig(level=logging.DEBUG)
 
-# @liked_songs_bp.route('/liked-songs')
+# @app.route('/liked-songs')
 # def liked_songs():
 #     access_token = session.get('access_token')
 #     if not access_token:
@@ -22,8 +26,6 @@
 #         'Authorization': f'Bearer {access_token}'
 #     }
     
-#     limit = 50
-#     start_time = time.time()
 #     try:
 #         response = requests.get(f'{API_BASE_URL}me/tracks?limit={limit}', headers=headers, timeout=10)
 #     except requests.exceptions.Timeout:
@@ -57,3 +59,6 @@
 #         return jsonify({'message': 'User has fewer than 50 liked songs', 'liked_songs': liked_songs})
 #     else:
 #         return jsonify(liked_songs)
+    
+# if __name__ == '__main__':
+#     app.run(port='5001', debug=True)
