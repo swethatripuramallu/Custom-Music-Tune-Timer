@@ -28,23 +28,23 @@ export default function HomeScreen() {
       headerBackgroundColor={{ light: '#A1CEDC', dark: '#1D3D47' }}
       headerImage={
         <Image
-          source={require('@/assets/images/tune-timer.png')}
+          source={require('@/assets/images/4.png')}
           style={styles.tuneTimerLogo}
         />
       }>
-      <ThemedView style={styles.titleContainer}>
+      {/* <ThemedView style={styles.titleContainer}>
         <ThemedText type="title" style={styles.text}>Welcome to Tune Timer!</ThemedText>
         <MusicNote />
-      </ThemedView>
+      </ThemedView> */}
       <ThemedView style={styles.stepContainer}>
-        <ThemedText type="subtitle" style={styles.text}>Step 1: Login with Spotify</ThemedText>
+        <ThemedText type="subtitle" style={styles.headerText}>Step 1: Login with Spotify</ThemedText>
         <ThemedText style={styles.text}>
           Click the button below to login with your Spotify account.
         </ThemedText>
         <Button title="Login with Spotify" onPress={loginWithSpotify} />
       </ThemedView>
       <ThemedView style={styles.stepContainer}>
-        <ThemedText type="subtitle" style={styles.text}>Step 2: Begin Creating Custom Playlists</ThemedText>
+        <ThemedText type="subtitle" style={styles.headerText}>Step 2: Begin Creating Custom Playlists</ThemedText>
         <ThemedText style={styles.text}>
           Input your desired time and mood and let Tune Timer create a custom playlist for you!
         </ThemedText>
@@ -72,9 +72,13 @@ const styles = StyleSheet.create({
     // bottom: 0,
     // left: 0,
     // position: 'absolute',
-    // resizeMode: 'cover',
+    resizeMode: 'cover',
   },
   text: {
-    color: '#444545',
+    color: 'black',
+  },
+  headerText: {
+    color: '#638C80',
   }
+
 });
