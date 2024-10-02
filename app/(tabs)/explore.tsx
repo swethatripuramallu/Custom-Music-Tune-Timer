@@ -9,11 +9,39 @@ import { ThemedText } from '@/components/ThemedText';
 import { ThemedView } from '@/components/ThemedView';
 import { GestureHandlerRootView, TextInput } from 'react-native-gesture-handler';
 
-const [length, onChangeLength] = useState('');
+const [length, onChangeLength] = useState('0');
+const [happy, setHappy] = useState(false);
+const [sad, setSad] = useState(false);
+const [dance, setDance] = useState(false);
+const [productive, setProductive] = useState(false);
+
+async function setHappyMood() {
+  setHappy(true);
+  console.log('Set Happy:', happy);
+}
+
+async function setSadMood() {
+  setSad(true);
+  console.log('Set Sad:', sad);
+}
+
+async function setDanceMood() {
+  setDance(true);
+  console.log('Set Dance:', dance);
+}
+
+async function setProductiveMood() {
+  setProductive(true);
+  console.log('Set Productive:', productive);
+}
 
 async function create() {
   console.log('Creating playlist');
   console.log('Length:', length);
+  console.log('Happy:', happy);
+  console.log('Sad:', sad);
+  console.log('Dance:', dance);
+  console.log('Productive:', productive);
 }
 
 export default function TabTwoScreen() {
@@ -27,6 +55,12 @@ export default function TabTwoScreen() {
         <GestureHandlerRootView>
           <TextInput value={length} onChangeText={onChangeLength} placeholder="Enter length" />
         </GestureHandlerRootView>
+        <ThemedText>Select Mood Descriptors Below:</ThemedText>
+        <Button title="Happy" onPress={setHappyMood}/>
+        <Button title="Sad" onPress={setSadMood}/>
+        <Button title="Dance" onPress={setDanceMood}/>
+        <Button title="Productive" onPress={setProductiveMood}/>
+        <ThemedText>Now, Create Your Playlist!</ThemedText>
         <Button title="Create Playlist!" onPress={create} />
       </ThemedView>
     </ParallaxScrollView>
