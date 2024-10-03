@@ -1,13 +1,35 @@
 import requests
-from flask import Blueprint, session, redirect, jsonify
+from flask import Flask, session, redirect, jsonify, Blueprint
 from datetime import datetime
 
+AUTH_URL = 'https://accounts.spotify.com/authorize'
+TOKEN_URL = 'https://accounts.spotify.com/api/token'
+API_BASE_URL = 'https://api.spotify.com/v1/'
+
+filterSongs_bp = Blueprint("filterSongs", __name__)
+
+@filterSongs_bp.route('/playlists')
+def get_playlists():
+    if 'access_token' not in session: #check the access token 
+        return redirect('/login')
+    
+    if datetime.now().timestamp() > session['expires_at']:
+        return redirect('/refresh-token') #automatically refresh it for them so we don't interrupt the user interface
+
+    headers = {
+        'Authorization': f"Bearer {session['access_token']}"
+    }
+
+    response = requests.get(API_BASE_URL + 'me/playlists', headers = headers)
+    playlists = response.json()
+
+    return jsonify(playlists)
 
 
-# Define the route within the blueprint
 
-
-
+@filterSongs_bp.route('/duration')
+def test():
+    return 'Reached filtered songs'
 
 # def filterSongsByDuration(song_database: List[dict], min_duration: float, max_duration: float):
 #     '''
@@ -19,5 +41,6 @@ from datetime import datetime
 
 #     '''
 
+#     return 'Reached FilteredSongs'
 
 
