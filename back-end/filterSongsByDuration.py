@@ -20,27 +20,30 @@ def get_playlists():
         'Authorization': f"Bearer {session['access_token']}"
     }
 
-    response = requests.get(API_BASE_URL + 'me/playlists', headers = headers)
-    playlists = response.json()
+    response = requests.get(API_BASE_URL + 'me/player/recently-played', headers = headers, params={'limit': 50, '0ffset': 0})
+    # tracks = response.json()
 
-    return jsonify(playlists)
+    # Parse the JSON response to get track details
+    tracks_data = response.json().get('items', [])
+    tracks = []
+
+    for item in tracks_data:
+        track_info = {
+                "Song Name": item["track"]["name"],
+                "Artist Name": item["track"]["album"]["artists"][0]["name"],
+                "Duration (ms)": item["track"]["duration_ms"],
+                "Spotify Link": item["track"]["external_urls"]["spotify"]
+        }
+        tracks.append(track_info)
+
+    return tracks  # Return the list of track details for further use/display
 
 
+def filterSongsByDuration(tracks: list, min_duration: float, max_duration: float):
+    return [track for track in tracks if min_duration <= track["Duration (ms)"] <= max_duration]
 
 @filterSongs_bp.route('/duration')
-def test():
-    return 'Reached filtered songs'
-
-# def filterSongsByDuration(song_database: List[dict], min_duration: float, max_duration: float):
-#     '''
-#         Inputs:
-#         - song_database: List[dict] specifies that song_database is a list of dictionaries 
-#         (assuming each song is represented as a dictionary with details like title, artist, and duration).
-#         - min_duration and max_duration is the range in which the playlist can fall in. e.g. a playlist is 15 minutes 
-#         we might want the playlist to fall between 14 1/2 to 15 1/2 minutes
-
-#     '''
-
-#     return 'Reached FilteredSongs'
-
+def run():
+    tracks = get_playlists()
+    return filterSongsByDuration(tracks, 229179, 321225)
 

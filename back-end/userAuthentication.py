@@ -28,7 +28,7 @@ API_BASE_URL = 'https://api.spotify.com/v1/'
 #Redirect to Spotify Login Page, Need to declare scope/permissions
 @app.route('/login')
 def login():
-    scope = 'user-read-private user-read-email'
+    scope = 'user-read-private user-read-email user-read-recently-played'
     params = {
         'client_id': CLIENT_ID,
         'response_type': 'code',
@@ -72,8 +72,8 @@ def callback():
     session['expires_at']= datetime.now().timestamp() + token_info['expires_in']
 
 
-    return jsonify(token_info)
-    # return  redirect('filter-songs/playlists') #retrieves all the playlists
+    # return jsonify(token_info)
+    return  redirect('filter-songs/duration') #retrieves all the playlists
 
 
 @app.route('/refresh-token')
@@ -96,8 +96,8 @@ def refresh_token():
     session['access_token'] = new_token_info['access_token']
     session['expires_at'] = datetime.now().timestamp() + new_token_info['expires_in']
 
-    #return jsonify(new_token_info)
-    # return redirect('filter-songs/playlist')
+    # return jsonify(new_token_info)
+    return redirect('filter-songs/duration')
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', debug=True) #any changes we make in the code the 
