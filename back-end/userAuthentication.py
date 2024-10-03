@@ -71,23 +71,6 @@ def callback():
     
     return jsonify(token_data)
 
-# @app.route('/get_recommendations')
-# def getrecSongs():
-#     if 'access_token' not in session: #check the access token 
-#         return redirect('/login')
-    
-#     if datetime.now().timestamp() > session['expires_at']:
-#         return redirect('/refresh-token') #automatically refresh it for them so we don't interrupt the user interface
-
-#     headers = {
-#         'Authorization': f"Bearer {session['access_token']}"
-#     }
-
-#     response = requests.get(API_BASE_URL + 'me/top/tracks', headers = headers)
-#     tracks = response.json()
-
-#     return tracks
-
 @app.route('/refresh-token')
 def refresh_token():
     if 'refresh_token' not in session:  # check the refresh token
