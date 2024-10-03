@@ -1,20 +1,20 @@
-from flask import Flask, redirect, request, jsonify, session
-from datetime import datetime
+from flask import Flask, request, redirect, session, jsonify
+import requests
+import base64
+import urllib.parse
+from datetime import datetime, timedelta, timezone
+import os
 from dotenv import load_dotenv
-from flask_cors import CORS
-import base64, os, requests, urllib.parse, time
 
+# Load environment variables from .env file
 load_dotenv()
 
 app = Flask(__name__)
-CORS(app, supports_credentials=True)
-app.secret_key = os.getenv('SECRET_KEY')
+app.secret_key = os.urandom(24)  # Ensure the session is configured
 
 CLIENT_ID = os.getenv('CLIENT_ID')
 CLIENT_SECRET = os.getenv('CLIENT_SECRET')
 REDIRECT_URI = os.getenv('REDIRECT_URI')
-
-AUTH_URL = 'https://accounts.spotify.com/authorize'
 TOKEN_URL = 'https://accounts.spotify.com/api/token'
 API_BASE_URL = 'https://api.spotify.com/v1/'
 
@@ -44,7 +44,6 @@ def get_token_data(client_id, client_secret, code, redirect_uri):
     token_response = requests.post(TOKEN_URL, data=token_data, headers=token_headers)
     return token_response.json()
 
-
 @app.route('/login')
 def login():
     auth_url = get_auth_url(CLIENT_ID, REDIRECT_URI)
@@ -54,86 +53,86 @@ def login():
 def callback():
     code = request.args.get('code')
     if code is None:
+        print("Authorization code not found")  # Debug: Print error
         return jsonify({"error": "Authorization code not found"}), 400
+    
+    print(f"Authorization Code: {code}")  # Debug: Print authorization code
+    
     token_data = get_token_data(CLIENT_ID, CLIENT_SECRET, code, REDIRECT_URI)
-    session['token_data'] = token_data
-    session['refresh_token']= token_data['refresh_token']
-    session['expires_at']= datetime.now().timestamp() + token_data['expires_in']
-    
-    return jsonify(token_data)
-    # return redirect('/playlist')
+    if 'error' in token_data:
+        print(f"Error in token data: {token_data['error']}")  # Debug: Print error
+        return jsonify({"error": token_data['error']}), 400
 
-@app.route('/refresh-token')
+    session['access_token'] = token_data['access_token']
+    session['refresh_token'] = token_data['refresh_token']
+    session['expires_at'] = datetime.now(timezone.utc) + timedelta(seconds=token_data['expires_in'])
+    
+    print(f"Access Token: {session['access_token']}")  # Debug: Print access token
+    print(f"Refresh Token: {session['refresh_token']}")  # Debug: Print refresh token
+    print(f"Expires At: {session['expires_at']}")  # Debug: Print expires at
+    
+    return redirect('/')
+
+
 def refresh_token():
-    if 'refresh_token' not in session:  # check the refresh token
+    if 'refresh_token' not in session:
         return redirect('/login')
 
-    if datetime.now().timestamp() . session['expires_at']:
-        # make a request to get a fresh access token
-        req_body = {
+    if datetime.now(timezone.utc) >= session['expires_at']:
+        auth_header = base64.b64encode(f"{CLIENT_ID}:{CLIENT_SECRET}".encode()).decode()
+        token_data = {
             'grant_type': 'refresh_token',
-            'refresh_token': session['refresh_token'],
-            'client_id': CLIENT_ID,
-            'client_secret': CLIENT_SECRET
+            'refresh_token': session['refresh_token']
         }
-
-    response = request.post(TOKEN_URL, data=req_body)
-    new_token_info = response.json()
-
-    session['access_token'] = new_token_info['access_token']
-    session['expires_at'] = datetime.now().timestamp()
-    + new_token_info['expires_in']
-
-    return redirect('/playlist')
-
-@app.route('/recently-played')
-def recently_played():
-    access_token = session.get('access_token')
-    if not access_token:
-        return redirect('/login')
-
-    headers = {
-        'Authorization': f'Bearer {access_token}'
-    }
+        token_headers = {
+            'Authorization': f'Basic {auth_header}',
+            'Content-Type': 'application/x-www-form-urlencoded'
+        }
+        response = requests.post(TOKEN_URL, data=token_data, headers=token_headers)
+        if response.status_code != 200:
+            print(f"Failed to refresh token: {response.status_code}")  # Debug: Print status code
+            print(f"Response Content: {response.content}")  # Debug: Print response content
+            return jsonify({'error': 'Failed to refresh token'}), response.status_code
+        
+        new_token_data = response.json()
+        session['access_token'] = new_token_data['access_token']
+        session['expires_at'] = datetime.now(timezone.utc) + timedelta(seconds=new_token_data['expires_in'])
     
-    songs = []
-    limit = 50
-    offset = 0
-
-    while len(songs) < 100:
-        response = requests.get(
-            'https://api.spotify.com/v1/me/player/recently-played',
-            headers=headers,
-            params={'limit': limit, 'offset': offset}
-        )
-        data = response.json()
-        items = data.get('items', [])
-        if not items:
-            break
-        songs.extend(items)
-        offset += limit
-
-    return jsonify(songs[:100])
-
+    return session['access_token']
 
 @app.route('/liked-songs')
 def liked_songs():
-    access_token = session.get('access_token')
+    access_token = refresh_token()
     if not access_token:
         return redirect('/login')
 
     headers = {
         'Authorization': f'Bearer {access_token}'
     }
-    
-    try:
-        response = requests.get(f'{API_BASE_URL}me/tracks', headers=headers, timeout=10) 
-    except requests.exceptions.Timeout:
-        return jsonify({'error': 'Request to Spotify API timed out'}), 504
 
-    end_time = time.time()
+    response = requests.get(f'{API_BASE_URL}me/tracks', headers=headers)
     if response.status_code != 200:
+        print(f"Failed to fetch liked songs: {response.status_code}")  # Debug: Print status code
+        print(f"Response Content: {response.content}")  # Debug: Print response content
         return jsonify({'error': 'Failed to fetch liked songs'}), response.status_code
+    
+    return jsonify(response.json())
+
+@app.route('/recently-played')
+def recently_played():
+    access_token = refresh_token()
+    if not access_token:
+        return redirect('/login')
+
+    headers = {
+        'Authorization': f'Bearer {access_token}'
+    }
+
+    response = requests.get(f'{API_BASE_URL}me/player/recently-played', headers=headers)
+    if response.status_code != 200:
+        print(f"Failed to fetch recently played songs: {response.status_code}")  # Debug: Print status code
+        print(f"Response Content: {response.content}")  # Debug: Print response content
+        return jsonify({'error': 'Failed to fetch recently played songs'}), response.status_code
     
     return jsonify(response.json())
 
