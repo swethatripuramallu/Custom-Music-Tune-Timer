@@ -6,7 +6,6 @@ from datetime import datetime, timedelta, timezone
 import os
 from dotenv import load_dotenv
 
-# Load environment variables from .env file
 load_dotenv()
 
 app = Flask(__name__)
@@ -19,7 +18,7 @@ TOKEN_URL = 'https://accounts.spotify.com/api/token'
 API_BASE_URL = 'https://api.spotify.com/v1/'
 
 def get_auth_url(client_id, redirect_uri):
-    scopes = 'user-read-recently-played user-library-read'
+    scopes = 'user-read-recently-played user-library-read user-top-read'
     auth_url = (
         'https://accounts.spotify.com/authorize?'
         f'client_id={client_id}'
@@ -53,26 +52,17 @@ def login():
 def callback():
     code = request.args.get('code')
     if code is None:
-        print("Authorization code not found")  # Debug: Print error
         return jsonify({"error": "Authorization code not found"}), 400
-    
-    print(f"Authorization Code: {code}")  # Debug: Print authorization code
-    
+        
     token_data = get_token_data(CLIENT_ID, CLIENT_SECRET, code, REDIRECT_URI)
     if 'error' in token_data:
-        print(f"Error in token data: {token_data['error']}")  # Debug: Print error
         return jsonify({"error": token_data['error']}), 400
 
     session['access_token'] = token_data['access_token']
     session['refresh_token'] = token_data['refresh_token']
     session['expires_at'] = datetime.now(timezone.utc) + timedelta(seconds=token_data['expires_in'])
-    
-    print(f"Access Token: {session['access_token']}")  # Debug: Print access token
-    print(f"Refresh Token: {session['refresh_token']}")  # Debug: Print refresh token
-    print(f"Expires At: {session['expires_at']}")  # Debug: Print expires at
-    
-    return redirect('/')
 
+    return redirect('/')
 
 def refresh_token():
     if 'refresh_token' not in session:
@@ -90,8 +80,6 @@ def refresh_token():
         }
         response = requests.post(TOKEN_URL, data=token_data, headers=token_headers)
         if response.status_code != 200:
-            print(f"Failed to refresh token: {response.status_code}")  # Debug: Print status code
-            print(f"Response Content: {response.content}")  # Debug: Print response content
             return jsonify({'error': 'Failed to refresh token'}), response.status_code
         
         new_token_data = response.json()
@@ -112,8 +100,6 @@ def liked_songs():
 
     response = requests.get(f'{API_BASE_URL}me/tracks', headers=headers)
     if response.status_code != 200:
-        print(f"Failed to fetch liked songs: {response.status_code}")  # Debug: Print status code
-        print(f"Response Content: {response.content}")  # Debug: Print response content
         return jsonify({'error': 'Failed to fetch liked songs'}), response.status_code
     
     return jsonify(response.json())
@@ -130,10 +116,58 @@ def recently_played():
 
     response = requests.get(f'{API_BASE_URL}me/player/recently-played', headers=headers)
     if response.status_code != 200:
-        print(f"Failed to fetch recently played songs: {response.status_code}")  # Debug: Print status code
-        print(f"Response Content: {response.content}")  # Debug: Print response content
         return jsonify({'error': 'Failed to fetch recently played songs'}), response.status_code
     
+    return jsonify(response.json())
+
+@app.route('/song-recs', methods=['GET'])
+def get_recommendations():
+    access_token = refresh_token()
+    if not access_token:
+        return redirect('/login')
+
+    headers = {
+        'Authorization': f'Bearer {access_token}'
+    }
+    # Get user's top artists
+    try:
+        top_artists_response = requests.get(f'{API_BASE_URL}me/top/artists', headers=headers, params={'limit': 5})
+        top_artists_response.raise_for_status()
+    except requests.exceptions.RequestException as e:
+        print(f"Error fetching top artists: {e}")
+        return jsonify({'error': 'Failed to get top artists'}), 500
+
+    top_artists = top_artists_response.json().get('items', [])
+    seed_artists = [artist['id'] for artist in top_artists[:2]]  # Limit to 2 seeds
+
+    # Get user's top tracks
+    try:
+        top_tracks_response = requests.get(f'{API_BASE_URL}me/top/tracks', headers=headers, params={'limit': 5})
+        top_tracks_response.raise_for_status()
+    except requests.exceptions.RequestException as e:
+        print(f"Error fetching top tracks: {e}")
+        return jsonify({'error': 'Failed to get top tracks'}), 500
+
+    top_tracks = top_tracks_response.json().get('items', [])
+    seed_tracks = [track['id'] for track in top_tracks[:3]]  # Limit to 3 seeds
+
+    if not seed_artists and not seed_tracks:
+        return jsonify({'error': 'No seeds available for recommendations'}), 400
+
+    # Use top artists and tracks as seeds for recommendations
+    params = {
+        'limit': 10,  # Number of recommendations to return
+        'seed_artists': ','.join(seed_artists),
+        'seed_tracks': ','.join(seed_tracks)
+    }
+
+    try:
+        response = requests.get(f'{API_BASE_URL}recommendations', headers=headers, params=params)
+        response.raise_for_status()
+    except requests.exceptions.RequestException as e:
+        print(f"Error fetching recommendations: {e}")
+        return jsonify({'error': 'Failed to get recommendations'}), 500
+
     return jsonify(response.json())
 
 if __name__ == '__main__':
