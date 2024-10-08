@@ -6,13 +6,11 @@ from flask import Flask, redirect, request, jsonify, session
 from datetime import datetime
 from dotenv import load_dotenv
 from flask_cors import CORS
-from filterSongsByDuration import filterSongs_bp
 
 # load environement variables
 load_dotenv()
 
 app = Flask(__name__)
-app.register_blueprint(filterSongs_bp, url_prefix='/filter-songs')
 
 CORS(app, supports_credentials=True)
 app.secret_key = os.getenv('SECRET_KEY')
@@ -28,7 +26,7 @@ API_BASE_URL = 'https://api.spotify.com/v1/'
 #Redirect to Spotify Login Page, Need to declare scope/permissions
 @app.route('/login')
 def login():
-    scope = 'user-read-private user-read-email user-read-recently-played'
+    scope = 'user-read-private user-read-email user-read-recently-played user-library-read user-top-read'
     params = {
         'client_id': CLIENT_ID,
         'response_type': 'code',
@@ -101,36 +99,30 @@ def refresh_token():
 
 @app.route('/liked-songs')
 def liked_songs():
-    # access_token = refresh_token()
-    # if not access_token:
     if 'access_token' not in session: 
         return redirect('/login')
     if datetime.now().timestamp() > session['expires_at']:
         return redirect('/refresh-token')
 
     headers = {
-        # 'Authorization': f'Bearer {access_token}'
         'Authorization': f"Bearer {session['access_token']}"
-
     }
 
     response = requests.get(f'{API_BASE_URL}me/tracks', headers=headers)
     if response.status_code != 200:
         return jsonify({'error': 'Failed to fetch liked songs'}), response.status_code
     
+    session['liked-songs'] = response.json().get('items', [])
     return jsonify(response.json())
 
 @app.route('/recently-played')
 def recently_played():
-    # access_token = refresh_token()
-    # if not access_token:
     if 'access_token' not in session: 
         return redirect('/login')
     if datetime.now().timestamp() > session['expires_at']:
         return redirect('/refresh-token')
 
     headers = {
-        # 'Authorization': f'Bearer {access_token}'
         'Authorization': f"Bearer {session['access_token']}"
     }
 
@@ -138,19 +130,17 @@ def recently_played():
     if response.status_code != 200:
         return jsonify({'error': 'Failed to fetch recently played songs'}), response.status_code
     
+    session['recently-played'] = response.json().get('items', [])
     return jsonify(response.json())
 
 @app.route('/song-recs', methods=['GET'])
 def get_recommendations():
-    # access_token = refresh_token()
-    # if not access_token:
     if 'access_token' not in session: 
         return redirect('/login')
     if datetime.now().timestamp() > session['expires_at']:
         return redirect('/refresh-token')
 
     headers = {
-        # 'Authorization': f'Bearer {access_token}'
         'Authorization': f"Bearer {session['access_token']}"
     }
     # Get user's top artists
@@ -192,7 +182,106 @@ def get_recommendations():
         print(f"Error fetching recommendations: {e}")
         return jsonify({'error': 'Failed to get recommendations'}), 500
 
+    session['recommended-songs'] = response.json().get('items', [])
     return jsonify(response.json())
+
+@app.route('/parse')
+def parse_songs():
+    if 'recently-played' not in session:
+        recently_played()
+    if 'liked-songs' not in session:
+        liked_songs()
+    if 'recommended-songs' not in session:
+        get_recommendations()
+
+    tracks = []
+    
+    tracks_data = session['recently-played']
+    tracks_liked_songs = session['liked-songs']
+    tracks_get_recommendations = session['recommended-songs']
+   
+    seen_tracks = set()
+
+    for item in tracks_data:
+        track_name = item["track"]["name"]
+        artist_name = item["track"]["album"]["artists"][0]["name"]
+        track_key = (track_name, artist_name)
+        
+        if track_key not in seen_tracks:
+            track_info = {
+                "Song Name": track_name,
+                "Artist Name": artist_name,
+                "Duration (ms)": item["track"]["duration_ms"],
+                "Spotify Link": item["track"]["external_urls"]["spotify"],
+                "Track ID:": item["track"]["id"]
+            }
+            tracks.append(track_info)
+            seen_tracks.add(track_key)
+
+    for item in tracks_liked_songs:
+        track_name = item["track"]["name"]
+        artist_name = item["track"]["album"]["artists"][0]["name"]
+        track_key = (track_name, artist_name)
+        
+        if track_key not in seen_tracks:
+            track_info = {
+                "Song Name": track_name,
+                "Artist Name": artist_name,
+                "Duration (ms)": item["track"]["duration_ms"],
+                "Spotify Link": item["track"]["external_urls"]["spotify"],
+                "Track ID:": item["track"]["id"]
+
+            }
+            tracks.append(track_info)
+            seen_tracks.add(track_key)
+
+    for item in tracks_get_recommendations:
+        track_name = item["track"]["name"]
+        artist_name = item["track"]["album"]["artists"][0]["name"]
+        track_key = (track_name, artist_name)
+        
+        if track_key not in seen_tracks:
+            track_info = {
+                "Song Name": track_name,
+                "Artist Name": artist_name,
+                "Duration (ms)": item["track"]["duration_ms"],
+                "Spotify Link": item["track"]["external_urls"]["spotify"],
+                "Track ID:": item["track"]["id"]
+            }
+            tracks.append(track_info)
+            seen_tracks.add(track_key)
+
+    return tracks
+
+def filterSongsByDuration(tracks: list, duration: float):
+    # Initialize a dictionary to store achievable sums and corresponding subsets
+    achievable_sums = {0: []}  # Key is the sum, value is the subset list
+    
+    # Iterate through each track in the list
+    for track in tracks:
+        track_duration = track["Duration (ms)"]
+
+        # Copy existing achievable sums to avoid modifying the dictionary while iterating
+        current_sums = list(achievable_sums.keys())
+        
+        for current_sum in current_sums:
+            new_sum = current_sum + track_duration
+            
+            # Only add the new sum if it does not exceed the target duration
+            if new_sum <= duration:
+                # If this sum is not already in the dictionary, add it with its corresponding subset
+                if new_sum not in achievable_sums:
+                    achievable_sums[new_sum] = achievable_sums[current_sum] + [track]
+    
+    # Find the closest sum that is not greater than the target
+    closest_sum = max(achievable_sums.keys())
+    
+    return achievable_sums[closest_sum]  
+
+@app.route('/duration')
+def run_duration():
+    tracks = parse_songs()
+    return filterSongsByDuration(tracks, 600000)
 
 
 
