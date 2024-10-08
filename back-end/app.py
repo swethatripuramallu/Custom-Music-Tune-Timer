@@ -200,8 +200,10 @@ def parse_songs():
     tracks_liked_songs = session['liked-songs']
     tracks_get_recommendations = session['recommended-songs']
    
+    # Initialize an empty set to keep track of already seen tracks (to avoid duplicates)
     seen_tracks = set()
 
+    #  Appends and parses through all the json data and formulates a track data table with all the correct parameters
     for item in tracks_data:
         track_name = item["track"]["name"]
         artist_name = item["track"]["album"]["artists"][0]["name"]
