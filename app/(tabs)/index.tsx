@@ -6,7 +6,7 @@ import { ThemedText } from '@/components/ThemedText';
 import { ThemedView } from '@/components/ThemedView';
 import { useState } from 'react';
 
-const [login, setLogin] = useState(false);
+// const [login, setLogin] = useState(false);
 
 async function loginWithSpotify() {
    try {
@@ -38,6 +38,7 @@ export default function HomeScreen() {
       </ThemedView> */}
       <ThemedView style={styles.stepContainer}>
         <ThemedText type="subtitle" style={styles.headerText}>Step 1: Login with Spotify</ThemedText>
+        {/* <MusicNote /> */}
         <ThemedText style={styles.text}>
           Click the button below to login with your Spotify account.
         </ThemedText>
