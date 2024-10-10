@@ -1,3 +1,4 @@
+# Import all necessary libraries
 import base64
 import os
 import requests 
@@ -7,14 +8,15 @@ from datetime import datetime
 from dotenv import load_dotenv
 from flask_cors import CORS
 
-# load environement variables
+# Load environement variables
 load_dotenv()
 
+# Initialize Flask app and configure CORS
 app = Flask(__name__)
-
 CORS(app, supports_credentials=True)
 app.secret_key = os.getenv('SECRET_KEY')
 
+# Spotify API credentials and URLs
 CLIENT_ID = os.getenv('CLIENT_ID')
 CLIENT_SECRET = os.getenv('CLIENT_SECRET')
 REDIRECT_URI = os.getenv('REDIRECT_URI')
@@ -23,7 +25,9 @@ AUTH_URL = 'https://accounts.spotify.com/authorize'
 TOKEN_URL = 'https://accounts.spotify.com/api/token'
 API_BASE_URL = 'https://api.spotify.com/v1/'
 
-# Redirect to Spotify Login Page, Need to declare scope/permissions
+""" ALL APPLICATION ROUTES """
+
+# Redirect to Spotify Login Page, 
 @app.route('/login')
 def login():
     scope = 'user-read-private user-read-email user-read-recently-played user-library-read user-top-read'
@@ -34,24 +38,22 @@ def login():
         'redirect_uri': REDIRECT_URI,
         'show_dialog': True
         # Force the user to login everytime into application by setting show_dialog true 
-        # to make debugging easier for local server purpose, can change at the end
+        # Will make debugging easier for local server purpose, can change at the end
     }
-    #make a get request to user's data, also encoded the users params
+    # Make a get request to user's data, also encoded the users params
     auth_url = f"{AUTH_URL}?{urllib.parse.urlencode(params)}"
     return redirect(auth_url)
-
-
 
 # Scenario for when the user fails to login successfully
 @app.route('/callback')
 def callback():
-    #check if spotify threw an error
+    # Checks if spotify outputs an error
     if 'error' in request.args:
-        return jsonify({"error": request.args['error']}) #just throwing back and error 404 page
+        return jsonify({"error": request.args['error']}) 
    
-    #assume the spotify didn't throw an error
+    # Assume the spotify didn't throw an error
     if 'code' in request.args:
-        #build up a request body to acquire access token
+        # Build up a request body to acquire access token
         req_body = {
             'code': request.args['code'],
             'grant_type': 'authorization_code',
@@ -59,28 +61,28 @@ def callback():
             'client_id': CLIENT_ID,
             'client_secret': CLIENT_SECRET
         }
-    response = requests.post(TOKEN_URL, data=req_body) #sent the body off to spotify
-    token_info = response.json() #response from spotify
+    response = requests.post(TOKEN_URL, data=req_body) # Sent the body off to spotify
+    token_info = response.json() # Response from spotify
 
-    #keep this information at all times
-    session['access_token'] = token_info['access_token'] #access token only lasts for 1 day 
-                                                             #so we need the expiration and refresh token as well
+    # Keep this information at all times
+    session['access_token'] = token_info['access_token'] # Access token only lasts for 1 day 
+                                                         # Will need experiation and refresh token also
     session['refresh_token']= token_info['refresh_token']
 
     session['expires_at']= datetime.now().timestamp() + token_info['expires_in']
 
 
     return jsonify(token_info)
-    # return  redirect('filter-songs/duration') #retrieves all the playlists
+    # return  redirect('filter-songs/duration') # Retrieves all the playlists
 
 # Generates a refresh token to keep the user logged in
 @app.route('/refresh-token')
 def refresh_token():
-    if 'refresh_token' not in session: #check the refresh token
+    if 'refresh_token' not in session: # Check the refresh token
         return redirect('/login')
     
     if datetime.now().timestamp() . session['expires_at']:
-        #make a request to get a fresh access token
+        # Make a request to get a fresh access token
         req_body = {
             'grant_type': 'refresh_token',
             'refresh_token': session['refresh_token'],
@@ -99,7 +101,7 @@ def refresh_token():
 
 # Fetches some of the user's liked songs
 @app.route('/liked-songs')
-def liked_songs(access_token):
+def liked_songs():
     if 'access_token' not in session: 
         return redirect('/login')
     if datetime.now().timestamp() > session['expires_at']:
@@ -118,7 +120,7 @@ def liked_songs(access_token):
 
 # Fetches some of the user's recently played songs
 @app.route('/recently-played')
-def recently_played(access_token):
+def recently_played():
     if 'access_token' not in session: 
         return redirect('/login')
     if datetime.now().timestamp() > session['expires_at']:
@@ -137,7 +139,7 @@ def recently_played(access_token):
 
 # Fetches song recommendations based on the user's top artists and tracks
 @app.route('/song-recs', methods=['GET'])
-def get_recommendations(access_token):
+def get_recommendations():
     if 'access_token' not in session: 
         return redirect('/login')
     if datetime.now().timestamp() > session['expires_at']:
@@ -195,29 +197,49 @@ def filter_songs_by_mood(access_token):
     }
 
     # Fetching the user's recently played tracks
-    mood_recently_played = recently_played(access_token)
+    headers = {'Authorization': f'Bearer {access_token}'}
+    response = requests.get(f'{API_BASE_URL}me/player/recently-played', headers=headers)
+    if response.status_code == 200:
+        mood_recently_played = response.json().get('items', [])
+    else:
+        return jsonify({'error': 'Failed to fetch recently played songs'}), response.status_code
 
     # Fetching the user's liked / saved tracks
-    mood_liked_songs = liked_songs(access_token)
+    response = requests.get(f'{API_BASE_URL}me/tracks', headers=headers)
+    if response.status_code == 200:
+        mood_liked_songs = response.json().get('items', [])
+    else:
+        return jsonify({'error': 'Failed to fetch liked songs'}), response.status_code
 
     # Fetching song recommendations based on the user's top artists and tracks
-    mood_recommendations = get_recommendations(access_token)
+    mood_recommendations = get_recommendations()
 
     # Fetching audio features for each track
-    all_mood_tracks = mood_recently_played + mood_liked_songs + mood_recommendations
-    track_ids = [track['track']['id'] for track in all_mood_tracks]
+    all_mood_tracks = mood_recently_played + mood_liked_songs + session.get('recommended-songs', [])
+    track_ids = [track['track']['id'] for track in all_mood_tracks if 'track' in track]
 
     # Filter tracks based on moods - using valence factors
-    response = requests.get('https://api.spotify.com/v1/audio-features', headers=headers, params={'ids': ','.join(track_ids)})
-    if response.status_code != 200:
-        return jsonify({'error': 'Failed to fetch audio features'}), response.status_code
+    if track_ids:
+        response = requests.get(f'https://api.spotify.com/v1/audio-features', headers=headers, params={'ids': ','.join(track_ids)})
+        if response.status_code != 200:
+            return jsonify({'error': 'Failed to fetch audio features'}), response.status_code
 
-    audio_features = response.json().get('audio_features', [])
+        audio_features = response.json().get('audio_features', [])
+        # Return HAPPY filtered tracks
+        happy_tracks = [track for track in audio_features if track['valence'] > 0.7]
 
-    # Return filtered tracks
-    happy_tracks = [track for track in audio_features if track['valence'] > 0.7]
+        return jsonify(happy_tracks)
+    else:
+        return jsonify({'error': 'No tracks found'})
 
-    return jsonify(happy_tracks)
+# Mood route for user's playlist if they opt for a mood based playlist
+@app.route('/mood', methods=['GET'])
+def mood():
+    access_token = session.get('access_token')  # Fetch access token from the session
+    if not access_token:
+        return jsonify({'error': 'Access token missing'}), 401
+    
+    return mood(access_token)
 
 # Parses through the user's recently played, liked songs, and recommended songs
 @app.route('/parse')
@@ -322,8 +344,7 @@ def run_duration():
     tracks = parse_songs()
     return filterSongsByDuration(tracks, 900000)
 
-
-
+# Run the Flask app
 if __name__ == '__main__':
     app.run(port = "5001", debug=True) #any changes we make in the code the 
                                         #server will automatically refresh
