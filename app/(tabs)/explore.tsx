@@ -9,6 +9,7 @@ import { ThemedText } from '@/components/ThemedText';
 import { ThemedView } from '@/components/ThemedView';
 import { GestureHandlerRootView, TextInput } from 'react-native-gesture-handler';
 
+export default function TabTwoScreen() {
 const [length, onChangeLength] = useState('0');
 const [happy, setHappy] = useState(false);
 const [sad, setSad] = useState(false);
@@ -43,8 +44,6 @@ async function create() {
   console.log('Dance:', dance);
   console.log('Productive:', productive);
 }
-
-export default function TabTwoScreen() {
   return (
     <ParallaxScrollView
       headerBackgroundColor={{ light: '#D0D0D0', dark: '#353636' }}
