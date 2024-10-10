@@ -23,7 +23,7 @@ AUTH_URL = 'https://accounts.spotify.com/authorize'
 TOKEN_URL = 'https://accounts.spotify.com/api/token'
 API_BASE_URL = 'https://api.spotify.com/v1/'
 
-#Redirect to Spotify Login Page, Need to declare scope/permissions
+# Redirect to Spotify Login Page, Need to declare scope/permissions
 @app.route('/login')
 def login():
     scope = 'user-read-private user-read-email user-read-recently-played user-library-read user-top-read'
@@ -42,7 +42,7 @@ def login():
 
 
 
-#Scenario for when the user fails to login successfully
+# Scenario for when the user fails to login successfully
 @app.route('/callback')
 def callback():
     #check if spotify threw an error
@@ -73,7 +73,7 @@ def callback():
     return jsonify(token_info)
     # return  redirect('filter-songs/duration') #retrieves all the playlists
 
-
+# Generates a refresh token to keep the user logged in
 @app.route('/refresh-token')
 def refresh_token():
     if 'refresh_token' not in session: #check the refresh token
@@ -97,8 +97,9 @@ def refresh_token():
     return jsonify(new_token_info)
     # return redirect('filter-songs/duration')
 
+# Fetches some of the user's liked songs
 @app.route('/liked-songs')
-def liked_songs():
+def liked_songs(access_token):
     if 'access_token' not in session: 
         return redirect('/login')
     if datetime.now().timestamp() > session['expires_at']:
@@ -115,8 +116,9 @@ def liked_songs():
     session['liked-songs'] = response.json().get('items', [])
     return jsonify(response.json())
 
+# Fetches some of the user's recently played songs
 @app.route('/recently-played')
-def recently_played():
+def recently_played(access_token):
     if 'access_token' not in session: 
         return redirect('/login')
     if datetime.now().timestamp() > session['expires_at']:
@@ -133,8 +135,9 @@ def recently_played():
     session['recently-played'] = response.json().get('items', [])
     return jsonify(response.json())
 
+# Fetches song recommendations based on the user's top artists and tracks
 @app.route('/song-recs', methods=['GET'])
-def get_recommendations():
+def get_recommendations(access_token):
     if 'access_token' not in session: 
         return redirect('/login')
     if datetime.now().timestamp() > session['expires_at']:
@@ -185,6 +188,38 @@ def get_recommendations():
     session['recommended-songs'] = response.json().get('items', [])
     return jsonify(response.json())
 
+# Filter songs by moods
+def filter_songs_by_mood(access_token):
+    headers = {
+        'Authorization': f"Bearer {access_token}"
+    }
+
+    # Fetching the user's recently played tracks
+    mood_recently_played = recently_played(access_token)
+
+    # Fetching the user's liked / saved tracks
+    mood_liked_songs = liked_songs(access_token)
+
+    # Fetching song recommendations based on the user's top artists and tracks
+    mood_recommendations = get_recommendations(access_token)
+
+    # Fetching audio features for each track
+    all_mood_tracks = mood_recently_played + mood_liked_songs + mood_recommendations
+    track_ids = [track['track']['id'] for track in all_mood_tracks]
+
+    # Filter tracks based on moods - using valence factors
+    response = requests.get('https://api.spotify.com/v1/audio-features', headers=headers, params={'ids': ','.join(track_ids)})
+    if response.status_code != 200:
+        return jsonify({'error': 'Failed to fetch audio features'}), response.status_code
+
+    audio_features = response.json().get('audio_features', [])
+
+    # Return filtered tracks
+    happy_tracks = [track for track in audio_features if track['valence'] > 0.7]
+
+    return jsonify(happy_tracks)
+
+# Parses through the user's recently played, liked songs, and recommended songs
 @app.route('/parse')
 def parse_songs():
     if 'recently-played' not in session:
@@ -255,6 +290,7 @@ def parse_songs():
 
     return tracks
 
+# Filters songs based on the target duration
 def filterSongsByDuration(tracks: list, duration: float):
     # Initialize a dictionary to store achievable sums and corresponding subsets
     achievable_sums = {0: []}  # Key is the sum, value is the subset list
@@ -280,15 +316,16 @@ def filterSongsByDuration(tracks: list, duration: float):
     
     return achievable_sums[closest_sum]  
 
+# Sets playlist duration based on what the user desires in milliseconds
 @app.route('/duration')
 def run_duration():
     tracks = parse_songs()
-    return filterSongsByDuration(tracks, 600000)
+    return filterSongsByDuration(tracks, 900000)
 
 
 
 if __name__ == '__main__':
-    app.run(host='0.0.0.0', debug=True) #any changes we make in the code the 
+    app.run(port = "5001", debug=True) #any changes we make in the code the 
                                         #server will automatically refresh
 
 
