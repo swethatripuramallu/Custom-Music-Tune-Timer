@@ -1,6 +1,6 @@
 import Ionicons from '@expo/vector-icons/Ionicons';
 import { StyleSheet, Image, Platform, Button } from 'react-native';
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 
 import { Collapsible } from '@/components/Collapsible';
 import { ExternalLink } from '@/components/ExternalLink';
@@ -9,29 +9,35 @@ import { ThemedText } from '@/components/ThemedText';
 import { ThemedView } from '@/components/ThemedView';
 import { GestureHandlerRootView, TextInput } from 'react-native-gesture-handler';
 
-const [length, onChangeLength] = useState('0');
-const [happy, setHappy] = useState(false);
-const [sad, setSad] = useState(false);
-const [dance, setDance] = useState(false);
-const [productive, setProductive] = useState(false);
+export default function TabTwoScreen() {
+  const [length, setLength] = useState('');
+  const [happy, setHappy] = useState(false);
+  const [sad, setSad] = useState(false);
+  const [dance, setDance] = useState(false);
+  const [productive, setProductive] = useState(false);
+
+  async function setLengthValue(value: any) {
+    setLength(value)
+    console.log('Set Length:', length);
+  }
 
 async function setHappyMood() {
-  setHappy(true);
+  setHappy(!happy);
   console.log('Set Happy:', happy);
 }
 
 async function setSadMood() {
-  setSad(true);
+  setSad(!sad);
   console.log('Set Sad:', sad);
 }
 
 async function setDanceMood() {
-  setDance(true);
+  setDance(!dance);
   console.log('Set Dance:', dance);
 }
 
 async function setProductiveMood() {
-  setProductive(true);
+  setProductive(!productive);
   console.log('Set Productive:', productive);
 }
 
@@ -44,7 +50,6 @@ async function create() {
   console.log('Productive:', productive);
 }
 
-export default function TabTwoScreen() {
   return (
     <ParallaxScrollView
       headerBackgroundColor={{ light: '#D0D0D0', dark: '#353636' }}
@@ -53,7 +58,8 @@ export default function TabTwoScreen() {
         <ThemedText type="title">Create Custom Playlists</ThemedText>
         <ThemedText>Input your desired time and mood and let Tune Timer create a custom playlist for you!</ThemedText>
         <GestureHandlerRootView>
-          <TextInput value={length} onChangeText={onChangeLength} placeholder="Enter length" />
+          <TextInput value={length} onChangeText={setLengthValue} placeholder="Enter length" /> 
+          {/* (newLength) => setLength(newLength) */}
         </GestureHandlerRootView>
         <ThemedText>Select Mood Descriptors Below:</ThemedText>
         <Button title="Happy" onPress={setHappyMood}/>
