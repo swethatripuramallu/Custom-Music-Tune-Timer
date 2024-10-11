@@ -4,25 +4,23 @@ import { MusicNote } from '@/components/MusicNote';
 import ParallaxScrollView from '@/components/ParallaxScrollView';
 import { ThemedText } from '@/components/ThemedText';
 import { ThemedView } from '@/components/ThemedView';
-import { useState } from 'react';
-
-// const [login, setLogin] = useState(false);
-
-async function loginWithSpotify() {
-   try {
-       const spotifyAuthUrl = 'http://127.0.0.1:3002/login'; // REMEMBER TO REPLACE THIS W/ YOUR PORT NUMBER
-       Linking.openURL(spotifyAuthUrl);
-    }
-   catch(error) {
-     console.error('Error logging in with Spotify:', error);
-   }
-}
-
-async function creatingPage() {
-  console.log('Creating page');
-}
 
 export default function HomeScreen() {
+
+  async function loginWithSpotify() {
+    try {
+        const spotifyAuthUrl = 'http://127.0.0.1:3002/login'; // REMEMBER TO REPLACE THIS W/ YOUR PORT NUMBER
+        Linking.openURL(spotifyAuthUrl);
+     }
+    catch(error) {
+      console.error('Error logging in with Spotify:', error);
+    }
+ }
+ 
+ async function creatingPage() {
+   console.log('Creating page');
+ }
+
   return (
     <ParallaxScrollView
       headerBackgroundColor={{ light: '#A1CEDC', dark: '#1D3D47' }}
@@ -32,13 +30,9 @@ export default function HomeScreen() {
           style={styles.tuneTimerLogo}
         />
       }>
-      {/* <ThemedView style={styles.titleContainer}>
-        <ThemedText type="title" style={styles.text}>Welcome to Tune Timer!</ThemedText>
-        <MusicNote />
-      </ThemedView> */}
       <ThemedView style={styles.stepContainer}>
         <ThemedText type="subtitle" style={styles.headerText}>Step 1: Login with Spotify</ThemedText>
-        {/* <MusicNote /> */}
+        <MusicNote />
         <ThemedText style={styles.text}>
           Click the button below to login with your Spotify account.
         </ThemedText>
