@@ -43,6 +43,31 @@ async function create() {
   console.log('Sad:', sad);
   console.log('Dance:', dance);
   console.log('Productive:', productive);
+  
+  // Now, send the data to the backend
+  const data = {
+      length: length,
+      happy: happy,
+      sad: sad,
+      dance: dance,
+      productive: productive,
+  };
+
+  try {
+      // Sending the state values to the Flask backend
+      const response = await fetch('http://<your-backend-url>/create-playlist', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(data),
+      });
+
+      const result = await response.json();
+      console.log('Response from backend:', result);
+  } catch (error) {
+      console.error('Error sending data:', error);
+  }
 }
   return (
     <ParallaxScrollView
