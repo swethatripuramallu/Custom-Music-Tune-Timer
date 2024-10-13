@@ -280,10 +280,24 @@ def filterSongsByDuration(tracks: list, duration: float):
     
     return achievable_sums[closest_sum]  
 
+@app.route('/create-playlist', methods=['POST'])
+def create_playlist():
+    data = request.json  # Parse incoming JSON request body
+    session['data-length'] = data.get('length')
+    session['data-happy'] = data.get('happy')
+    session['data-sad']= data.get('sad')
+    session['data-dance']= data.get('dance')
+    session['data-productive']= data.get('productive')
+
+    # Send a response back to the client
+    return jsonify({"message": "Playlist created successfully!", "data": data})
+
+
 @app.route('/duration')
 def run_duration():
+    duration = session['data-length']
     tracks = parse_songs()
-    return filterSongsByDuration(tracks, 600000)
+    return filterSongsByDuration(tracks, duration)
 
 
 

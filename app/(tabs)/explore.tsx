@@ -1,5 +1,5 @@
 import Ionicons from '@expo/vector-icons/Ionicons';
-import { StyleSheet, Image, Platform, Button } from 'react-native';
+import { StyleSheet, Image, Platform, Button, Linking } from 'react-native';
 import { useState, useEffect } from 'react';
 
 import { Collapsible } from '@/components/Collapsible';
@@ -55,7 +55,9 @@ async function create() {
 
   try {
       // Sending the state values to the Flask backend
-      const response = await fetch('http://<your-backend-url>/create-playlist', {
+      const spotifyPlaylistUrl = 'http://10.0.2.15:5000//create-playlist' //swetha's url
+      // const spotifyPlaylistUrl = 'http://127.0.0.1:3002/create-playlist' //maggie's url
+      const response = await fetch(spotifyPlaylistUrl, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -65,6 +67,10 @@ async function create() {
 
       const result = await response.json();
       console.log('Response from backend:', result);
+      const spotifyDuration = 'http://10.0.2.15:5000//duration' //swetha's url
+    // const spotifyDuration = 'http://127.0.0.1:3002/duration' //maggie's url
+       Linking.openURL(spotifyDuration);
+
   } catch (error) {
       console.error('Error sending data:', error);
   }
