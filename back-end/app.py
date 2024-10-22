@@ -282,28 +282,33 @@ def filterSongsByDuration(tracks: list, duration: float):
 
 @app.route('/create-playlist', methods=['POST'])
 def create_playlist():
-    data = request.json  # Parse incoming JSON request body
-    length = data.get('length')
-    happy = data.get('happy')
-    sad= data.get('sad')
-    dance = data.get('dance')
-    productive = data.get('productive')
+    if request.is_json():
+        data = request.json  # Parse incoming JSON request body
+        print('Received data:', data)
+        return jsonify({'status': 'success', 'data': data}), 200
+    else:
+        return jsonify({'error': 'Unsupported Media Type'}), 415
+        #length = data.get('length')
+        #happy = data.get('happy')
+        #sad= data.get('sad')
+        #dance = data.get('dance')
+        #productive = data.get('productive')
 
-    #Process the data
-    #print(f"Received data: Length={length}, Happy:{happy}, Sad={sad}, Dance={dance}, Productive={productive}")
-    session["userdata"] = data
+        #Process the data
+        #print(f"Received data: Length={length}, Happy:{happy}, Sad={sad}, Dance={dance}, Productive={productive}")
+        #session["userdata"] = data
 
-    # Send a response back to the client
-    return jsonify({"message": "Playlist created successfully!", "data": data})
+     # Send a response back to the client
+    #return jsonify({"message": "Playlist created successfully!", "data": data})
 
 
 @app.route('/duration')
 def run_duration():
-    if 'userdata' not in session:
-        create_playlist()
-    data = session['userdata']
+    #if 'userdata' not in session:
+     #   create_playlist()
+    #data = session['userdata']
     tracks = parse_songs()
-    return filterSongsByDuration(tracks, data.get('length'))
+    return filterSongsByDuration(tracks, 60000000)
 
 
 

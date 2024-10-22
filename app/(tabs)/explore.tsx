@@ -62,14 +62,14 @@ async function create() {
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify(data),
+           body: JSON.stringify({data}),
       });
 
       const result = await response.json();
       console.log('Response from backend:', result);
       const spotifyDuration = 'http://10.0.2.15:5000/duration' //swetha's url
     // const spotifyDuration = 'http://127.0.0.1:3002/duration' //maggie's url
-       Linking.openURL(spotifyDuration);
+      // Linking.openURL(spotifyPlaylistUrl);
 
   } catch (error) {
       console.error('Error sending data:', error);
