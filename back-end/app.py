@@ -282,12 +282,9 @@ def filterSongsByDuration(tracks: list, duration: float):
 
 @app.route('/create-playlist', methods=['POST'])
 def create_playlist():
-    if request.is_json():
-        data = request.json  # Parse incoming JSON request body
+        data = request.get_json()  # Parse incoming JSON request body
         print('Received data:', data)
-        return jsonify({'status': 'success', 'data': data}), 200
-    else:
-        return jsonify({'error': 'Unsupported Media Type'}), 415
+        return jsonify({'status': 'success', 'data': data})
         #length = data.get('length')
         #happy = data.get('happy')
         #sad= data.get('sad')
