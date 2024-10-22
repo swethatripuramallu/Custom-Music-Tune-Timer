@@ -8,6 +8,7 @@ import ParallaxScrollView from '@/components/ParallaxScrollView';
 import { ThemedText } from '@/components/ThemedText';
 import { ThemedView } from '@/components/ThemedView';
 import { GestureHandlerRootView, TextInput } from 'react-native-gesture-handler';
+import axios from 'axios';
 
 export default function TabTwoScreen() {
   const [length, setLength] = useState('');
@@ -18,27 +19,27 @@ export default function TabTwoScreen() {
 
   async function setLengthValue(value: any) {
     setLength(value)
-    console.log('Set Length:', length);
+    // console.log('Set Length:', length);
   }
 
 async function setHappyMood() {
   setHappy(!happy);
-  console.log('Set Happy:', happy);
+  // console.log('Set Happy:', happy);
 }
 
 async function setSadMood() {
   setSad(!sad);
-  console.log('Set Sad:', sad);
+  // console.log('Set Sad:', sad);
 }
 
 async function setDanceMood() {
   setDance(!dance);
-  console.log('Set Dance:', dance);
+  // console.log('Set Dance:', dance);
 }
 
 async function setProductiveMood() {
   setProductive(!productive);
-  console.log('Set Productive:', productive);
+  // console.log('Set Productive:', productive);
 }
 
 async function create() {
@@ -48,20 +49,36 @@ async function create() {
   console.log('Sad:', sad);
   console.log('Dance:', dance);
   console.log('Productive:', productive);
-}
+  
+  axios.get('/create-playlist', {
+    params: {
+      length: length,
+      happy: happy,
+      sad: sad,
+      dance: dance,
+      productive: productive
+    }
+  }).then((response) => {
+
+})
 
   return (
     <ParallaxScrollView
-      headerBackgroundColor={{ light: '#D0D0D0', dark: '#353636' }}
-      headerImage={<Ionicons size={310} name="code-slash" style={styles.headerImage} />}>
+      headerBackgroundColor={{ light: '#A1CEDC', dark: '#1D3D47' }}
+      headerImage={
+      <Image
+        source={require('@/assets/images/4.png')}
+        style={styles.tuneTimerLogo}
+      />
+      }>
       <ThemedView>
         <ThemedText type="title">Create Custom Playlists</ThemedText>
-        <ThemedText>Input your desired time and mood and let Tune Timer create a custom playlist for you!</ThemedText>
+        <ThemedText>Input your desired time and mood and create a custom playlist!</ThemedText>
         <GestureHandlerRootView>
-          <TextInput value={length} onChangeText={setLengthValue} placeholder="Enter length" /> 
+          <TextInput value={length} onChangeText={setLengthValue} placeholder="Enter length in minutes" /> 
           {/* (newLength) => setLength(newLength) */}
         </GestureHandlerRootView>
-        <ThemedText>Select Mood Descriptors Below:</ThemedText>
+        <ThemedText>Click Mood Descriptors Below:</ThemedText>
         <Button title="Happy" onPress={setHappyMood}/>
         <Button title="Sad" onPress={setSadMood}/>
         <Button title="Dance" onPress={setDanceMood}/>
@@ -83,6 +100,14 @@ const styles = StyleSheet.create({
   titleContainer: {
     flexDirection: 'row',
     gap: 8,
+  },
+  tuneTimerLogo: {
+    height: 250,
+    width: 400,
+    // bottom: 0,
+    // left: 0,
+    // position: 'absolute',
+    resizeMode: 'cover',
   },
   text: {
     color: '#444545',

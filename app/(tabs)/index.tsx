@@ -1,4 +1,5 @@
 import { Image, StyleSheet, Platform, Button, Linking } from 'react-native';
+import axios from 'axios';
 
 import { MusicNote } from '@/components/MusicNote';
 import ParallaxScrollView from '@/components/ParallaxScrollView';
@@ -32,7 +33,7 @@ export default function HomeScreen() {
       }>
       <ThemedView style={styles.stepContainer}>
         <ThemedText type="subtitle" style={styles.headerText}>Step 1: Login with Spotify</ThemedText>
-        <MusicNote />
+        {/* <MusicNote /> */}
         <ThemedText style={styles.text}>
           Click the button below to login with your Spotify account.
         </ThemedText>
