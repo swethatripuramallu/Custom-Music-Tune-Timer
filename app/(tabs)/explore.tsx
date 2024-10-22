@@ -55,7 +55,7 @@ async function create() {
 
   try {
       // Sending the state values to the Flask backend
-      const spotifyPlaylistUrl = 'http://10.0.2.15:5000//create-playlist' //swetha's url
+      const spotifyPlaylistUrl = 'http://10.0.2.15:5000/create-playlist' //swetha's url
       // const spotifyPlaylistUrl = 'http://127.0.0.1:3002/create-playlist' //maggie's url
       const response = await fetch(spotifyPlaylistUrl, {
         method: 'POST',
