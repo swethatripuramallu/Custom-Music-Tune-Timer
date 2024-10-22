@@ -8,6 +8,8 @@ import ParallaxScrollView from '@/components/ParallaxScrollView';
 import { ThemedText } from '@/components/ThemedText';
 import { ThemedView } from '@/components/ThemedView';
 import { GestureHandlerRootView, TextInput } from 'react-native-gesture-handler';
+import axios from 'axios';
+
 
 const [length, onChangeLength] = useState('0');
 const [happy, setHappy] = useState(false);
@@ -35,6 +37,15 @@ async function setProductiveMood() {
   console.log('Set Productive:', productive);
 }
 
+async function songRecs() {
+  try {
+    const response = await axios.get('http://localhost:5001/song-recs');
+    console.log('Recommendations:', response.data);
+  } catch (error) {
+    console.error('Error fetching song recommendations:', error);
+  }
+}
+
 async function create() {
   console.log('Creating playlist');
   console.log('Length:', length);
@@ -42,6 +53,20 @@ async function create() {
   console.log('Sad:', sad);
   console.log('Dance:', dance);
   console.log('Productive:', productive);
+  try {
+    const response = await axios.post('http://localhost:5001/create-playlist', {
+      length,
+      mood: {
+        happy,
+        sad,
+        dance,
+        productive
+      }
+    });
+    console.log('Playlist Created:', response.data);
+  } catch (error) {
+    console.error('Error creating playlist:', error);
+  }
 }
 
 export default function TabTwoScreen() {

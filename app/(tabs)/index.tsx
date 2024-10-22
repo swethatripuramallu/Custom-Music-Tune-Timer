@@ -10,7 +10,7 @@ const [login, setLogin] = useState(false);
 
 async function loginWithSpotify() {
    try {
-       const spotifyAuthUrl = 'http://127.0.0.1:3002/login'; // REMEMBER TO REPLACE THIS W/ YOUR PORT NUMBER
+       const spotifyAuthUrl = 'http://127.0.0.1:5001/login'; // REMEMBER TO REPLACE THIS W/ YOUR PORT NUMBER
        Linking.openURL(spotifyAuthUrl);
     }
    catch(error) {

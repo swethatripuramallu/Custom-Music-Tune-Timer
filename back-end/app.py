@@ -141,7 +141,7 @@ def recently_played():
 @app.route('/song-recs', methods=['GET'])
 def get_recommendations():
     if 'access_token' not in session: 
-        return redirect('/login')
+        return jsonify({'error': 'User not authenticated'}), 401
     if datetime.now().timestamp() > session['expires_at']:
         return redirect('/refresh-token')
 
@@ -337,6 +337,21 @@ def filterSongsByDuration(tracks: list, duration: float):
     closest_sum = max(achievable_sums.keys())
     
     return achievable_sums[closest_sum]  
+
+@app.route('/create-playlist', methods=['POST'])
+def create_playlist():
+    data = request.json
+    length = data.get('length')
+    mood = data.get('mood')
+    happy = mood.get('happy', False)
+    sad = mood.get('sad', False)
+    dance = mood.get('dance', False)
+    productive = mood.get('productive', False)
+
+    # Here, you can add logic to create the playlist using the provided data
+    # For example, use the Spotify API to create a playlist based on the moods
+
+    return jsonify({'status': 'success', 'message': 'Playlist created successfully'})
 
 # Sets playlist duration based on what the user desires in milliseconds
 @app.route('/duration')
