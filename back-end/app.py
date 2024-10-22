@@ -283,11 +283,15 @@ def filterSongsByDuration(tracks: list, duration: float):
 @app.route('/create-playlist', methods=['POST'])
 def create_playlist():
     data = request.json  # Parse incoming JSON request body
-    session['data-length'] = data.get('length')
-    session['data-happy'] = data.get('happy')
-    session['data-sad']= data.get('sad')
-    session['data-dance']= data.get('dance')
-    session['data-productive']= data.get('productive')
+    length = data.get('length')
+    happy = data.get('happy')
+    sad= data.get('sad')
+    dance = data.get('dance')
+    productive = data.get('productive')
+
+    #Process the data
+    #print(f"Received data: Length={length}, Happy:{happy}, Sad={sad}, Dance={dance}, Productive={productive}")
+    session["userdata"] = data
 
     # Send a response back to the client
     return jsonify({"message": "Playlist created successfully!", "data": data})
@@ -295,9 +299,11 @@ def create_playlist():
 
 @app.route('/duration')
 def run_duration():
-    duration = session['data-length']
+    if 'userdata' not in session:
+        create_playlist()
+    data = session['userdata']
     tracks = parse_songs()
-    return filterSongsByDuration(tracks, duration)
+    return filterSongsByDuration(tracks, data.get('length'))
 
 
 
