@@ -1,6 +1,6 @@
 import base64
 import os
-import requests 
+import requests
 import urllib.parse
 from flask import Flask, redirect, request, jsonify, session
 from datetime import datetime
@@ -255,7 +255,7 @@ def parse_songs():
 
     return tracks
 
-def filterSongsByDuration(tracks: list, duration: float):
+def filterSongsByDuration(tracks: list):
     # Initialize a dictionary to store achievable sums and corresponding subsets
     achievable_sums = {0: []}  # Key is the sum, value is the subset list
     
@@ -270,6 +270,8 @@ def filterSongsByDuration(tracks: list, duration: float):
             new_sum = current_sum + track_duration
             
             # Only add the new sum if it does not exceed the target duration
+            # duration = session['userduration']
+            duration = 600000
             if new_sum <= duration:
                 # If this sum is not already in the dictionary, add it with its corresponding subset
                 if new_sum not in achievable_sums:
@@ -284,7 +286,7 @@ def filterSongsByDuration(tracks: list, duration: float):
 def create_playlist():
         data = request.get_json()  # Parse incoming JSON request body
         print('Received data:', data)
-        return jsonify({'status': 'success', 'data': data})
+        session['userduration'] = data.get('length')
         #length = data.get('length')
         #happy = data.get('happy')
         #sad= data.get('sad')
@@ -295,17 +297,19 @@ def create_playlist():
         #print(f"Received data: Length={length}, Happy:{happy}, Sad={sad}, Dance={dance}, Productive={productive}")
         #session["userdata"] = data
 
-     # Send a response back to the client
-    #return jsonify({"message": "Playlist created successfully!", "data": data})
+        # Send a response back to the client
+        return jsonify({"message": "Playlist created successfully!", "data": session['userduration']})
+        #return redirect('/duration')
+
 
 
 @app.route('/duration')
 def run_duration():
     #if 'userdata' not in session:
      #   create_playlist()
-    #data = session['userdata']
+    #session['userduration'] = data.get('length')
     tracks = parse_songs()
-    return filterSongsByDuration(tracks, 60000000)
+    return filterSongsByDuration(tracks)
 
 
 
