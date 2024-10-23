@@ -3,10 +3,11 @@ import os
 import requests
 import urllib.parse
 from flask import Flask, redirect, request, jsonify, session
+#from flask_session import Session
 from datetime import datetime
 from dotenv import load_dotenv
 from flask_cors import CORS
-
+from cachelib.file import FileSystemCache
 # load environement variables
 load_dotenv()
 
@@ -14,6 +15,9 @@ app = Flask(__name__)
 
 CORS(app, supports_credentials=True)
 app.secret_key = os.getenv('SECRET_KEY')
+
+#Flask server-side sessions (e.g., Redis, filesystem)
+cache = FileSystemCache('/tmp/flask_cache')
 
 CLIENT_ID = os.getenv('CLIENT_ID')
 CLIENT_SECRET = os.getenv('CLIENT_SECRET')
@@ -112,7 +116,8 @@ def liked_songs():
     if response.status_code != 200:
         return jsonify({'error': 'Failed to fetch liked songs'}), response.status_code
     
-    session['liked-songs'] = response.json().get('items', [])
+    #session['liked-songs'] = response.json().get('items', [])
+    cache.set('likedSongs', response.json().get('items', []))
     return jsonify(response.json())
 
 @app.route('/recently-played')
@@ -130,7 +135,7 @@ def recently_played():
     if response.status_code != 200:
         return jsonify({'error': 'Failed to fetch recently played songs'}), response.status_code
     
-    session['recently-played'] = response.json().get('items', [])
+    cache.set('recentlyPlayed', response.json().get('items', []))
     return jsonify(response.json())
 
 @app.route('/song-recs', methods=['GET'])
@@ -182,23 +187,36 @@ def get_recommendations():
         print(f"Error fetching recommendations: {e}")
         return jsonify({'error': 'Failed to get recommendations'}), 500
 
-    session['recommended-songs'] = response.json().get('items', [])
+    #session['recommended-songs'] = response.json().get('items', [])
+    cache.set('recommendedSongs', response.json().get('items', []))
     return jsonify(response.json())
 
 @app.route('/parse')
 def parse_songs():
-    if 'recently-played' not in session:
+    #if 'recentlyPlayed' not in session:
+    if cache.get('recentlyPlayed') is None:
         recently_played()
-    if 'liked-songs' not in session:
+    #if 'liked-songs' not in session:
+    if cache.get('likedSongs') is None:
         liked_songs()
-    if 'recommended-songs' not in session:
+    #if 'recommended-songs' not in session:
+    if cache.get('recommendedSongs') is None:
         get_recommendations()
 
     tracks = []
     
-    tracks_data = session['recently-played']
-    tracks_liked_songs = session['liked-songs']
-    tracks_get_recommendations = session['recommended-songs']
+    tracks_data = cache.get('recentlyPlayed')
+    tracks_liked_songs = cache.get('likedSongs')
+    tracks_get_recommendations = cache.get('recommendedSongs')
+
+    if tracks_data is None:
+        tracks_data = []
+
+    if tracks_liked_songs is None:
+        tracks_liked_songs = []
+
+    if tracks_get_recommendations is None:
+        tracks_get_recommendations = []
    
     # Initialize an empty set to keep track of already seen tracks (to avoid duplicates)
     seen_tracks = set()
@@ -255,7 +273,7 @@ def parse_songs():
 
     return tracks
 
-def filterSongsByDuration(tracks: list):
+def filterSongsByDuration(tracks: list, duration: float):
     # Initialize a dictionary to store achievable sums and corresponding subsets
     achievable_sums = {0: []}  # Key is the sum, value is the subset list
     
@@ -271,7 +289,7 @@ def filterSongsByDuration(tracks: list):
             
             # Only add the new sum if it does not exceed the target duration
             # duration = session['userduration']
-            duration = 600000
+            #duration = 600000
             if new_sum <= duration:
                 # If this sum is not already in the dictionary, add it with its corresponding subset
                 if new_sum not in achievable_sums:
@@ -286,20 +304,20 @@ def filterSongsByDuration(tracks: list):
 def create_playlist():
         data = request.get_json()  # Parse incoming JSON request body
         print('Received data:', data)
-        session['userduration'] = data.get('length')
-        #length = data.get('length')
-        #happy = data.get('happy')
-        #sad= data.get('sad')
-        #dance = data.get('dance')
-        #productive = data.get('productive')
+       
+        length = int(data.get('length'))
+        cache.set('length',length)
+        happy = data.get('happy')
+        sad= data.get('sad')
+        dance = data.get('dance')
+        productive = data.get('productive')
 
-        #Process the data
-        #print(f"Received data: Length={length}, Happy:{happy}, Sad={sad}, Dance={dance}, Productive={productive}")
-        #session["userdata"] = data
+        tracks = parse_songs()
+        filtered_tracks = filterSongsByDuration(tracks, length)
 
         # Send a response back to the client
-        return jsonify({"message": "Playlist created successfully!", "data": session['userduration']})
-        #return redirect('/duration')
+        return jsonify({"message": "Playlist creation successful", "data": filtered_tracks})
+
 
 
 
@@ -309,7 +327,7 @@ def run_duration():
      #   create_playlist()
     #session['userduration'] = data.get('length')
     tracks = parse_songs()
-    return filterSongsByDuration(tracks)
+    return filterSongsByDuration(tracks, cache.get('length'))
 
 
 
