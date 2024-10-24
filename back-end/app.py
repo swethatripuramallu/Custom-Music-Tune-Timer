@@ -102,7 +102,7 @@ def refresh_token():
 @app.route('/song-recs')
 def get_recommendations(happy, sad, dance, productive):
     # Check if the user is authenticated
-    access_token = "BQBycRFZyqEzYoO9wzU_H83_qR6AzLcPR9uGa860ui-Mr1WmYdEOJzkPVz0AURkUvu9ScOPpRRUoM5h1y3xc9p6ewZD5ZRjr3aI37Fk36t7L9hkB8VRjkZenG8bUmzFA4QrmcuZp8c75QAgRdM6DiGHXNgjjnjOCt4Li-e8KtZdPcUNQjDHDu1ouGyAfKpshrlXYzXxTA-bxDC6hH0e6CK-52mMRHg"
+    access_token = ""
     # receives booleans for the mood of the user
     if 'access_token' not in session:
         return jsonify({'error': 'User not authenticated'}), 401
