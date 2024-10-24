@@ -251,7 +251,7 @@ def parse_songs():
     if 'recommended-songs' not in session:
         get_recommendations()
 
-    tracks = []
+    tracks = [] 
     
     tracks_data = session['recently-played']
     tracks_liked_songs = session['liked-songs']
