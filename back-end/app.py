@@ -332,7 +332,7 @@ def run_duration():
 
 
 if __name__ == '__main__':
-    app.run(host='0.0.0.0', debug=True) #any changes we make in the code the 
+    app.run(port='', debug=True) #any changes we make in the code the 
                                         #server will automatically refresh
 
 

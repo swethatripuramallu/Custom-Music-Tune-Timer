@@ -55,8 +55,10 @@ async function create() {
 
   try {
       // Sending the state values to the Flask backend
-      const spotifyPlaylistUrl = 'http://10.0.2.15:5000/create-playlist' //swetha's url
+      // const spotifyPlaylistUrl = 'http://10.0.2.15:5000/create-playlist' //swetha's url
       // const spotifyPlaylistUrl = 'http://127.0.0.1:3002/create-playlist' //maggie's url
+      const spotifyPlaylistUrl = 'http://127.0.0.1:5001/create-playlist' //saniya's url
+
       const response = await fetch(spotifyPlaylistUrl, {
         method: 'POST',
         headers: {
@@ -68,8 +70,10 @@ async function create() {
 
       const result = await response.json();
       console.log('Response from backend:', result);
-      const spotifyDuration = 'http://10.0.2.15:5000/duration' //swetha's url
+      // const spotifyDuration = 'http://10.0.2.15:5000/duration' //swetha's url
     // const spotifyDuration = 'http://127.0.0.1:3002/duration' //maggie's url
+      const spotifyDuration = 'http://127.0.0.1:5001/duration' //saniya's url
+
       Linking.openURL(spotifyDuration);
 
   } catch (error) {
