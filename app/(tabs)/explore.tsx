@@ -1,6 +1,6 @@
 import Ionicons from '@expo/vector-icons/Ionicons';
-import { StyleSheet, Image, Platform, Button } from 'react-native';
-import { useState, useEffect } from 'react';
+import { StyleSheet, Image, Platform, Button, Linking } from 'react-native';
+import { useState } from 'react';
 
 import { Collapsible } from '@/components/Collapsible';
 import { ExternalLink } from '@/components/ExternalLink';
@@ -10,77 +10,96 @@ import { ThemedView } from '@/components/ThemedView';
 import { GestureHandlerRootView, TextInput } from 'react-native-gesture-handler';
 import axios from 'axios';
 
-
-const [length, onChangeLength] = useState('0');
-const [happy, setHappy] = useState(false);
-const [sad, setSad] = useState(false);
-const [dance, setDance] = useState(false);
-const [productive, setProductive] = useState(false);
-
-async function setHappyMood() {
-  setHappy(true);
-  console.log('Set Happy:', happy);
-}
-
-async function setSadMood() {
-  setSad(true);
-  console.log('Set Sad:', sad);
-}
-
-async function setDanceMood() {
-  setDance(true);
-  console.log('Set Dance:', dance);
-}
-
-async function setProductiveMood() {
-  setProductive(true);
-  console.log('Set Productive:', productive);
-}
-
-async function songRecs() {
-  try {
-    const response = await axios.get('http://localhost:5001/song-recs');
-    console.log('Recommendations:', response.data);
-  } catch (error) {
-    console.error('Error fetching song recommendations:', error);
-  }
-}
-
-async function create() {
-  console.log('Creating playlist');
-  console.log('Length:', length);
-  console.log('Happy:', happy);
-  console.log('Sad:', sad);
-  console.log('Dance:', dance);
-  console.log('Productive:', productive);
-  try {
-    const response = await axios.post('http://localhost:5001/create-playlist', {
-      length,
-      mood: {
-        happy,
-        sad,
-        dance,
-        productive
-      }
-    });
-    console.log('Playlist Created:', response.data);
-  } catch (error) {
-    console.error('Error creating playlist:', error);
-  }
-}
-
 export default function TabTwoScreen() {
+  const [length, setLength] = useState('0');
+  const [happy, setHappy] = useState(false);
+  const [sad, setSad] = useState(false);
+  const [dance, setDance] = useState(false);
+  const [productive, setProductive] = useState(false);
+  
+  async function setHappyMood() {
+    setHappy(true);
+    console.log('Set Happy:', happy);
+  }
+  
+  async function setSadMood() {
+    setSad(true);
+    console.log('Set Sad:', sad);
+  }
+  
+  async function setDanceMood() {
+    setDance(true);
+    console.log('Set Dance:', dance);
+  }
+  
+  async function setProductiveMood() {
+    setProductive(true);
+    console.log('Set Productive:', productive);
+  }
+  
+  async function create() {
+    console.log('Creating playlist');
+    console.log('Length:', length);
+    console.log('Happy:', happy);
+    console.log('Sad:', sad);
+    console.log('Dance:', dance);
+    console.log('Productive:', productive);
+    
+    // Now, send the data to the backend
+    const data = {
+        length: length,
+        happy: happy,
+        sad: sad,
+        dance: dance,
+        productive: productive,
+    };
+  
+    try {
+        // Sending the state values to the Flask backend
+        // const spotifyPlaylistUrl = 'http://10.0.2.15:5000/create-playlist' //swetha's url
+        // const spotifyPlaylistUrl = 'http://127.0.0.1:3002/create-playlist' //maggie's url
+        const spotifyPlaylistUrl = 'http://127.0.0.1:5001/create-playlist' //saniya's url
+  
+        const response = await fetch(spotifyPlaylistUrl, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+            credentials: 'include',
+             body: JSON.stringify(data),
+        });
+  
+        const result = await response.json();
+        console.log('Response from backend:', result);
+        // const spotifyDuration = 'http://10.0.2.15:5000/duration' //swetha's url
+      // const spotifyDuration = 'http://127.0.0.1:3002/duration' //maggie's url
+        const spotifyDuration = 'http://127.0.0.1:5001/duration' //saniya's url
+  
+        Linking.openURL(spotifyDuration);
+  
+    } catch (error) {
+        console.log('oh no:', )
+        console.error('Error sending data:', error);
+    }
+  }
+
   return (
     <ParallaxScrollView
-      headerBackgroundColor={{ light: '#D0D0D0', dark: '#353636' }}
-      headerImage={<Ionicons size={310} name="code-slash" style={styles.headerImage} />}>
+      headerBackgroundColor={{ light: '#A1CEDC', dark: '#1D3D47' }}
+      headerImage={
+      <Image
+        source={require('@/assets/images/4.png')}
+        style={styles.tuneTimerLogo}
+      />
+      }>
       <ThemedView>
         <ThemedText type="title">Create Custom Playlists</ThemedText>
-        <ThemedText>Input your desired time and mood and let Tune Timer create a custom playlist for you!</ThemedText>
+        <ThemedText>Input your desired time and mood and create a custom playlist!</ThemedText>
         <GestureHandlerRootView>
-          <TextInput value={length} onChangeText={onChangeLength} placeholder="Enter length" />
+          <TextInput value={length} onChangeText={setLength} placeholder="Enter length in minutes" /> 
+          {/* (newLength) => setLength(newLength) */}
         </GestureHandlerRootView>
-        <ThemedText>Select Mood Descriptors Below:</ThemedText>
+        <ThemedText>Click Mood Descriptors Below:</ThemedText>
         <Button title="Happy" onPress={setHappyMood}/>
         <Button title="Sad" onPress={setSadMood}/>
         <Button title="Dance" onPress={setDanceMood}/>
@@ -102,6 +121,14 @@ const styles = StyleSheet.create({
   titleContainer: {
     flexDirection: 'row',
     gap: 8,
+  },
+  tuneTimerLogo: {
+    height: 250,
+    width: 400,
+    // bottom: 0,
+    // left: 0,
+    // position: 'absolute',
+    resizeMode: 'cover',
   },
   text: {
     color: '#444545',

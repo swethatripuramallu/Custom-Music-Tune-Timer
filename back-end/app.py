@@ -7,6 +7,7 @@ from flask import Flask, redirect, request, jsonify, session
 from datetime import datetime
 from dotenv import load_dotenv
 from flask_cors import CORS
+from flask_caching import Cache
 
 # Load environement variables
 load_dotenv()
@@ -37,8 +38,6 @@ def login():
         'scope': scope,
         'redirect_uri': REDIRECT_URI,
         'show_dialog': True
-        # Force the user to login everytime into application by setting show_dialog true 
-        # Will make debugging easier for local server purpose, can change at the end
     }
     # Make a get request to user's data, also encoded the users params
     auth_url = f"{AUTH_URL}?{urllib.parse.urlencode(params)}"
@@ -99,200 +98,48 @@ def refresh_token():
     return jsonify(new_token_info)
     # return redirect('filter-songs/duration')
 
-# Fetches some of the user's liked songs
-@app.route('/liked-songs')
-def liked_songs():
-    if 'access_token' not in session: 
-        return redirect('/login')
-    if datetime.now().timestamp() > session['expires_at']:
-        return redirect('/refresh-token')
-
-    headers = {
-        'Authorization': f"Bearer {session['access_token']}"
-    }
-
-    response = requests.get(f'{API_BASE_URL}me/tracks', headers=headers)
-    if response.status_code != 200:
-        return jsonify({'error': 'Failed to fetch liked songs'}), response.status_code
-    
-    session['liked-songs'] = response.json().get('items', [])
-    return jsonify(response.json())
-
-# Fetches some of the user's recently played songs
-@app.route('/recently-played')
-def recently_played():
-    if 'access_token' not in session: 
-        return redirect('/login')
-    if datetime.now().timestamp() > session['expires_at']:
-        return redirect('/refresh-token')
-
-    headers = {
-        'Authorization': f"Bearer {session['access_token']}"
-    }
-
-    response = requests.get(f'{API_BASE_URL}me/player/recently-played', headers=headers)
-    if response.status_code != 200:
-        return jsonify({'error': 'Failed to fetch recently played songs'}), response.status_code
-    
-    session['recently-played'] = response.json().get('items', [])
-    return jsonify(response.json())
-
-# Fetches song recommendations based on the user's top artists and tracks
 @app.route('/song-recs', methods=['GET'])
-def get_recommendations():
-    if 'access_token' not in session: 
+def get_recommendations(access_token, happy, sad, dance, productive):
+    # Check if the user is authenticated
+    # receives booleans for the mood of the user
+    if 'access_token' not in session:
         return jsonify({'error': 'User not authenticated'}), 401
-    if datetime.now().timestamp() > session['expires_at']:
-        return redirect('/refresh-token')
-
-    headers = {
-        'Authorization': f"Bearer {session['access_token']}"
-    }
-    # Get user's top artists
-    try:
-        top_artists_response = requests.get(f'{API_BASE_URL}me/top/artists', headers=headers, params={'limit': 5})
-        top_artists_response.raise_for_status()
-    except requests.exceptions.RequestException as e:
-        print(f"Error fetching top artists: {e}")
-        return jsonify({'error': 'Failed to get top artists'}), 500
-
-    top_artists = top_artists_response.json().get('items', [])
-    seed_artists = [artist['id'] for artist in top_artists[:2]]  # Limit to 2 seeds
-
-    # Get user's top tracks
-    try:
-        top_tracks_response = requests.get(f'{API_BASE_URL}me/top/tracks', headers=headers, params={'limit': 5})
-        top_tracks_response.raise_for_status()
-    except requests.exceptions.RequestException as e:
-        print(f"Error fetching top tracks: {e}")
-        return jsonify({'error': 'Failed to get top tracks'}), 500
-
-    top_tracks = top_tracks_response.json().get('items', [])
-    seed_tracks = [track['id'] for track in top_tracks[:3]]  # Limit to 3 seeds
-
-    if not seed_artists and not seed_tracks:
-        return jsonify({'error': 'No seeds available for recommendations'}), 400
-
-    # Use top artists and tracks as seeds for recommendations
-    params = {
-        'limit': 10,  # Number of recommendations to return
-        'seed_artists': ','.join(seed_artists),
-        'seed_tracks': ','.join(seed_tracks)
-    }
-
-    try:
-        response = requests.get(f'{API_BASE_URL}recommendations', headers=headers, params=params)
-        response.raise_for_status()
-    except requests.exceptions.RequestException as e:
-        print(f"Error fetching recommendations: {e}")
-        return jsonify({'error': 'Failed to get recommendations'}), 500
-
-    session['recommended-songs'] = response.json().get('items', [])
-    return jsonify(response.json())
-
-# Filter songs by moods
-def filter_songs_by_mood(access_token):
+    
     headers = {
         'Authorization': f"Bearer {access_token}"
     }
 
-    # Fetching the user's recently played tracks
-    headers = {'Authorization': f'Bearer {access_token}'}
-    response = requests.get(f'{API_BASE_URL}me/player/recently-played', headers=headers)
+    # Fetch user's mood
+    genres= []
+    if (happy):
+        genres.append('happy')
+    if (sad):
+        genres.append('sad')
+    if (dance):
+        genres.append('dance')
+    if (productive):
+        genres.append('study')
+
+    # Fetch recommendations based on the user's mood
+    url = '{API_BASE_URL}recommendations?limit=100&seed_genres={genres}'
+    response = requests.get(url, headers=headers)
     if response.status_code == 200:
-        mood_recently_played = response.json().get('items', [])
+        recommendations = response.json().get('tracks', [])
     else:
-        return jsonify({'error': 'Failed to fetch recently played songs'}), response.status_code
-
-    # Fetching the user's liked / saved tracks
-    response = requests.get(f'{API_BASE_URL}me/tracks', headers=headers)
-    if response.status_code == 200:
-        mood_liked_songs = response.json().get('items', [])
-    else:
-        return jsonify({'error': 'Failed to fetch liked songs'}), response.status_code
-
-    # Fetching song recommendations based on the user's top artists and tracks
-    mood_recommendations = get_recommendations()
-
-    # Fetching audio features for each track
-    all_mood_tracks = mood_recently_played + mood_liked_songs + session.get('recommended-songs', [])
-    track_ids = [track['track']['id'] for track in all_mood_tracks if 'track' in track]
-
-    # Filter tracks based on moods - using valence factors
-    if track_ids:
-        response = requests.get(f'https://api.spotify.com/v1/audio-features', headers=headers, params={'ids': ','.join(track_ids)})
-        if response.status_code != 200:
-            return jsonify({'error': 'Failed to fetch audio features'}), response.status_code
-
-        audio_features = response.json().get('audio_features', [])
-        # Return HAPPY filtered tracks
-        happy_tracks = [track for track in audio_features if track['valence'] > 0.7]
-
-        return jsonify(happy_tracks)
-    else:
-        return jsonify({'error': 'No tracks found'})
-
-# Mood route for user's playlist if they opt for a mood based playlist
-@app.route('/mood', methods=['GET'])
-def mood():
-    access_token = session.get('access_token')  # Fetch access token from the session
-    if not access_token:
-        return jsonify({'error': 'Access token missing'}), 401
-    
-    return mood(access_token)
+        return jsonify({'error': 'Failed to fetch recommendations'}), response.status_code
 
 # Parses through the user's recently played, liked songs, and recommended songs
 @app.route('/parse')
-def parse_songs():
-    if 'recently-played' not in session:
-        recently_played()
-    if 'liked-songs' not in session:
-        liked_songs()
+def parse_songs(happy, sad, dance, productive):
     if 'recommended-songs' not in session:
-        get_recommendations()
+        get_recommendations(happy, sad, dance, productive)
 
     tracks = [] 
     
-    tracks_data = session['recently-played']
-    tracks_liked_songs = session['liked-songs']
     tracks_get_recommendations = session['recommended-songs']
    
     # Initialize an empty set to keep track of already seen tracks (to avoid duplicates)
     seen_tracks = set()
-
-    #  Appends and parses through all the json data and formulates a track data table with all the correct parameters
-    for item in tracks_data:
-        track_name = item["track"]["name"]
-        artist_name = item["track"]["album"]["artists"][0]["name"]
-        track_key = (track_name, artist_name)
-        
-        if track_key not in seen_tracks:
-            track_info = {
-                "Song Name": track_name,
-                "Artist Name": artist_name,
-                "Duration (ms)": item["track"]["duration_ms"],
-                "Spotify Link": item["track"]["external_urls"]["spotify"],
-                "Track ID:": item["track"]["id"]
-            }
-            tracks.append(track_info)
-            seen_tracks.add(track_key)
-
-    for item in tracks_liked_songs:
-        track_name = item["track"]["name"]
-        artist_name = item["track"]["album"]["artists"][0]["name"]
-        track_key = (track_name, artist_name)
-        
-        if track_key not in seen_tracks:
-            track_info = {
-                "Song Name": track_name,
-                "Artist Name": artist_name,
-                "Duration (ms)": item["track"]["duration_ms"],
-                "Spotify Link": item["track"]["external_urls"]["spotify"],
-                "Track ID:": item["track"]["id"]
-
-            }
-            tracks.append(track_info)
-            seen_tracks.add(track_key)
 
     for item in tracks_get_recommendations:
         track_name = item["track"]["name"]
@@ -312,7 +159,26 @@ def parse_songs():
 
     return tracks
 
-# Filters songs based on the target duration
+# Creates a playlist based on the user's mood and desired playlist length
+@app.route('/create-playlist', methods=['POST, GET'])
+def create_playlist():
+        data = request.get_json()  # Parse incoming JSON request body
+        print('Received data:', data)
+       
+        length = int(data.get('length'))
+        # cache.set('length',length)
+        happy = data.get('happy')
+        sad = data.get('sad')
+        dance = data.get('dance')
+        productive = data.get('productive')
+
+        tracks = parse_songs(happy, sad, dance, productive)
+        filtered_tracks = filterSongsByDuration(tracks, length)
+
+        # Send a response back to the client
+        return jsonify({"message": "Playlist creation successful", "data": filtered_tracks})
+
+# Filters songs based on the user's desired playlist length
 def filterSongsByDuration(tracks: list, duration: float):
     # Initialize a dictionary to store achievable sums and corresponding subsets
     achievable_sums = {0: []}  # Key is the sum, value is the subset list
@@ -326,8 +192,7 @@ def filterSongsByDuration(tracks: list, duration: float):
         
         for current_sum in current_sums:
             new_sum = current_sum + track_duration
-            
-            # Only add the new sum if it does not exceed the target duration
+
             if new_sum <= duration:
                 # If this sum is not already in the dictionary, add it with its corresponding subset
                 if new_sum not in achievable_sums:
@@ -338,30 +203,13 @@ def filterSongsByDuration(tracks: list, duration: float):
     
     return achievable_sums[closest_sum]  
 
-@app.route('/create-playlist', methods=['POST'])
-def create_playlist():
-    data = request.json
-    length = data.get('length')
-    mood = data.get('mood')
-    happy = mood.get('happy', False)
-    sad = mood.get('sad', False)
-    dance = mood.get('dance', False)
-    productive = mood.get('productive', False)
-
-    # Here, you can add logic to create the playlist using the provided data
-    # For example, use the Spotify API to create a playlist based on the moods
-
-    return jsonify({'status': 'success', 'message': 'Playlist created successfully'})
-
-# Sets playlist duration based on what the user desires in milliseconds
+# Filter songs based on the user's desired playlist length
 @app.route('/duration')
 def run_duration():
     tracks = parse_songs()
-    return filterSongsByDuration(tracks, 900000)
+    return filterSongsByDuration(tracks, cache.get('length'))
 
 # Run the Flask app
 if __name__ == '__main__':
     app.run(port = "5001", debug=True) #any changes we make in the code the 
                                         #server will automatically refresh
-
-
