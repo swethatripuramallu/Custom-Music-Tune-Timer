@@ -1,6 +1,5 @@
 import base64
 import os
-import requests
 import urllib.parse
 from flask import Flask, redirect, request, jsonify, session
 #from flask_session import Session
@@ -36,27 +35,30 @@ API_BASE_URL = 'https://api.spotify.com/v1/'
 def parse_songs(recommended):
 
     tracks = []
-  
+    
+    recommendedTracks = recommended.get('tracks', [])
     # Initialize an empty set to keep track of already seen tracks (to avoid duplicates)
-    seen_tracks = set()
+    #seen_tracks = set()
 
-    for item in recommended:
-        track_name = item["track"]["name"]
-        artist_name = item["track"]["album"]["artists"][0]["name"]
-        track_key = (track_name, artist_name)
-        
-        if track_key not in seen_tracks:
-            track_info = {
-                "Song Name": track_name,
-                "Artist Name": artist_name,
-                "Duration (ms)": item["track"]["duration_ms"],
-                "Spotify Link": item["track"]["external_urls"]["spotify"],
-                "Track ID:": item["track"]["id"]
-            }
-            tracks.append(track_info)
-            seen_tracks.add(track_key)
+    for item in recommendedTracks:
+        track_name = item.get('name', 'Unknown Track')
+        artists = item.get('artists', [])
+        artist_names = ", ".join([artist.get('name', 'Unknown Artist') for artist in artists])
+        duration = item.get('duration', 0)
+        track_id = item.get('id', "Unknown ID")
 
-    logging.info(f"Successfully parsed {len(tracks)} unique tracks.")  # Logging added here
+        song_info = {
+            'track_name' : track_name,
+            'artist_name': artist_names,
+            'duration': duration,
+            'track_id': track_id
+        }
+
+        tracks.append(song_info)
+
+        #seen_tracks.add(track_key)
+
+    
     return tracks
 
 def filterSongsByDuration(tracks: list, duration: float):
@@ -65,7 +67,7 @@ def filterSongsByDuration(tracks: list, duration: float):
     
     # Iterate through each track in the list
     for track in tracks:
-        track_duration = track["Duration (ms)"]
+        track_duration = track["duration"]
 
         # Copy existing achievable sums to avoid modifying the dictionary while iterating
         current_sums = list(achievable_sums.keys())
@@ -106,14 +108,19 @@ def get_spotify_data(length, happy, sad, dance, productive):
         seed_genres = ['pop', 'rock']
 
     # Fetch recommended songs based on mood
-    recommendations = sp.recommendations(seed_genres=seed_genres, limit=100)
+    recommendations = sp.recommendations(seed_genres=seed_genres, limit=10
+                                    )
 
     tracks = parse_songs(recommendations)
 
-    filtered_songs = filterSongsByDuration(recommendations, length)
+    filtered_songs = filterSongsByDuration(tracks, length)
 
     # Return the data as a dictionary
     return filtered_songs
+
+@app.route('/callback')
+def callback():
+    return "Authentication Sucessful!"
 
 # Flask route to handle playlist creation
 @app.route('/create-playlist', methods=['POST'])
@@ -129,6 +136,8 @@ def create_playlist():
 
     # Get Spotify data based on mood
     spotify_data = get_spotify_data(length, happy, sad, dance, productive)
+
+    print("Spotify Data:", spotify_data)
 
     # Create a response including Spotify data
     response = {
