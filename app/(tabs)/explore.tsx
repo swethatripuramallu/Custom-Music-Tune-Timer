@@ -70,11 +70,6 @@ async function create() {
 
       const result = await response.json();
       console.log('Response from backend:', result);
-      // const spotifyDuration = 'http://10.0.2.15:5000/duration' //swetha's url
-    // const spotifyDuration = 'http://127.0.0.1:3002/duration' //maggie's url
-      const spotifyDuration = 'http://127.0.0.1:5001/duration' //saniya's url
-
-      Linking.openURL(spotifyDuration);
 
   } catch (error) {
       console.error('Error sending data:', error);
