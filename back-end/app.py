@@ -41,10 +41,10 @@ def parse_songs(recommended):
     #seen_tracks = set()
 
     for item in recommendedTracks:
-        track_name = item.get('name', 'Unknown Track')
+        track_name = item['name']
         artists = item.get('artists', [])
         artist_names = ", ".join([artist.get('name', 'Unknown Artist') for artist in artists])
-        duration = item.get('duration', 0)
+        duration = item['duration_ms']
         track_id = item.get('id', "Unknown ID")
 
         song_info = {
@@ -108,10 +108,10 @@ def get_spotify_data(length, happy, sad, dance, productive):
         seed_genres = ['pop', 'rock']
 
     # Fetch recommended songs based on mood
-    recommendations = sp.recommendations(seed_genres=seed_genres, limit=10
-                                    )
+    recommendations = sp.recommendations(seed_genres=seed_genres, limit=100)
 
     tracks = parse_songs(recommendations)
+    #print(tracks)
 
     filtered_songs = filterSongsByDuration(tracks, length)
 
