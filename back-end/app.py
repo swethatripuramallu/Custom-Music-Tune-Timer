@@ -62,29 +62,23 @@ def parse_songs(recommended):
     return tracks
 
 def filterSongsByDuration(tracks: list, duration: float):
-    # Initialize a dictionary to store achievable sums and corresponding subsets
-    achievable_sums = {0: []}  # Key is the sum, value is the subset list
-    
-    # Iterate through each track in the list
-    for track in tracks:
-        track_duration = track["duration"]
+        #sort tracks by duration in descending order
+        sorted_tracks = sorted(tracks, key=lambda x: x['duration'], reverse = True) 
 
-        # Copy existing achievable sums to avoid modifying the dictionary while iterating
-        current_sums = list(achievable_sums.keys())
-        
-        for current_sum in current_sums:
-            new_sum = current_sum + track_duration
-            
-            # Only add the new sum if it does not exceed the target duration
-            if new_sum <= duration:
-                # If this sum is not already in the dictionary, add it with its corresponding subset
-                if new_sum not in achievable_sums:
-                    achievable_sums[new_sum] = achievable_sums[current_sum] + [track]
-    
-    # Find the closest sum that is not greater than the target
-    closest_sum = max(achievable_sums.keys())
-    
-    return achievable_sums[closest_sum]  
+        selected_tracks = []
+        current_duration = 0
+
+        for track in sorted_tracks:
+            if current_duration + track['duration'] <= duration:
+                selected_tracks.append(track)
+                current_duration += track['duration']
+
+            if current_duration >= duration:
+                break 
+
+        return selected_tracks           
+
+
 
 # Function to fetch Spotify data based on user input
 def get_spotify_data(length, happy, sad, dance, productive):
@@ -92,23 +86,32 @@ def get_spotify_data(length, happy, sad, dance, productive):
         client_id=CLIENT_ID,
         client_secret=CLIENT_SECRET,
         redirect_uri=REDIRECT_URI,
-        scope='user-library-read user-read-recently-played playlist-modify-public'
+        scope='user-library-read user-read-recently-played playlist-modify-public user-top-read',
+        cache_path = '.cache'
     ))
 
     # Modify recommendations based on moods or user input (happy, sad, dance, etc.)
     if happy:
-        seed_genres = ['pop', 'happy']
+        seed_genres = ['happy']
     elif sad:
-        seed_genres = ['sad', 'blues']
+        seed_genres = ['sad']
     elif dance:
-        seed_genres = ['dance', 'edm']
+        seed_genres = ['dance']
     elif productive:
-        seed_genres = ['classical', 'ambient']
+        seed_genres = ['classical']
     else:
-        seed_genres = ['pop', 'rock']
+        seed_genres = ['pop']
+    
+    #seeds based on user tracks and user artists
+
+    top_tracks = sp.current_user_top_tracks(limit = 2)
+    seed_tracks = [track['id'] for track in top_tracks['items']]
+
+    top_artists = sp.current_user_top_artists(limit = 3)
+    seed_artists = [artist['id'] for artist in top_artists['items']]
 
     # Fetch recommended songs based on mood
-    recommendations = sp.recommendations(seed_genres=seed_genres, limit=100)
+    recommendations = sp.recommendations(seed_tracks = seed_tracks, seed_artists = seed_artists, limit=100)
 
     tracks = parse_songs(recommendations)
     #print(tracks)
@@ -128,7 +131,7 @@ def create_playlist():
     data = request.get_json()  # Parse incoming JSON request body
     print('Received data:', data)
    
-    length = int(data.get('length'))
+    length = int(data.get('length')) * 60000
     happy = data.get('happy')
     sad = data.get('sad')
     dance = data.get('dance')
