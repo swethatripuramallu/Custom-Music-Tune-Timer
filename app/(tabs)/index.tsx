@@ -7,6 +7,26 @@ import { ThemedView } from '@/components/ThemedView';
 
 export default function HomeScreen() {
 
+
+async function loginWithSpotify() {
+  //  try {
+  //     //  const spotifyAuthUrl = 'http://127.0.0.1:3002/login'; //maggie's localhost
+  //     //  const spotifyAuthUrl = 'http://10.0.2.15:5000/login' //swetha's local host
+  //     const spotifyAuthUrl = 'http://127.0.0.1:5001/login'; // saniya's localhost
+
+  //      Linking.openURL(spotifyAuthUrl);
+  //   }
+  //  catch(error) {
+  //    console.error('Error logging in with Spotify:', error);
+  //  }
+
+  //Nothing for now
+}
+
+async function creatingPage() {
+  console.log('Creating page');
+}
+=======
   async function loginWithSpotify() {
     try {
         const spotifyAuthUrl = 'http://127.0.0.1:3002/login'; // REMEMBER TO REPLACE THIS W/ YOUR PORT NUMBER
@@ -20,6 +40,7 @@ export default function HomeScreen() {
  async function creatingPage() {
    console.log('Creating page');
  }
+
 
   return (
     <ParallaxScrollView
