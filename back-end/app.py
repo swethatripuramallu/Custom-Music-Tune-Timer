@@ -120,11 +120,6 @@ def get_spotify_data(length, happy, sad, dance, productive):
 
     filtered_songs = filterSongsByDuration(tracks, length)
 
-    for track in filtered_songs:
-        name = track['track_name']
-        artist = track['artist_name']
-        print(f"{name} by {artist}\n")
-
     # Return the data as a dictionary
     return filtered_songs
 
@@ -149,7 +144,7 @@ def create_playlist():
     # Get Spotify data based on mood
     spotify_data = get_spotify_data(length, happy, sad, dance, productive)
 
-    #print("Spotify Data:", spotify_data)
+    print("Spotify Data:", spotify_data)
     
     # Create a response including Spotify data
     response = {
@@ -167,4 +162,4 @@ def create_playlist():
     return jsonify(response)
 
 if __name__ == '__main__':
-    app.run(host='0.0.0.0', debug=True) 
+    app.run(port = 5000, debug=True) 
