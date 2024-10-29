@@ -130,7 +130,7 @@ def callback():
     return "Authentication Sucessful!"
 
 # Flask route to handle playlist creation
-@app.route('/create-playlist', methods=['POST'])
+@app.route('/create-playlist', methods={'POST'})
 def create_playlist():
     data = request.get_json()  # Parse incoming JSON request body
     print('Received data:', data)
@@ -147,19 +147,19 @@ def create_playlist():
     print("Spotify Data:", spotify_data)
     
     # Create a response including Spotify data
-    response = {
-        "message": "Playlist creation successful",
-        "data": {
-            "length": length,
-            "happy": happy,
-            "sad": sad,
-            "dance": dance,
-            "productive": productive,
-            "spotify_data": spotify_data
-        }
-    }
+    #response = {
+    #   "message": "Playlist creation successful",
+    #    "data": {
+    #        "length": length,
+    #        "happy": happy,
+    #        "sad": sad,
+    #        "dance": dance,
+    #        "productive": productive,
+    #        "spotify_data": spotify_data
+    #    }
+    #}
     
-    return jsonify(response)
+    return '', 204
 
 if __name__ == '__main__':
-    app.run(port = 5000, debug=True) 
+    app.run(host='0.0.0.0', debug=True) 
