@@ -1,8 +1,4 @@
 import Ionicons from '@expo/vector-icons/Ionicons';
-
-import { StyleSheet, Image, Platform, Button, Linking } from 'react-native';
-import { useState, useEffect } from 'react';
-=======
 import { StyleSheet, Image, Platform, Button } from 'react-native';
 import { useState } from 'react';
 
@@ -21,12 +17,6 @@ const [happy, setHappy] = useState(false);
 const [sad, setSad] = useState(false);
 const [dance, setDance] = useState(false);
 const [productive, setProductive] = useState(false);
-=======
-  const [length, setLength] = useState('');
-  const [happy, setHappy] = useState(false);
-  const [sad, setSad] = useState(false);
-  const [dance, setDance] = useState(false);
-  const [productive, setProductive] = useState(false);
 
   async function setLengthValue(value: any) {
     setLength(value)

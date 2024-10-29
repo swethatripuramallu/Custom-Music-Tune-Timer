@@ -121,7 +121,7 @@ def get_spotify_data(length, happy, sad, dance, productive):
     filtered_songs = filterSongsByDuration(tracks, length)
     
     user_id = sp.current_user()["id"]
-    playlist = sp.user_playlist_create(user=user_id, name="My New Playlist", public=True, description="Generated using Tune Timer")
+    playlist = sp.user_playlist_create(user=user_id, name="Tune Timer Playlist", public=True, description="Generated using Tune Timer")
 
     # Add tracks to the newly created playlist
     track_ids = []
@@ -162,7 +162,6 @@ def create_playlist():
     spotify_data = get_spotify_data(length, happy, sad, dance, productive)
 
     # print("Spotify Data:", spotify_data)
-    print(add_spotify_data(spotify_data))
     
     # Create a response including Spotify data
     response = {

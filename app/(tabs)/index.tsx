@@ -26,21 +26,6 @@ async function loginWithSpotify() {
 async function creatingPage() {
   console.log('Creating page');
 }
-=======
-  async function loginWithSpotify() {
-    try {
-        const spotifyAuthUrl = 'http://127.0.0.1:3002/login'; // REMEMBER TO REPLACE THIS W/ YOUR PORT NUMBER
-        Linking.openURL(spotifyAuthUrl);
-     }
-    catch(error) {
-      console.error('Error logging in with Spotify:', error);
-    }
- }
- 
- async function creatingPage() {
-   console.log('Creating page');
- }
-
 
   return (
     <ParallaxScrollView
