@@ -86,9 +86,11 @@ def get_spotify_data(length, happy, sad, dance, productive):
         client_id=CLIENT_ID,
         client_secret=CLIENT_SECRET,
         redirect_uri=REDIRECT_URI,
-        scope='user-library-read user-read-recently-played playlist-modify-public user-top-read',
+        scope='user-library-read user-read-recently-played playlist-modify-public user-top-read ',
         cache_path = '.cache'
     ))
+    
+    session['sp'] = sp
 
     # Modify recommendations based on moods or user input (happy, sad, dance, etc.)
     if happy:
@@ -117,9 +119,28 @@ def get_spotify_data(length, happy, sad, dance, productive):
     #print(tracks)
 
     filtered_songs = filterSongsByDuration(tracks, length)
+    
+    user_id = sp.current_user()["id"]
+    playlist = sp.user_playlist_create(user=user_id, name="My New Playlist", public=True, description="Generated using Tune Timer")
+
+    # Add tracks to the newly created playlist
+    track_ids = []
+    for track in filtered_songs:
+        track_ids.append(track['track_id'])
+        
+    sp.playlist_add_items(playlist_id=playlist["id"], items=track_ids)
+    
+    print("Succesfully created a playlist in the user's account")
+    
+    for track in filtered_songs:
+        name = track['track_name']
+        artist = track['artist_name']
+        print(f"{name} by {artist}\n")
 
     # Return the data as a dictionary
     return filtered_songs
+
+
 
 @app.route('/callback')
 def callback():
@@ -140,8 +161,9 @@ def create_playlist():
     # Get Spotify data based on mood
     spotify_data = get_spotify_data(length, happy, sad, dance, productive)
 
-    print("Spotify Data:", spotify_data)
-
+    # print("Spotify Data:", spotify_data)
+    print(add_spotify_data(spotify_data))
+    
     # Create a response including Spotify data
     response = {
         "message": "Playlist creation successful",
