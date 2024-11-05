@@ -59,8 +59,7 @@ async function create() {
       // const spotifyPlaylistUrl = 'http://127.0.0.1:3002/create-playlist' //maggie's url
       // const spotifyPlaylistUrl = 'http://127.0.0.1:5001/create-playlist' //saniya's url
 
-      // const response = await fetch(spotifyPlaylistUrl, {
-      fetch(spotifyPlaylistUrl, {
+      const response = await fetch(spotifyPlaylistUrl, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -69,8 +68,8 @@ async function create() {
            body: JSON.stringify(data),
       });
 
-      //const result = await response.json();
-      //console.log('Response from backend:', result);
+      const result = await response.json();
+      console.log('Response from backend:', result);
 
   } catch (error) {
       console.error('Error sending data:', error);
