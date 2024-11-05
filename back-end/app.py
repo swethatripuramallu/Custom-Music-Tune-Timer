@@ -2,7 +2,6 @@ import base64
 import os
 import urllib.parse
 from flask import Flask, redirect, request, jsonify, session
-#from flask_session import Session
 from datetime import datetime
 from dotenv import load_dotenv
 from flask_cors import CORS
@@ -87,9 +86,9 @@ def get_spotify_data(length, happy, sad, dance, productive):
         client_secret=CLIENT_SECRET,
         redirect_uri=REDIRECT_URI,
         scope='user-library-read user-read-recently-played playlist-modify-public user-top-read',
-        cache_path = '.cache'
+        cache_path='.cache'
     ))
-
+    
     # Modify recommendations based on moods or user input (happy, sad, dance, etc.)
     if happy:
         seed_genres = ['happy']
@@ -102,31 +101,45 @@ def get_spotify_data(length, happy, sad, dance, productive):
     else:
         seed_genres = ['pop']
     
-    #seeds based on user tracks and user artists
-
-    top_tracks = sp.current_user_top_tracks(limit = 2)
+    # Seeds based on user tracks and user artists
+    top_tracks = sp.current_user_top_tracks(limit=2)
     seed_tracks = [track['id'] for track in top_tracks['items']]
 
-    top_artists = sp.current_user_top_artists(limit = 3)
+    top_artists = sp.current_user_top_artists(limit=3)
     seed_artists = [artist['id'] for artist in top_artists['items']]
 
     # Fetch recommended songs based on mood
-    recommendations = sp.recommendations(seed_tracks = seed_tracks, seed_artists = seed_artists, limit=100)
+    recommendations = sp.recommendations(seed_tracks=seed_tracks, seed_artists=seed_artists, limit=100)
 
     tracks = parse_songs(recommendations)
-    #print(tracks)
-
     filtered_songs = filterSongsByDuration(tracks, length)
+    
+    # Create a new playlist
+    user_id = sp.current_user()['id']
+    playlist = sp.user_playlist_create(user=user_id, name="Tune Timer Playlist", public=True,
+                                       description="A playlist created based on your selected mood and duration.")
+    # Get the track URIs for the filtered songs
+    track_uris = [f"spotify:track:{track['track_id']}" for track in filtered_songs]
 
-    # Return the data as a dictionary
-    return filtered_songs
+    # Add tracks to the new playlist
+    sp.playlist_add_items(playlist_id=playlist['id'], items=track_uris)
+
+    # Return the playlist information along with track data
+    response_data = {
+        'playlist_id': playlist['id'],
+        'playlist_url': playlist['external_urls']['spotify'],
+        'tracks': filtered_songs
+    }
+
+    return response_data
+
 
 @app.route('/callback')
 def callback():
     return "Authentication Sucessful!"
 
 # Flask route to handle playlist creation
-@app.route('/create-playlist', methods=['POST'])
+@app.route('/create-playlist', methods={'POST'})
 def create_playlist():
     data = request.get_json()  # Parse incoming JSON request body
     print('Received data:', data)
@@ -139,23 +152,31 @@ def create_playlist():
 
     # Get Spotify data based on mood
     spotify_data = get_spotify_data(length, happy, sad, dance, productive)
-
-    print("Spotify Data:", spotify_data)
-
-    # Create a response including Spotify data
-    response = {
-        "message": "Playlist creation successful",
-        "data": {
-            "length": length,
-            "happy": happy,
-            "sad": sad,
-            "dance": dance,
-            "productive": productive,
-            "spotify_data": spotify_data
-        }
-    }
     
-    return jsonify(response)
+    tracks = spotify_data['tracks']
+
+   # print("Spotify Data:", spotify_data)
+    for track in tracks:
+        track_name = track['track_name']
+        track_artist = track['artist_name']
+        print(f"{track_name} by {track_artist}")
+       
+    
+    # # Create a response including Spotify data
+    # response = {
+    #   "message": "Playlist creation successful",
+    #    "data": {
+    #        "length": length,
+    #        "happy": happy,
+    #        "sad": sad,
+    #        "dance": dance,
+    #        "productive": productive,
+    #        "spotify_data": spotify_data
+    #    }
+    # }
+    
+    
+    return jsonify(spotify_data)
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=3002, debug=True) 

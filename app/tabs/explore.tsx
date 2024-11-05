@@ -1,12 +1,12 @@
 import Ionicons from '@expo/vector-icons/Ionicons';
 import { StyleSheet, Image, Platform, Button, Linking } from 'react-native';
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 
-import { Collapsible } from '../../components/Collapsible';
-import { ExternalLink } from '../../components/ExternalLink';
-import { ParallaxScrollView } from '../../components/ParallaxScrollView';
-import { ThemedText } from '../../components/ThemedText';
-import { ThemedView } from '../../components/ThemedView';
+import { Collapsible } from '@/components/Collapsible';
+import { ExternalLink } from '@/components/ExternalLink';
+import ParallaxScrollView from '@/components/ParallaxScrollView';
+import { ThemedText } from '@/components/ThemedText';
+import { ThemedView } from '@/components/ThemedView';
 import { GestureHandlerRootView, TextInput } from 'react-native-gesture-handler';
 
 export default function TabTwoScreen() {
@@ -55,8 +55,8 @@ async function create() {
 
   try {
       // Sending the state values to the Flask backend
-      //  const spotifyPlaylistUrl = 'http://10.0.2.15:5000/create-playlist' //swetha's url
-      const spotifyPlaylistUrl = 'http://127.0.0.1:3002/create-playlist' //maggie's url
+       const spotifyPlaylistUrl = 'http://127.0.0.1:5000/create-playlist' //swetha's url
+      // const spotifyPlaylistUrl = 'http://127.0.0.1:3002/create-playlist' //maggie's url
       // const spotifyPlaylistUrl = 'http://127.0.0.1:5001/create-playlist' //saniya's url
 
       const response = await fetch(spotifyPlaylistUrl, {
@@ -65,12 +65,12 @@ async function create() {
           'Content-Type': 'application/json',
         },
           credentials: 'include',
-     
            body: JSON.stringify(data),
       });
 
       const result = await response.json();
       console.log('Response from backend:', result);
+      Linking.openURL(result['playlist_url']);
 
   } catch (error) {
       console.error('Error sending data:', error);
@@ -113,5 +113,3 @@ const styles = StyleSheet.create({
     color: '#444545',
   }
 });
-
-
