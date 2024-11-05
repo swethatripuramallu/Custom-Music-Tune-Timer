@@ -1,6 +1,6 @@
 import { Image, StyleSheet, Platform, Button, Linking } from 'react-native';
 import { MusicNote } from '@/components/MusicNote';
-import ParallaxScrollView from '@/components/ParallaxScrollView';
+import { ParallaxScrollView } from '@/components/ParallaxScrollView';
 import { ThemedText } from '@/components/ThemedText';
 import { ThemedView } from '@/components/ThemedView';
 import { useState } from 'react';
