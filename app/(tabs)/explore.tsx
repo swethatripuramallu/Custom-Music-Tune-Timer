@@ -4,7 +4,7 @@ import { useState } from 'react';
 
 import { Collapsible } from '@/components/Collapsible';
 import { ExternalLink } from '@/components/ExternalLink';
-import ParallaxScrollView from '@/components/ParallaxScrollView';
+import { ParallaxScrollView } from '@/components/ParallaxScrollView';
 import { ThemedText } from '@/components/ThemedText';
 import { ThemedView } from '@/components/ThemedView';
 import { GestureHandlerRootView, TextInput } from 'react-native-gesture-handler';
@@ -55,8 +55,8 @@ async function create() {
 
   try {
       // Sending the state values to the Flask backend
-       const spotifyPlaylistUrl = 'http://127.0.0.1:5000/create-playlist' //swetha's url
-      // const spotifyPlaylistUrl = 'http://127.0.0.1:3002/create-playlist' //maggie's url
+      //  const spotifyPlaylistUrl = 'http://127.0.0.1:5000/create-playlist' //swetha's url
+      const spotifyPlaylistUrl = 'http://127.0.0.1:3002/create-playlist' //maggie's url
       // const spotifyPlaylistUrl = 'http://127.0.0.1:5001/create-playlist' //saniya's url
 
       const response = await fetch(spotifyPlaylistUrl, {

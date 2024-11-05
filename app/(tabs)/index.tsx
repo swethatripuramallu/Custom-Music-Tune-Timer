@@ -3,10 +3,10 @@ import { MusicNote } from '@/components/MusicNote';
 import { ParallaxScrollView } from '@/components/ParallaxScrollView';
 import { ThemedText } from '@/components/ThemedText';
 import { ThemedView } from '@/components/ThemedView';
-import { useState } from 'react';
+// import { useState } from 'react';
 import { Link } from 'expo-router';
 
-const [login, setLogin] = useState(false);
+// const [login, setLogin] = useState(false);
 
 async function loginWithSpotify() {
   //  try {
@@ -21,6 +21,7 @@ async function loginWithSpotify() {
   //  }
 
   //Nothing for now
+  console.log('Logging in with Spotify');
 }
  
 //  async function creatingPage() {
@@ -30,33 +31,33 @@ async function loginWithSpotify() {
 
 export default function HomeScreen() {
  return (
-    <ParallaxScrollView
-      headerBackgroundColor={{ light: '#A1CEDC', dark: '#1D3D47' }}
-      headerImage={
-        <Image
-          source={require('@/assets/images/4.png')}
-          style={styles.tuneTimerLogo}
-        />
-      }>
-      <ThemedView style={styles.stepContainer}>
-        <ThemedText type="subtitle" style={styles.headerText}>Step 1: Login with Spotify</ThemedText>
-        <MusicNote />
-        <ThemedText style={styles.text}>
-          Click the button below to login with your Spotify account.
-        </ThemedText>
-        <Button title="Login with Spotify" onPress={loginWithSpotify} />
-      </ThemedView>
+  <ParallaxScrollView
+  headerBackgroundColor={{ light: '#A1CEDC', dark: '#1D3D47' }}
+  headerImage={
+    <Image
+      source={require('@/assets/images/4.png')}
+      style={styles.tuneTimerLogo}
+    />
+  }>
+  {/* <ThemedView style={styles.stepContainer}>
+    <ThemedText type="subtitle" style={styles.headerText}>Step 1: Login with Spotify</ThemedText>
+    <MusicNote />
+    <ThemedText style={styles.text}>
+      Click the button below to login with your Spotify account.
+    </ThemedText>
+    <Button title="Login with Spotify" onPress={loginWithSpotify} />
+  </ThemedView> */}
 
-      <ThemedView style={styles.stepContainer}>
-        <ThemedText type="subtitle" style={styles.headerText}>Begin Creating Custom Playlists</ThemedText>
-        <ThemedText style={styles.text}>
-          Input your desired time and mood and let Tune Timer create a custom playlist for you!
-        </ThemedText>
-        <Link href="/explore" asChild>
-        <Button title="Begin Creating" />
-        </Link>
-      </ThemedView>
-    </ParallaxScrollView>
+  <ThemedView style={styles.stepContainer}>
+    <ThemedText type="subtitle" style={styles.headerText}>Begin Creating Custom Playlists</ThemedText>
+    <ThemedText style={styles.text}>
+      Input your desired time and mood and let Tune Timer create a custom playlist for you!
+    </ThemedText>
+    <Link href="/explore" asChild>
+    <Button title="Begin Creating" />
+    </Link>
+  </ThemedView>
+</ParallaxScrollView>
   );
 }
 
