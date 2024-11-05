@@ -2,7 +2,6 @@ import base64
 import os
 import urllib.parse
 from flask import Flask, redirect, request, jsonify, session
-#from flask_session import Session
 from datetime import datetime
 from dotenv import load_dotenv
 from flask_cors import CORS

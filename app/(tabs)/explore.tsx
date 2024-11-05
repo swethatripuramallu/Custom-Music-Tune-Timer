@@ -70,6 +70,7 @@ async function create() {
 
       const result = await response.json();
       console.log('Response from backend:', result);
+      Linking.openURL(result['playlist_url']);
 
   } catch (error) {
       console.error('Error sending data:', error);
