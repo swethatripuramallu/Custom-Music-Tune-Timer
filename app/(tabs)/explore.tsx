@@ -34,12 +34,9 @@ export default function TabTwoScreen() {
     };
 
     try {
-      const apiUrl = process.env.APP_API_URL;
-      const createPlaylistUrl = `${apiUrl}/create-playlist`;
+        const spotifyPlaylistUrl = 'http://127.0.0.1:5001/create-playlist';
 
-        // const spotifyPlaylistUrl = 'http://127.0.0.1:5001/create-playlist';
-
-        const response = await fetch(createPlaylistUrl, {
+        const response = await fetch(spotifyPlaylistUrl, {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
