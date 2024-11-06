@@ -1,91 +1,89 @@
-import { Image, StyleSheet, Platform, Button, Linking } from 'react-native';
+import { Image, StyleSheet, TouchableOpacity } from 'react-native';
 import { MusicNote } from '@/components/MusicNote';
 import { ParallaxScrollView } from '@/components/ParallaxScrollView';
 import { ThemedText } from '@/components/ThemedText';
 import { ThemedView } from '@/components/ThemedView';
-// import { useState } from 'react';
 import { Link } from 'expo-router';
 
-// const [login, setLogin] = useState(false);
-
-async function loginWithSpotify() {
-  //  try {
-  //     //  const spotifyAuthUrl = 'http://127.0.0.1:3002/login'; //maggie's localhost
-  //     //  const spotifyAuthUrl = 'http://10.0.2.15:5000/login' //swetha's local host
-  //     const spotifyAuthUrl = 'http://127.0.0.1:5001/login'; // saniya's localhost
-
-  //      Linking.openURL(spotifyAuthUrl);
-  //   }
-  //  catch(error) {
-  //    console.error('Error logging in with Spotify:', error);
-  //  }
-
-  //Nothing for now
-  console.log('Logging in with Spotify');
-}
- 
-//  async function creatingPage() {
-//    console.log('Creating page');
-//  }
-
-
 export default function HomeScreen() {
- return (
-  <ParallaxScrollView
-  headerBackgroundColor={{ light: '#A1CEDC', dark: '#1D3D47' }}
-  headerImage={
-    <Image
-      source={require('@/assets/images/4.png')}
-      style={styles.tuneTimerLogo}
-    />
-  }>
-  {/* <ThemedView style={styles.stepContainer}>
-    <ThemedText type="subtitle" style={styles.headerText}>Step 1: Login with Spotify</ThemedText>
-    <MusicNote />
-    <ThemedText style={styles.text}>
-      Click the button below to login with your Spotify account.
-    </ThemedText>
-    <Button title="Login with Spotify" onPress={loginWithSpotify} />
-  </ThemedView> */}
-
-  <ThemedView style={styles.stepContainer}>
-    <ThemedText type="subtitle" style={styles.headerText}>Begin Creating Custom Playlists</ThemedText>
-    <ThemedText style={styles.text}>
-      Input your desired time and mood and let Tune Timer create a custom playlist for you!
-    </ThemedText>
-    <Link href="/explore" asChild>
-    <Button title="Begin Creating" />
-    </Link>
-  </ThemedView>
-</ParallaxScrollView>
+  return (
+    <ParallaxScrollView
+      headerBackgroundColor={{ light: '#F1F0ED', dark: '#F1F0ED' }}
+      headerImage={
+        <ThemedView style={styles.logoContainer}>
+          <Image
+            source={require('@/assets/images/4.png')}
+            style={styles.tuneTimerLogo}
+          />
+        </ThemedView>
+      }
+    >
+      <ThemedView style={styles.container}>
+        <ThemedText type="subtitle" style={styles.headerText}>
+          Playlists for Every Moment
+        </ThemedText>
+        <ThemedText style={styles.text}>
+          Pick a mood and time, and let the Tune Timer do the rest! 
+        </ThemedText>
+        <Link href="/explore" asChild>
+          <TouchableOpacity style={styles.button}>
+            <ThemedText style={styles.buttonText}>Begin Creating!</ThemedText>
+          </TouchableOpacity>
+        </Link>
+      </ThemedView>
+    </ParallaxScrollView>
   );
 }
 
 const styles = StyleSheet.create({
-  titleContainer: {
-    flexDirection: 'row',
+  logoContainer: {
+    justifyContent: 'center',
     alignItems: 'center',
-    gap: 8,
-    // backgroundColor: '#CEABB1',
-  },
-  stepContainer: {
-    gap: 8,
-    marginBottom: 8,
-    // backgroundColor: '#CEABB1',
+    paddingVertical: 20,
   },
   tuneTimerLogo: {
     height: 250,
     width: 400,
-    // bottom: 0,
-    // left: 0,
-    // position: 'absolute',
-    resizeMode: 'cover',
+    resizeMode: 'contain',
+    borderRadius: 15,
   },
-  text: {
-    color: 'black',
+  container: {
+    paddingHorizontal: 20,
+    paddingVertical: 15,
+    backgroundColor: 'transparent',
+    alignItems: 'center',
+    gap: 10,
   },
   headerText: {
     color: '#638C80',
-  }
-
+    fontSize: 26,
+    fontWeight: '700',
+    marginBottom: 10,
+    textAlign: 'center',
+  },
+  text: {
+    color: 'black',
+    fontSize: 16,
+    fontWeight: '500',
+    textAlign: 'center',
+    marginBottom: 15,
+  },
+  button: {
+    backgroundColor: '#638C80',
+    paddingVertical: 12,
+    paddingHorizontal: 25,
+    borderRadius: 25,
+    alignItems: 'center',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 5 },
+    shadowOpacity: 0.2,
+    shadowRadius: 10,
+    width: '70%',
+    marginTop: 20,
+  },
+  buttonText: {
+    color: 'white',
+    fontSize: 16,
+    fontWeight: '600',
+  },
 });

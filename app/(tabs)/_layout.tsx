@@ -26,12 +26,21 @@ export default function TabLayout() {
       <Tabs.Screen
         name="explore"
         options={{
-          title: 'Explore',
+          title: 'Create',
           tabBarIcon: ({ color, focused }) => (
-            <TabBarIcon name={focused ? 'code-slash' : 'code-slash-outline'} color={color} />
+            <TabBarIcon name={focused ? 'musical-notes' : 'musical-notes-outline'} color={color} />
           ),
         }}
       />
+      {/* <Tabs.Screen
+        name="timer"
+        options={{
+          title: 'Timer',
+          tabBarIcon: ({ color, focused }) => (
+            <TabBarIcon name={focused ? 'play-circle' : 'play-circle-outline'} color={color} />
+          ),
+        }}
+      /> */}
     </Tabs>
   );
 }

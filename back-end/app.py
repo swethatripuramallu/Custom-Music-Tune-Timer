@@ -161,22 +161,7 @@ def create_playlist():
         track_artist = track['artist_name']
         print(f"{track_name} by {track_artist}")
        
-    
-    # # Create a response including Spotify data
-    # response = {
-    #   "message": "Playlist creation successful",
-    #    "data": {
-    #        "length": length,
-    #        "happy": happy,
-    #        "sad": sad,
-    #        "dance": dance,
-    #        "productive": productive,
-    #        "spotify_data": spotify_data
-    #    }
-    # }
-    
-    
     return jsonify(spotify_data)
 
 if __name__ == '__main__':
-    app.run(host='0.0.0.0', port=3002, debug=True) 
+    app.run(host='0.0.0.0', port=os.getenv('PORT'), debug=True) 

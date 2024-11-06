@@ -1,5 +1,5 @@
 import Ionicons from '@expo/vector-icons/Ionicons';
-import { StyleSheet, Image, Platform, Button, Linking } from 'react-native';
+import { StyleSheet, Button, Linking, TouchableOpacity } from 'react-native';
 import { useState } from 'react';
 
 import { Collapsible } from '@/components/Collapsible';
@@ -10,106 +10,192 @@ import { ThemedView } from '@/components/ThemedView';
 import { GestureHandlerRootView, TextInput } from 'react-native-gesture-handler';
 
 export default function TabTwoScreen() {
-const [length, onChangeLength] = useState('0');
-const [happy, setHappy] = useState(false);
-const [sad, setSad] = useState(false);
-const [dance, setDance] = useState(false);
-const [productive, setProductive] = useState(false);
+  const [length, onChangeLength] = useState('0');
+  const [happy, setHappy] = useState(false);
+  const [sad, setSad] = useState(false);
+  const [dance, setDance] = useState(false);
+  const [productive, setProductive] = useState(false);
 
-async function setHappyMood() {
-  setHappy(true);
-  console.log('Set Happy:', happy);
-}
+  async function create() {
+    console.log('Creating playlist');
+    console.log('Length:', length);
+    console.log('Happy:', happy);
+    console.log('Sad:', sad);
+    console.log('Dance:', dance);
+    console.log('Productive:', productive);
+    
+    // Now, send the data to the backend
+    const data = {
+        length: length,
+        happy: happy,
+        sad: sad,
+        dance: dance,
+        productive: productive,
+    };
 
-async function setSadMood() {
-  setSad(true);
-  console.log('Set Sad:', sad);
-}
+    try {
+      const apiUrl = process.env.APP_API_URL;
+      const createPlaylistUrl = `${apiUrl}/create-playlist`;
 
-async function setDanceMood() {
-  setDance(true);
-  console.log('Set Dance:', dance);
-}
+        // const spotifyPlaylistUrl = 'http://127.0.0.1:5001/create-playlist';
 
-async function setProductiveMood() {
-  setProductive(true);
-  console.log('Set Productive:', productive);
-}
-
-async function create() {
-  console.log('Creating playlist');
-  console.log('Length:', length);
-  console.log('Happy:', happy);
-  console.log('Sad:', sad);
-  console.log('Dance:', dance);
-  console.log('Productive:', productive);
-  
-  // Now, send the data to the backend
-  const data = {
-      length: length,
-      happy: happy,
-      sad: sad,
-      dance: dance,
-      productive: productive,
-  };
-
-  try {
-      // Sending the state values to the Flask backend
-      //  const spotifyPlaylistUrl = 'http://127.0.0.1:5000/create-playlist' //swetha's url
-      const spotifyPlaylistUrl = 'http://127.0.0.1:3002/create-playlist' //maggie's url
-      // const spotifyPlaylistUrl = 'http://127.0.0.1:5001/create-playlist' //saniya's url
-
-      const response = await fetch(spotifyPlaylistUrl, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
+        const response = await fetch(createPlaylistUrl, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
           credentials: 'include',
            body: JSON.stringify(data),
-      });
+        });
 
-      const result = await response.json();
-      console.log('Response from backend:', result);
-      Linking.openURL(result['playlist_url']);
+        const result = await response.json();
+        console.log('Response from backend:', result);
+        Linking.openURL(result['playlist_url']);
 
-  } catch (error) {
-      console.error('Error sending data:', error);
+    } catch (error) {
+        console.error('Error sending data:', error);
+    }
   }
-}
+
   return (
     <ParallaxScrollView
-      headerBackgroundColor={{ light: '#D0D0D0', dark: '#353636' }}
-      headerImage={<Ionicons size={310} name="code-slash" style={styles.headerImage} />}>
-      <ThemedView>
-        <ThemedText type="title">Create Custom Playlists</ThemedText>
-        <ThemedText>Input your desired time and mood and let Tune Timer create a custom playlist for you!</ThemedText>
-        <GestureHandlerRootView>
-          <TextInput value={length} onChangeText={onChangeLength} placeholder="Enter length" />
+      headerBackgroundColor={{ light: '#F1F0ED', dark: '#F1F0ED' }}
+      headerImage={
+        <Ionicons size={310} name="code-slash" style={styles.headerImage} />
+      }
+    >
+      <ThemedView style={styles.container}>
+        <ThemedText type="subtitle" style={styles.headerText}>
+          Begin Creating!
+        </ThemedText>
+        <ThemedText style={styles.text}>
+          Input Desired Playlist Length!
+        </ThemedText>
+
+        <GestureHandlerRootView style={styles.inputContainer}>
+          <TextInput
+            value={length}
+            onChangeText={onChangeLength}
+            placeholder="Enter length (minutes)"
+            style={styles.input}
+          />
         </GestureHandlerRootView>
-        <ThemedText>Select Mood Descriptors Below:</ThemedText>
-        <Button title="Happy" onPress={setHappyMood}/>
-        <Button title="Sad" onPress={setSadMood}/>
-        <Button title="Dance" onPress={setDanceMood}/>
-        <Button title="Productive" onPress={setProductiveMood}/>
-        <ThemedText>Now, Create Your Playlist!</ThemedText>
-        <Button title="Create Playlist!" onPress={create} />
+
+        <ThemedText style={styles.moodText}>Select Mood(s):</ThemedText>
+
+        <TouchableOpacity style={styles.moodButton} onPress={() => setHappy(true)}>
+          <ThemedText style={styles.buttonText}>Happy</ThemedText>
+        </TouchableOpacity>
+        <TouchableOpacity style={styles.moodButton} onPress={() => setSad(true)}>
+          <ThemedText style={styles.buttonText}>Sad</ThemedText>
+        </TouchableOpacity>
+        <TouchableOpacity style={styles.moodButton} onPress={() => setDance(true)}>
+          <ThemedText style={styles.buttonText}>Dance</ThemedText>
+        </TouchableOpacity>
+        <TouchableOpacity style={styles.moodButton} onPress={() => setProductive(true)}>
+          <ThemedText style={styles.buttonText}>Productive</ThemedText>
+        </TouchableOpacity>
+
+        <ThemedText style={styles.createText}>Create Your Playlist Now!</ThemedText>
+
+        <TouchableOpacity style={styles.createButton} onPress={create}>
+          <ThemedText style={styles.buttonText}>Create!</ThemedText>
+        </TouchableOpacity>
       </ThemedView>
     </ParallaxScrollView>
   );
 }
 
 const styles = StyleSheet.create({
+  tuneTimerLogo: {
+    height: 250,
+    width: 400,
+    resizeMode: 'contain',
+    borderRadius: 15,
+  },
   headerImage: {
     color: '#808080',
     bottom: -90,
     left: -35,
     position: 'absolute',
   },
-  titleContainer: {
-    flexDirection: 'row',
-    gap: 8,
+  container: {
+    paddingHorizontal: 20,
+    paddingVertical: 15,
+    backgroundColor: 'transparent',
+    alignItems: 'center',
+    gap: 10,
+  },
+  headerText: {
+    color: '#638C80',
+    fontSize: 26,
+    fontWeight: '700',
+    marginBottom: 10,
+    textAlign: 'center',
   },
   text: {
     color: '#444545',
-  }
+    fontSize: 16,
+    fontWeight: '500',
+    textAlign: 'center',
+    marginBottom: 15,
+  },
+  inputContainer: {
+    width: '80%',
+    marginBottom: 20,
+  },
+  input: {
+    backgroundColor: '#fff',
+    padding: 10,
+    borderRadius: 8,
+    borderWidth: 1,
+    borderColor: '#ccc',
+    fontSize: 16,
+    color: '#444545',
+  },
+  moodText: {
+    color: '#444545',
+    fontSize: 16,
+    fontWeight: '500',
+    textAlign: 'center',
+    marginBottom: 10,
+  },
+  moodButton: {
+    backgroundColor: '#638C80',
+    paddingVertical: 12,
+    paddingHorizontal: 25,
+    borderRadius: 25,
+    alignItems: 'center',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 5 },
+    shadowOpacity: 0.2,
+    shadowRadius: 10,
+    width: '70%',
+    marginTop: 10,
+  },
+  buttonText: {
+    color: 'white',
+    fontSize: 16,
+    fontWeight: '600',
+  },
+  createText: {
+    color: '#444545',
+    fontSize: 16,
+    fontWeight: '500',
+    textAlign: 'center',
+    marginBottom: 15,
+  },
+  createButton: {
+    backgroundColor: '#638C80',
+    paddingVertical: 12,
+    paddingHorizontal: 25,
+    borderRadius: 25,
+    alignItems: 'center',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 5 },
+    shadowOpacity: 0.2,
+    shadowRadius: 10,
+    width: '70%',
+    marginTop: 20,
+  },
 });
