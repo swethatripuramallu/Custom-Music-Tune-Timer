@@ -1,16 +1,17 @@
-import Ionicons from '@expo/vector-icons/Ionicons';
-import { StyleSheet, Button, Linking, TouchableOpacity } from 'react-native';
+import { Ionicons } from '@expo/vector-icons';
+import { StyleSheet, Button, Linking, TouchableOpacity, View, Image } from 'react-native';
 import { useState } from 'react';
+import Slider from '@react-native-community/slider'; 
 
 import { Collapsible } from '@/components/Collapsible';
 import { ExternalLink } from '@/components/ExternalLink';
 import { ParallaxScrollView } from '@/components/ParallaxScrollView';
 import { ThemedText } from '@/components/ThemedText';
 import { ThemedView } from '@/components/ThemedView';
-import { GestureHandlerRootView, TextInput } from 'react-native-gesture-handler';
+import { GestureHandlerRootView } from 'react-native-gesture-handler';
 
 export default function TabTwoScreen() {
-  const [length, onChangeLength] = useState('0');
+  const [length, setLength] = useState(0); 
   const [happy, setHappy] = useState(false);
   const [sad, setSad] = useState(false);
   const [dance, setDance] = useState(false);
@@ -24,7 +25,6 @@ export default function TabTwoScreen() {
     console.log('Dance:', dance);
     console.log('Productive:', productive);
     
-    // Now, send the data to the backend
     const data = {
         length: length,
         happy: happy,
@@ -58,7 +58,12 @@ export default function TabTwoScreen() {
     <ParallaxScrollView
       headerBackgroundColor={{ light: '#F1F0ED', dark: '#F1F0ED' }}
       headerImage={
-        <Ionicons size={310} name="code-slash" style={styles.headerImage} />
+        <ThemedView style={styles.container}>
+          <Image
+            source={require('@/assets/images/background.png')}
+            style={styles.tuneTimerLogo}
+          />
+        </ThemedView>
       }
     >
       <ThemedView style={styles.container}>
@@ -66,17 +71,22 @@ export default function TabTwoScreen() {
           Begin Creating!
         </ThemedText>
         <ThemedText style={styles.text}>
-          Input Desired Playlist Length!
+          Select Playlist Length!
         </ThemedText>
 
-        <GestureHandlerRootView style={styles.inputContainer}>
-          <TextInput
+        <View style={styles.sliderContainer}>
+          <Slider
+            style={styles.slider}
+            minimumValue={1}
+            maximumValue={120}
+            step={1}
             value={length}
-            onChangeText={onChangeLength}
-            placeholder="Enter length (minutes)"
-            style={styles.input}
+            onValueChange={setLength} 
           />
-        </GestureHandlerRootView>
+          <ThemedText style={styles.sliderText}>
+            {length} minutes
+          </ThemedText>
+        </View>
 
         <ThemedText style={styles.moodText}>Select Mood(s):</ThemedText>
 
@@ -89,12 +99,10 @@ export default function TabTwoScreen() {
         <TouchableOpacity style={styles.moodButton} onPress={() => setDance(true)}>
           <ThemedText style={styles.buttonText}>Dance</ThemedText>
         </TouchableOpacity>
-        <TouchableOpacity style={styles.moodButton} onPress={() => setProductive(true)}>
+        <TouchableOpacity style={[styles.moodButton, styles.lastMoodButton]} onPress={() => setProductive(true)}>
           <ThemedText style={styles.buttonText}>Productive</ThemedText>
         </TouchableOpacity>
-
         <ThemedText style={styles.createText}>Create Your Playlist Now!</ThemedText>
-
         <TouchableOpacity style={styles.createButton} onPress={create}>
           <ThemedText style={styles.buttonText}>Create!</ThemedText>
         </TouchableOpacity>
@@ -124,7 +132,7 @@ const styles = StyleSheet.create({
     gap: 10,
   },
   headerText: {
-    color: '#638C80',
+    color: '#435f57',
     fontSize: 26,
     fontWeight: '700',
     marginBottom: 10,
@@ -132,27 +140,30 @@ const styles = StyleSheet.create({
   },
   text: {
     color: '#444545',
-    fontSize: 16,
+    fontSize: 18,
     fontWeight: '500',
     textAlign: 'center',
     marginBottom: 15,
   },
-  inputContainer: {
+  sliderContainer: {
     width: '80%',
     marginBottom: 20,
+    alignItems: 'center',
   },
-  input: {
-    backgroundColor: '#fff',
-    padding: 10,
-    borderRadius: 8,
-    borderWidth: 1,
-    borderColor: '#ccc',
-    fontSize: 16,
+  slider: {
+    width: '100%',
+    height: 40,
+  },
+  sliderText: {
     color: '#444545',
+    fontSize: 16,
+    fontWeight: '500',
+    textAlign: 'center',
+    marginTop: 10,
   },
   moodText: {
     color: '#444545',
-    fontSize: 16,
+    fontSize: 18,
     fontWeight: '500',
     textAlign: 'center',
     marginBottom: 10,
@@ -177,7 +188,7 @@ const styles = StyleSheet.create({
   },
   createText: {
     color: '#444545',
-    fontSize: 16,
+    fontSize: 18,
     fontWeight: '500',
     textAlign: 'center',
     marginBottom: 15,
@@ -193,6 +204,9 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.2,
     shadowRadius: 10,
     width: '70%',
-    marginTop: 20,
+    marginTop: 10,
+  },
+  lastMoodButton: {
+    marginBottom: 20, 
   },
 });

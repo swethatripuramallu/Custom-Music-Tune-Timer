@@ -12,7 +12,7 @@ export default function HomeScreen() {
       headerImage={
         <ThemedView style={styles.logoContainer}>
           <Image
-            source={require('@/assets/images/4.png')}
+            source={require('@/assets/images/5.png')}
             style={styles.tuneTimerLogo}
           />
         </ThemedView>
@@ -20,10 +20,10 @@ export default function HomeScreen() {
     >
       <ThemedView style={styles.container}>
         <ThemedText type="subtitle" style={styles.headerText}>
-          Playlists for Every Moment
+          Custom Designed Playlists 🎵
         </ThemedText>
         <ThemedText style={styles.text}>
-          Pick a mood and time, and let the Tune Timer do the rest! 
+          Personalized playlists in just a few easy steps! 
         </ThemedText>
         <Link href="/explore" asChild>
           <TouchableOpacity style={styles.button}>
@@ -55,7 +55,7 @@ const styles = StyleSheet.create({
     gap: 10,
   },
   headerText: {
-    color: '#638C80',
+    color: '#435f57',
     fontSize: 26,
     fontWeight: '700',
     marginBottom: 10,
@@ -74,7 +74,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 25,
     borderRadius: 25,
     alignItems: 'center',
-    shadowColor: '#000',
+    shadowColor: '#B0B7B3',
     shadowOffset: { width: 0, height: 5 },
     shadowOpacity: 0.2,
     shadowRadius: 10,

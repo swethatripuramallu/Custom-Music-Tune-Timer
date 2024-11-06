@@ -1,18 +1,12 @@
-import base64
 import os
-import urllib.parse
-from flask import Flask, redirect, request, jsonify, session
-from datetime import datetime
+from flask import Flask, request, jsonify
 from dotenv import load_dotenv
 from flask_cors import CORS
 from cachelib.file import FileSystemCache
-import logging
 
-import spotipy
 from spotipy.oauth2 import SpotifyOAuth
 from spotipy import Spotify
 
-# load environement variables
 load_dotenv()
 
 app = Flask(__name__)
@@ -20,7 +14,6 @@ app = Flask(__name__)
 CORS(app, supports_credentials=True)
 app.secret_key = os.getenv('SECRET_KEY')
 
-#Flask server-side sessions (e.g., Redis, filesystem)
 cache = FileSystemCache('/tmp/flask_cache')
 
 CLIENT_ID = os.getenv('CLIENT_ID')
@@ -36,8 +29,6 @@ def parse_songs(recommended):
     tracks = []
     
     recommendedTracks = recommended.get('tracks', [])
-    # Initialize an empty set to keep track of already seen tracks (to avoid duplicates)
-    #seen_tracks = set()
 
     for item in recommendedTracks:
         track_name = item['name']
@@ -55,9 +46,6 @@ def parse_songs(recommended):
 
         tracks.append(song_info)
 
-        #seen_tracks.add(track_key)
-
-    
     return tracks
 
 def filterSongsByDuration(tracks: list, duration: float):
@@ -76,8 +64,6 @@ def filterSongsByDuration(tracks: list, duration: float):
                 break 
 
         return selected_tracks           
-
-
 
 # Function to fetch Spotify data based on user input
 def get_spotify_data(length, happy, sad, dance, productive):
