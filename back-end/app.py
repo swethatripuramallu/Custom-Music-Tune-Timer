@@ -90,16 +90,25 @@ def get_spotify_data(length, happy, sad, dance, productive):
     ))
     
     # Modify recommendations based on moods or user input (happy, sad, dance, etc.)
+    min_danceability = 0.0
+    target_danceability = 0.5
+    min_tempo = 0.0
+    target_tempo = 120.0
+    max_speechiness = 1.0
+    max_loudness = 1.0
     if happy:
-        seed_genres = ['happy']
-    elif sad:
-        seed_genres = ['sad']
-    elif dance:
-        seed_genres = ['dance']
-    elif productive:
-        seed_genres = ['classical']
-    else:
-        seed_genres = ['pop']
+        min_tempo = 100.0
+        target_tempo = 140.0
+    if sad:
+        min_tempo = 0.0
+        target_tempo = 80.0
+    if dance:
+        min_danceability = 0.6
+        target_danceability = 0.8
+    if productive:
+        max_speechiness = 0.4
+        max_loudness = 0.6
+
     
     # Seeds based on user tracks and user artists
     top_tracks = sp.current_user_top_tracks(limit=2)
@@ -109,7 +118,7 @@ def get_spotify_data(length, happy, sad, dance, productive):
     seed_artists = [artist['id'] for artist in top_artists['items']]
 
     # Fetch recommended songs based on mood
-    recommendations = sp.recommendations(seed_tracks=seed_tracks, seed_artists=seed_artists, limit=100)
+    recommendations = sp.recommendations(seed_tracks=seed_tracks, seed_artists=seed_artists, min_tempo=min_tempo, target_tempo=target_tempo, min_danceability=min_danceability, target_danceability=target_danceability, max_speechiness=max_speechiness, max_loudness=max_loudness, limit=100)
 
     tracks = parse_songs(recommendations)
     filtered_songs = filterSongsByDuration(tracks, length)
