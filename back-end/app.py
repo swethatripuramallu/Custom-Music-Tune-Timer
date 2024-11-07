@@ -101,7 +101,7 @@ def get_spotify_data(length, happy, sad, dance, productive):
         min_energy = 0.6
         target_energy =  0.8
         seed_genres.append('happy')
-    if sad:
+    elif sad:
         min_acousticness = 0.4
         max_tempo = 80.0
         target_tempo = 60.0
@@ -109,7 +109,7 @@ def get_spotify_data(length, happy, sad, dance, productive):
         target_valence = 0.2
         max_energy = 0.4
         seed_genres.append('sad')
-    if dance:
+    elif dance:
         min_danceability = 0.6
         target_danceability = 0.8
         min_energy = 0.7
@@ -117,7 +117,7 @@ def get_spotify_data(length, happy, sad, dance, productive):
         min_tempo = 110.0
         target_tempo = 130.0
         seed_genres.append('dance')
-    if productive:
+    elif productive:
         max_speechiness = 0.4
         max_loudness = 0.4
         target_tempo = 120.0
@@ -149,7 +149,7 @@ def get_spotify_data(length, happy, sad, dance, productive):
     
     # Create a new playlist
     user_id = sp.current_user()['id']
-    playlist = sp.user_playlist_create(user=user_id, name="Tune Timer Playlist", public=False,
+    playlist = sp.user_playlist_create(user=user_id, name="Tune Timer Playlist", public=True,
                                        description="A playlist created based on your selected mood and duration.")
     # Get the track URIs for the filtered songs
     track_uris = [f"spotify:track:{track['track_id']}" for track in filtered_songs]

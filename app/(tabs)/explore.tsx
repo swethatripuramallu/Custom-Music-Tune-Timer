@@ -17,6 +17,34 @@ export default function TabTwoScreen() {
   const [dance, setDance] = useState(false);
   const [productive, setProductive] = useState(false);
 
+  async function setHappyMood() {
+    setHappy(!happy);
+    setSad(false);
+    setDance(false);
+    setProductive(false);
+  }
+
+  async function setSadMood() {
+    setHappy(false);
+    setSad(!sad);
+    setDance(false);
+    setProductive(false);
+  }
+
+  async function setDanceMood() {
+    setHappy(false);
+    setSad(false);
+    setDance(!dance);
+    setProductive(false);
+  }
+
+  async function setProductiveMood() {
+    setHappy(false);
+    setSad(false);
+    setDance(false);
+    setProductive(!productive);
+  }
+
   async function create() {
     console.log('Creating playlist');
     console.log('Length:', length);
@@ -90,17 +118,17 @@ export default function TabTwoScreen() {
 
         <ThemedText style={styles.moodText}>Select Mood(s):</ThemedText>
 
-        <TouchableOpacity style={styles.moodButton} onPress={() => setHappy(true)}>
-          <ThemedText style={styles.buttonText}>Happy</ThemedText>
+        <TouchableOpacity style={[styles.moodButton, happy && styles.pressedButton]} onPress={() => setHappyMood()}>
+          <ThemedText style={[styles.buttonText, happy && styles.pressedText]}>Happy</ThemedText>
         </TouchableOpacity>
-        <TouchableOpacity style={styles.moodButton} onPress={() => setSad(true)}>
-          <ThemedText style={styles.buttonText}>Sad</ThemedText>
+        <TouchableOpacity style={[styles.moodButton, sad && styles.pressedButton]} onPress={() => setSadMood()}>
+          <ThemedText style={[styles.buttonText, sad && styles.pressedText]}>Sad</ThemedText>
         </TouchableOpacity>
-        <TouchableOpacity style={styles.moodButton} onPress={() => setDance(true)}>
-          <ThemedText style={styles.buttonText}>Dance</ThemedText>
+        <TouchableOpacity style={[styles.moodButton, dance && styles.pressedButton]} onPress={() => setDanceMood()}>
+          <ThemedText style={[styles.buttonText, dance && styles.pressedText]}>Dance</ThemedText>
         </TouchableOpacity>
-        <TouchableOpacity style={[styles.moodButton, styles.lastMoodButton]} onPress={() => setProductive(true)}>
-          <ThemedText style={styles.buttonText}>Productive</ThemedText>
+        <TouchableOpacity style={[styles.moodButton, styles.lastMoodButton, productive && styles.pressedButton]} onPress={() => setProductiveMood()}>
+          <ThemedText style={[styles.buttonText, productive && styles.pressedText]}>Productive</ThemedText>
         </TouchableOpacity>
         <ThemedText style={styles.createText}>Create Your Playlist Now!</ThemedText>
         <TouchableOpacity style={styles.createButton} onPress={create}>
@@ -209,4 +237,12 @@ const styles = StyleSheet.create({
   lastMoodButton: {
     marginBottom: 20, 
   },
+  pressedButton: {
+    backgroundColor: 'white',
+  },
+  pressedText: {
+    color: '#638C80',
+    fontSize: 16,
+    fontWeight: '600',
+  }
 });
