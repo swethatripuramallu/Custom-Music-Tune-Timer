@@ -96,29 +96,67 @@ def get_spotify_data(length, happy, sad, dance, productive):
     target_tempo = 120.0
     max_speechiness = 1.0
     max_loudness = 1.0
+    min_valence = 0.0
+    max_valence = 1.0
+    target_valence = 0.5
+    min_energy = 0.0
+    target_energy = 0.5
+    max_energy = 1.0
+    min_acousticness = 0.0
+    min_instrumentalness = 0.0
+    max_tempo = 200.0
+    target_tempo = 120.0
+    seed_genres = []
     if happy:
         min_tempo = 100.0
         target_tempo = 140.0
+        min_valence = 0.5
+        target_valence = 0.8
+        min_energy = 0.6
+        target_energy =  0.8
+        seed_genres.append('happy')
     if sad:
-        min_tempo = 0.0
-        target_tempo = 80.0
+        min_acousticness = 0.4
+        max_tempo = 80.0
+        target_tempo = 60.0
+        max_valence = 0.5
+        target_valence = 0.2
+        max_energy = 0.4
+        seed_genres.append('sad')
     if dance:
         min_danceability = 0.6
         target_danceability = 0.8
+        min_energy = 0.7
+        target_energy = 0.85
+        min_tempo = 110.0
+        target_tempo = 130.0
+        seed_genres.append('dance')
     if productive:
         max_speechiness = 0.4
-        max_loudness = 0.6
+        max_loudness = 0.4
+        target_tempo = 120.0
+        target_energy = 0.4
+        min_instrumentalness = 0.7
+        seed_genres.append('study')
 
-    
     # Seeds based on user tracks and user artists
-    top_tracks = sp.current_user_top_tracks(limit=2)
+    top_tracks = sp.current_user_top_tracks(limit=1)
     seed_tracks = [track['id'] for track in top_tracks['items']]
 
-    top_artists = sp.current_user_top_artists(limit=3)
+    top_artists = sp.current_user_top_artists(limit=3, time_range='long_term')
     seed_artists = [artist['id'] for artist in top_artists['items']]
 
     # Fetch recommended songs based on mood
-    recommendations = sp.recommendations(seed_tracks=seed_tracks, seed_artists=seed_artists, min_tempo=min_tempo, target_tempo=target_tempo, min_danceability=min_danceability, target_danceability=target_danceability, max_speechiness=max_speechiness, max_loudness=max_loudness, limit=100)
+    recommendations = sp.recommendations(seed_tracks=seed_tracks, seed_artists=seed_artists, seed_genres=seed_genres,
+                                         min_danceability=min_danceability, target_danceability=target_danceability, 
+                                         max_speechiness=max_speechiness, 
+                                         max_loudness=max_loudness, 
+                                         min_tempo=min_tempo, target_tempo=target_tempo, max_tempo=max_tempo, 
+                                         min_acousticness=min_acousticness,
+                                         min_instrumentalness=min_instrumentalness,
+                                         min_energy=min_energy, target_energy=target_energy, max_energy=max_energy,
+                                         min_valence=min_valence, max_valence=max_valence, target_valence=target_valence, 
+                                         limit=100)
 
     tracks = parse_songs(recommendations)
     filtered_songs = filterSongsByDuration(tracks, length)
