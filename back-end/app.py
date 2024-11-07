@@ -149,7 +149,7 @@ def get_spotify_data(length, happy, sad, dance, productive):
     
     # Create a new playlist
     user_id = sp.current_user()['id']
-    playlist = sp.user_playlist_create(user=user_id, name="Tune Timer Playlist", public=True,
+    playlist = sp.user_playlist_create(user=user_id, name="Tune Timer Playlist", public=False,
                                        description="A playlist created based on your selected mood and duration.")
     # Get the track URIs for the filtered songs
     track_uris = [f"spotify:track:{track['track_id']}" for track in filtered_songs]

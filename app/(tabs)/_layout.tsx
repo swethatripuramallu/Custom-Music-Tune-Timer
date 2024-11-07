@@ -32,7 +32,7 @@ export default function TabLayout() {
           ),
         }}
       />
-      {/* <Tabs.Screen
+      <Tabs.Screen
         name="timer"
         options={{
           title: 'Timer',
@@ -40,7 +40,7 @@ export default function TabLayout() {
             <TabBarIcon name={focused ? 'play-circle' : 'play-circle-outline'} color={color} />
           ),
         }}
-      /> */}
+      />
     </Tabs>
   );
 }
