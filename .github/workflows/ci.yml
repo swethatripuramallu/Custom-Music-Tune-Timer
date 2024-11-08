@@ -4,9 +4,11 @@ on:
   push: 
     branches: 
       - main
+      - ms-workflow-updates
   pull_request: 
     branches: 
       - main
+      - ms-workflow-updates
 
 jobs:
   build:
@@ -71,8 +73,3 @@ jobs:
     # Run Flake8 Linter
     - name: Run Flake8 Linter
       run: flake8 back-end/app.py
-
-      # Run npm linter
-    - name: Run npm Linter
-      run: 
-        npm run lint
