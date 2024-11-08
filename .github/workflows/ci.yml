@@ -4,11 +4,9 @@ on:
   push: 
     branches: 
       - main
-      - ms-testing-build
   pull_request: 
     branches: 
       - main
-      - ms-testing-build
 
 jobs:
   build:
@@ -45,8 +43,8 @@ jobs:
       run: npx expo start --no-dev --minify & echo $! > expo.pid
 
     # Add a delay or timeout here
-    - name: Wait for 60 seconds
-      run: sleep 60
+    - name: Wait for 30 seconds
+      run: sleep 30
 
     # Kill the Expo process so it doesn't timeout
     - name: End Expo project
@@ -55,3 +53,30 @@ jobs:
     # Clean up
     - name: Remove PID file
       run: rm expo.pid || true
+
+    # Set up Python environment
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.x'
+
+    # Install Python dependencies from requirements.txt
+    - name: Install Python dependencies
+      run: pip install -r tests/requirements.txt
+     
+    # Install flake8 
+    - name: Install flake8
+      run: pip install flake8
+  
+    # Run Flake8 Linter
+    - name: Run Flake8 Linter
+      run: flake8 backend/app.py
+
+      # Run npm linter
+    - name: Run npm Linter
+      run: 
+        npm run lint
+
+    # Run Python unit tests using unittest
+    - name: Run Unit Tests
+      run: python -m pytest tests/test_authentication.py
