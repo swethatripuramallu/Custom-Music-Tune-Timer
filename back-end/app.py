@@ -24,21 +24,23 @@ AUTH_URL = 'https://accounts.spotify.com/authorize'
 TOKEN_URL = 'https://accounts.spotify.com/api/token'
 API_BASE_URL = 'https://api.spotify.com/v1/'
 
+
 def parse_songs(recommended):
 
     tracks = []
-    
+
     recommendedTracks = recommended.get('tracks', [])
 
     for item in recommendedTracks:
         track_name = item['name']
         artists = item.get('artists', [])
-        artist_names = ", ".join([artist.get('name', 'Unknown Artist') for artist in artists])
+        artist_names = ", ".join([artist.get('name', 'Unknown Artist')
+                                  for artist in artists])
         duration = item['duration_ms']
         track_id = item.get('id', "Unknown ID")
 
         song_info = {
-            'track_name' : track_name,
+            'track_name': track_name,
             'artist_name': artist_names,
             'duration': duration,
             'track_id': track_id
@@ -48,22 +50,24 @@ def parse_songs(recommended):
 
     return tracks
 
+
 def filterSongsByDuration(tracks: list, duration: float):
-        #sort tracks by duration in descending order
-        sorted_tracks = sorted(tracks, key=lambda x: x['duration'], reverse = True) 
+    # sort tracks by duration in descending order
+    sorted_tracks = sorted(tracks, key=lambda x: x['duration'], reverse=True)
 
-        selected_tracks = []
-        current_duration = 0
+    selected_tracks = []
+    current_duration = 0
 
-        for track in sorted_tracks:
-            if current_duration + track['duration'] <= duration:
-                selected_tracks.append(track)
-                current_duration += track['duration']
+    for track in sorted_tracks:
+        if current_duration + track['duration'] <= duration:
+            selected_tracks.append(track)
+            current_duration += track['duration']
 
-            if current_duration >= duration:
-                break 
+        if current_duration >= duration:
+            break
 
-        return selected_tracks           
+        return selected_tracks
+
 
 # Function to fetch Spotify data based on user input
 def get_spotify_data(length, happy, sad, dance, productive):
@@ -71,11 +75,12 @@ def get_spotify_data(length, happy, sad, dance, productive):
         client_id=CLIENT_ID,
         client_secret=CLIENT_SECRET,
         redirect_uri=REDIRECT_URI,
-        scope='user-library-read user-read-recently-played playlist-modify-public user-top-read',
+        scope=('user-library-read user-read-recently-played '
+               'playlist-modify-public user-top-read'),
         cache_path='.cache'
     ))
-    
-    # Modify recommendations based on moods or user input (happy, sad, dance, etc.)
+
+    # Modify recommendations based on moods or user input (happy, sad, etc.)
     min_danceability = 0.0
     target_danceability = 0.5
     min_tempo = 0.0
@@ -99,7 +104,7 @@ def get_spotify_data(length, happy, sad, dance, productive):
         min_valence = 0.5
         target_valence = 0.8
         min_energy = 0.6
-        target_energy =  0.8
+        target_energy = 0.8
         seed_genres.append('happy')
     if sad:
         min_acousticness = 0.4
@@ -133,26 +138,38 @@ def get_spotify_data(length, happy, sad, dance, productive):
     seed_artists = [artist['id'] for artist in top_artists['items']]
 
     # Fetch recommended songs based on mood
-    recommendations = sp.recommendations(seed_tracks=seed_tracks, seed_artists=seed_artists, seed_genres=seed_genres,
-                                         min_danceability=min_danceability, target_danceability=target_danceability, 
-                                         max_speechiness=max_speechiness, 
-                                         max_loudness=max_loudness, 
-                                         min_tempo=min_tempo, target_tempo=target_tempo, max_tempo=max_tempo, 
-                                         min_acousticness=min_acousticness,
-                                         min_instrumentalness=min_instrumentalness,
-                                         min_energy=min_energy, target_energy=target_energy, max_energy=max_energy,
-                                         min_valence=min_valence, max_valence=max_valence, target_valence=target_valence, 
-                                         limit=100)
+    recs = sp.recommendations(seed_tracks=seed_tracks,
+                              seed_artists=seed_artists,
+                              seed_genres=seed_genres,
+                              min_danceability=min_danceability,
+                              target_danceability=target_danceability,
+                              max_speechiness=max_speechiness,
+                              max_loudness=max_loudness,
+                              min_tempo=min_tempo,
+                              target_tempo=target_tempo,
+                              max_tempo=max_tempo,
+                              min_acousticness=min_acousticness,
+                              min_instrumentalness=min_instrumentalness,
+                              min_energy=min_energy,
+                              target_energy=target_energy,
+                              max_energy=max_energy,
+                              min_valence=min_valence,
+                              max_valence=max_valence,
+                              target_valence=target_valence,
+                              limit=100)
 
-    tracks = parse_songs(recommendations)
+    tracks = parse_songs(recs)
     filtered_songs = filterSongsByDuration(tracks, length)
-    
+
     # Create a new playlist
     user_id = sp.current_user()['id']
-    playlist = sp.user_playlist_create(user=user_id, name="Tune Timer Playlist", public=True,
-                                       description="A playlist created based on your selected mood and duration.")
+    name = "Tune Timer Playlist"
+    description = "A playlist created based on your selected mood and time."
+    playlist = sp.user_playlist_create(user=user_id, name=name, public=True,
+                                       description=description)
     # Get the track URIs for the filtered songs
-    track_uris = [f"spotify:track:{track['track_id']}" for track in filtered_songs]
+    track_uris = [f"spotify:track:{track['track_id']}" for track
+                  in filtered_songs]
 
     # Add tracks to the new playlist
     sp.playlist_add_items(playlist_id=playlist['id'], items=track_uris)
@@ -171,12 +188,13 @@ def get_spotify_data(length, happy, sad, dance, productive):
 def callback():
     return "Authentication Sucessful!"
 
+
 # Flask route to handle playlist creation
 @app.route('/create-playlist', methods={'POST'})
 def create_playlist():
     data = request.get_json()  # Parse incoming JSON request body
     print('Received data:', data)
-   
+
     length = int(data.get('length')) * 60000
     happy = data.get('happy')
     sad = data.get('sad')
@@ -185,16 +203,17 @@ def create_playlist():
 
     # Get Spotify data based on mood
     spotify_data = get_spotify_data(length, happy, sad, dance, productive)
-    
+
     tracks = spotify_data['tracks']
 
-   # print("Spotify Data:", spotify_data)
+    # print("Spotify Data:", spotify_data)
     for track in tracks:
         track_name = track['track_name']
         track_artist = track['artist_name']
         print(f"{track_name} by {track_artist}")
-       
+
     return jsonify(spotify_data)
 
+
 if __name__ == '__main__':
-    app.run(host='0.0.0.0', port=os.getenv('PORT'), debug=True) 
+    app.run(host='0.0.0.0', port=os.getenv('PORT'), debug=True)

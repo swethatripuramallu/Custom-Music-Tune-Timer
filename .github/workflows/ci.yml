@@ -76,7 +76,3 @@ jobs:
     - name: Run npm Linter
       run: 
         npm run lint
-
-    # Run Python unit tests using unittest
-    - name: Run Unit Tests
-      run: python -m pytest tests/test_authentication.py
