@@ -14,7 +14,7 @@ app = Flask(__name__)
 CORS(app, supports_credentials=True)
 app.secret_key = os.getenv('SECRET_KEY')
 
-cache = FileSystemCache('/tmp/flask_cache')
+cache = FileSystemCache('/tmp/flascleark_cache')
 
 CLIENT_ID = os.getenv('CLIENT_ID')
 CLIENT_SECRET = os.getenv('CLIENT_SECRET')
@@ -23,6 +23,7 @@ REDIRECT_URI = os.getenv('REDIRECT_URI')
 AUTH_URL = 'https://accounts.spotify.com/authorize'
 TOKEN_URL = 'https://accounts.spotify.com/api/token'
 API_BASE_URL = 'https://api.spotify.com/v1/'
+
 
 def parse_songs(recommended):
 
@@ -38,7 +39,7 @@ def parse_songs(recommended):
         track_id = item.get('id', "Unknown ID")
 
         song_info = {
-            'track_name' : track_name,
+            'track_name': track_name,
             'artist_name': artist_names,
             'duration': duration,
             'track_id': track_id
@@ -48,8 +49,9 @@ def parse_songs(recommended):
 
     return tracks
 
+
 def filterSongsByDuration(tracks: list, duration: float):
-        #sort tracks by duration in descending order
+        # sort tracks by duration in descending order
         sorted_tracks = sorted(tracks, key=lambda x: x['duration'], reverse = True) 
 
         selected_tracks = []
