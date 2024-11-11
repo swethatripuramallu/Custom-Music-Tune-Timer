@@ -24,9 +24,17 @@ export default function HomeScreen() {
         <ThemedText style={styles.text}>
           Personalized playlists in just a few easy steps! 
         </ThemedText>
-        <Link href="/explore" asChild>
+        
+        <Link href="/explore">
           <TouchableOpacity style={styles.button}>
             <ThemedText style={styles.buttonText}>Begin Creating!</ThemedText>
+          </TouchableOpacity>
+        </Link>
+
+        {/* Add the "Go to Profile" button here */}
+        <Link href="/profile">
+          <TouchableOpacity style={styles.button}>
+            <ThemedText style={styles.buttonText}>Go to Profile</ThemedText>
           </TouchableOpacity>
         </Link>
       </ThemedView>
