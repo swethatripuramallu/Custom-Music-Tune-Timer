@@ -1,5 +1,4 @@
 import { Image, StyleSheet, TouchableOpacity } from 'react-native';
-import { MusicNote } from '@/components/MusicNote';
 import { ParallaxScrollView } from '@/components/ParallaxScrollView';
 import { ThemedText } from '@/components/ThemedText';
 import { ThemedView } from '@/components/ThemedView';

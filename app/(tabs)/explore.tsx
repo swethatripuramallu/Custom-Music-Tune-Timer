@@ -1,14 +1,10 @@
-import { Ionicons } from '@expo/vector-icons';
-import { StyleSheet, Button, Linking, TouchableOpacity, View, Image } from 'react-native';
+import { StyleSheet, Linking, TouchableOpacity, View, Image } from 'react-native';
 import { useState } from 'react';
 import Slider from '@react-native-community/slider'; 
 
-import { Collapsible } from '@/components/Collapsible';
-import { ExternalLink } from '@/components/ExternalLink';
 import { ParallaxScrollView } from '@/components/ParallaxScrollView';
 import { ThemedText } from '@/components/ThemedText';
 import { ThemedView } from '@/components/ThemedView';
-import { GestureHandlerRootView } from 'react-native-gesture-handler';
 
 export default function TabTwoScreen() {
   const [length, setLength] = useState(0); 
