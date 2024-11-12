@@ -17,6 +17,22 @@ const Timer: React.FC = () => {
     console.log('Timer Complete!');
   };
 
+  async function playSound() {
+    toggleTimer();
+    try {
+      const spotifyPlaylistUrl = 'http://127.0.0.1:3002/play';
+
+      const response = await fetch(spotifyPlaylistUrl);
+
+      // const result = await response.json();
+      // console.log('Response from backend:', result);
+      // Linking.openURL(result['playlist_url']);
+
+    } catch (error) {
+      console.error('Error playing playlist: ', error);
+    }
+  }
+
   const toggleTimer = () => {
     setIsPlaying((prev) => !prev); // Toggle the timer state between playing and paused
   };
@@ -51,7 +67,7 @@ const Timer: React.FC = () => {
       </CountdownCircleTimer>
 
       {/* Button to start/stop the timer */}
-      <TouchableOpacity style={styles.button} onPress={toggleTimer}>
+      <TouchableOpacity style={styles.button} onPress={playSound}>
         <Text style={styles.buttonText}>
           {isPlaying ? 'Stop' : 'Start'}
         </Text>

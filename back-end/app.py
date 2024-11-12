@@ -53,12 +53,12 @@ def parse_songs(recommended):
 
 def filterSongsByDuration(tracks: list, duration: float):
     # sort tracks by duration in descending order
-    sorted_tracks = sorted(tracks, key=lambda x: x['duration'], reverse=True)
+    # sorted_tracks = sorted(tracks, key=lambda x: x['duration'], reverse=True)
 
     selected_tracks = []
     current_duration = 0
 
-    for track in sorted_tracks:
+    for track in tracks:
         if current_duration + track['duration'] <= duration:
             selected_tracks.append(track)
             current_duration += track['duration']
@@ -213,6 +213,32 @@ def create_playlist():
         print(f"{track_name} by {track_artist}")
 
     return jsonify(spotify_data)
+
+
+@app.route('/play')
+def play_playlist():
+    sp = Spotify(auth_manager=SpotifyOAuth(
+        client_id=CLIENT_ID,
+        client_secret=CLIENT_SECRET,
+        redirect_uri=REDIRECT_URI,
+        scope=('user-library-read user-read-recently-played '
+               'playlist-modify-public user-top-read '
+               'playlist-read-private '
+               'user-read-playback-state '
+               'user-modify-playback-state'),
+        cache_path='.cache'
+    ))
+
+    # Get device ID
+    device_id = sp.devices()['devices'][0]['id']
+    print(device_id)
+    # Get TUNE TIMER PLAYLIST ID
+    playlist_id = sp.user_playlists(user="maggiesolinsky")['items'][0]['id']
+    print(playlist_id)
+
+    sp.start_playback(device_id=device_id,
+                      context_uri="spotify:playlist:" + playlist_id)
+    return "Playing Playlist"
 
 
 if __name__ == '__main__':

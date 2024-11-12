@@ -5,6 +5,7 @@ import Slider from '@react-native-community/slider';
 import { ParallaxScrollView } from '@/components/ParallaxScrollView';
 import { ThemedText } from '@/components/ThemedText';
 import { ThemedView } from '@/components/ThemedView';
+import { Link } from 'expo-router';
 
 export default function ExploreScreen() {
   const [length, setLength] = useState<number>(0); 
@@ -69,7 +70,7 @@ export default function ExploreScreen() {
     };
 
     try {
-        const spotifyPlaylistUrl = 'http://127.0.0.1:5001/create-playlist';
+        const spotifyPlaylistUrl = 'http://127.0.0.1:3002/create-playlist';
 
         const response = await fetch(spotifyPlaylistUrl, {
           method: 'POST',
@@ -82,7 +83,7 @@ export default function ExploreScreen() {
 
         const result = await response.json();
         console.log('Response from backend:', result);
-        Linking.openURL(result['playlist_url']);
+        // Linking.openURL(result['playlist_url']);
 
     } catch (error) {
         console.error('Error sending data:', error);
@@ -155,9 +156,11 @@ export default function ExploreScreen() {
         </TouchableOpacity>
 
         <ThemedText style={styles.createText}>Create Your Playlist Now!</ThemedText>
-        <TouchableOpacity style={styles.createButton} onPress={createPlaylist}>
-          <ThemedText style={styles.buttonText}>Create!</ThemedText>
-        </TouchableOpacity>
+        <Link href="./timer" asChild>
+          <TouchableOpacity style={styles.createButton} onPress={createPlaylist}>
+            <ThemedText style={styles.buttonText}>Create!</ThemedText>
+          </TouchableOpacity>
+        </Link>
       </ThemedView>
     </ParallaxScrollView>
   );
