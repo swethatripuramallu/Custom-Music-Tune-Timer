@@ -1,23 +1,58 @@
-import { Ionicons } from '@expo/vector-icons';
-import { StyleSheet, Button, Linking, TouchableOpacity, View, Image } from 'react-native';
+import { StyleSheet, TextInput, Linking, TouchableOpacity, View, Image } from 'react-native';
 import { useState } from 'react';
 import Slider from '@react-native-community/slider'; 
 
-import { Collapsible } from '@/components/Collapsible';
-import { ExternalLink } from '@/components/ExternalLink';
 import { ParallaxScrollView } from '@/components/ParallaxScrollView';
 import { ThemedText } from '@/components/ThemedText';
 import { ThemedView } from '@/components/ThemedView';
-import { GestureHandlerRootView } from 'react-native-gesture-handler';
 
-export default function TabTwoScreen() {
-  const [length, setLength] = useState(0); 
+export default function ExploreScreen() {
+  const [length, setLength] = useState<number>(0); 
   const [happy, setHappy] = useState(false);
   const [sad, setSad] = useState(false);
   const [dance, setDance] = useState(false);
   const [productive, setProductive] = useState(false);
+  const [manualLength, setManualLength] = useState<string>(''); 
 
-  async function create() {
+  const handleManualLengthChange = (text: string) => {
+    const value = parseInt(text, 10);
+    if (!isNaN(value) && value >= 1 && value <= 120) {
+      setLength(value);
+      setManualLength(text); 
+    } else {
+      setManualLength(text); 
+    }
+  };
+
+  const setHappyMood = () => {
+    setHappy(!happy);
+    setSad(false);
+    setDance(false);
+    setProductive(false);
+  };
+
+  const setSadMood = () => {
+    setHappy(false);
+    setSad(!sad);
+    setDance(false);
+    setProductive(false);
+  };
+
+  const setDanceMood = () => {
+    setHappy(false);
+    setSad(false);
+    setDance(!dance);
+    setProductive(false);
+  };
+
+  const setProductiveMood = () => {
+    setHappy(false);
+    setSad(false);
+    setDance(false);
+    setProductive(!productive);
+  };
+
+  const createPlaylist = async () => {
     console.log('Creating playlist');
     console.log('Length:', length);
     console.log('Happy:', happy);
@@ -42,7 +77,7 @@ export default function TabTwoScreen() {
             'Content-Type': 'application/json',
           },
           credentials: 'include',
-           body: JSON.stringify(data),
+          body: JSON.stringify(data),
         });
 
         const result = await response.json();
@@ -52,7 +87,13 @@ export default function TabTwoScreen() {
     } catch (error) {
         console.error('Error sending data:', error);
     }
-  }
+  };
+
+  // Function to handle slider click/drag
+  const handleSliderChange = (value: number) => {
+    setLength(value);
+    setManualLength(value.toString()); // Optionally update the manual input box when slider changes
+  };
 
   return (
     <ParallaxScrollView
@@ -81,29 +122,40 @@ export default function TabTwoScreen() {
             maximumValue={120}
             step={1}
             value={length}
-            onValueChange={setLength} 
+            onValueChange={handleSliderChange} // Update length when slider is moved or clicked
+            onSlidingComplete={handleSliderChange} // Set the length when user clicks anywhere on the slider
           />
           <ThemedText style={styles.sliderText}>
             {length} minutes
           </ThemedText>
         </View>
 
+        <ThemedText style={styles.enterTimeText}>Or Enter Length (1-120 min):</ThemedText>
+        <TextInput
+          style={styles.input}
+          value={manualLength}
+          onChangeText={handleManualLengthChange}
+          keyboardType="numeric"
+          maxLength={3}
+        />
+
         <ThemedText style={styles.moodText}>Select Mood(s):</ThemedText>
 
-        <TouchableOpacity style={styles.moodButton} onPress={() => setHappy(true)}>
-          <ThemedText style={styles.buttonText}>Happy</ThemedText>
+        <TouchableOpacity style={[styles.moodButton, happy && styles.pressedButton]} onPress={setHappyMood}>
+          <ThemedText style={[styles.buttonText, happy && styles.pressedText]}>Happy</ThemedText>
         </TouchableOpacity>
-        <TouchableOpacity style={styles.moodButton} onPress={() => setSad(true)}>
-          <ThemedText style={styles.buttonText}>Sad</ThemedText>
+        <TouchableOpacity style={[styles.moodButton, sad && styles.pressedButton]} onPress={setSadMood}>
+          <ThemedText style={[styles.buttonText, sad && styles.pressedText]}>Sad</ThemedText>
         </TouchableOpacity>
-        <TouchableOpacity style={styles.moodButton} onPress={() => setDance(true)}>
-          <ThemedText style={styles.buttonText}>Dance</ThemedText>
+        <TouchableOpacity style={[styles.moodButton, dance && styles.pressedButton]} onPress={setDanceMood}>
+          <ThemedText style={[styles.buttonText, dance && styles.pressedText]}>Dance</ThemedText>
         </TouchableOpacity>
-        <TouchableOpacity style={[styles.moodButton, styles.lastMoodButton]} onPress={() => setProductive(true)}>
-          <ThemedText style={styles.buttonText}>Productive</ThemedText>
+        <TouchableOpacity style={[styles.moodButton, styles.lastMoodButton, productive && styles.pressedButton]} onPress={setProductiveMood}>
+          <ThemedText style={[styles.buttonText, productive && styles.pressedText]}>Productive</ThemedText>
         </TouchableOpacity>
+
         <ThemedText style={styles.createText}>Create Your Playlist Now!</ThemedText>
-        <TouchableOpacity style={styles.createButton} onPress={create}>
+        <TouchableOpacity style={styles.createButton} onPress={createPlaylist}>
           <ThemedText style={styles.buttonText}>Create!</ThemedText>
         </TouchableOpacity>
       </ThemedView>
@@ -117,12 +169,6 @@ const styles = StyleSheet.create({
     width: 400,
     resizeMode: 'contain',
     borderRadius: 15,
-  },
-  headerImage: {
-    color: '#808080',
-    bottom: -90,
-    left: -35,
-    position: 'absolute',
   },
   container: {
     paddingHorizontal: 20,
@@ -145,6 +191,13 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     marginBottom: 15,
   },
+  enterTimeText: {
+    color: '#444545',
+    fontSize: 16,
+    fontWeight: '500',
+    textAlign: 'center',
+    marginBottom: 5,
+  },
   sliderContainer: {
     width: '80%',
     marginBottom: 20,
@@ -160,6 +213,16 @@ const styles = StyleSheet.create({
     fontWeight: '500',
     textAlign: 'center',
     marginTop: 10,
+  },
+  input: {
+    width: '80%',
+    height: 40,
+    borderColor: '#ccc',
+    borderWidth: 1,
+    borderRadius: 10,
+    textAlign: 'center',
+    fontSize: 18,
+    marginBottom: 15,
   },
   moodText: {
     color: '#444545',
@@ -209,4 +272,12 @@ const styles = StyleSheet.create({
   lastMoodButton: {
     marginBottom: 20, 
   },
+  pressedButton: {
+    backgroundColor: 'white',
+  },
+  pressedText: {
+    color: '#638C80',
+    fontSize: 16,
+    fontWeight: '600',
+  }
 });

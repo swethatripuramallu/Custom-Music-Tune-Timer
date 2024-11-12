@@ -13,6 +13,7 @@ web-build/
 .env
 back-end/__pycache__/
 back-end/.cache
+.cache
 # macOS
 .DS_Store
 

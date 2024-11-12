@@ -66,7 +66,7 @@ def filterSongsByDuration(tracks: list, duration: float):
         if current_duration >= duration:
             break
 
-        return selected_tracks
+    return selected_tracks
 
 
 # Function to fetch Spotify data based on user input

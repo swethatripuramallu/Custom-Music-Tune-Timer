@@ -1,17 +1,31 @@
-import { Image, StyleSheet, TouchableOpacity } from 'react-native';
+import React from 'react';
+import { View, Text, FlatList, StyleSheet, Image, TouchableOpacity } from 'react-native';
 import { ParallaxScrollView } from '@/components/ParallaxScrollView';
 import { ThemedText } from '@/components/ThemedText';
 import { ThemedView } from '@/components/ThemedView';
 import { Link } from 'expo-router';
 
-export default function HomeScreen() {
+// Example playlist data
+const playlistInfo = [
+  { title: 'Playlist Archive', value: 'hello test' },
+];
+
+const ProfilePage = () => {
+  // Render each item in the profile data
+  const renderItem = ({ item }: { item: { title: string; value: string } }) => (
+    <View style={styles.profileItem}>
+      <Text style={styles.itemTitle}>{item.title}:</Text>
+      <Text style={styles.itemValue}>{item.value}</Text>
+    </View>
+  );
+
   return (
     <ParallaxScrollView
       headerBackgroundColor={{ light: '#F1F0ED', dark: '#F1F0ED' }}
       headerImage={
         <ThemedView style={styles.logoContainer}>
           <Image
-            source={require('@/assets/images/5.png')}
+            source={require('@/assets/images/blank.png')}
             style={styles.tuneTimerLogo}
           />
         </ThemedView>
@@ -19,29 +33,19 @@ export default function HomeScreen() {
     >
       <ThemedView style={styles.container}>
         <ThemedText type="subtitle" style={styles.headerText}>
-          Custom Designed Playlists
-        </ThemedText>
-        <ThemedText style={styles.text}>
-          Personalized playlists in just a few easy steps!
+          Profile
         </ThemedText>
 
-        {/* Navigate to Explore */}
+        {/* Navigate to other pages */}
         <Link href="/explore" asChild>
           <TouchableOpacity style={styles.button}>
-            <ThemedText style={styles.buttonText}>Begin Creating!</ThemedText>
-          </TouchableOpacity>
-        </Link>
-
-        {/* Navigate to Profile */}
-        <Link href="/profile" asChild>
-          <TouchableOpacity style={styles.button}>
-            <ThemedText style={styles.buttonText}>Go to Profile</ThemedText>
+            <ThemedText style={styles.buttonText}>Create New Playlist</ThemedText>
           </TouchableOpacity>
         </Link>
       </ThemedView>
     </ParallaxScrollView>
   );
-}
+};
 
 const styles = StyleSheet.create({
   logoContainer: {
@@ -69,12 +73,26 @@ const styles = StyleSheet.create({
     marginBottom: 10,
     textAlign: 'center',
   },
-  text: {
-    color: 'black',
-    fontSize: 16,
-    fontWeight: '500',
-    textAlign: 'center',
+  profileItem: {
     marginBottom: 15,
+    padding: 10,
+    backgroundColor: '#fff',
+    borderRadius: 5,
+    shadowColor: '#000',
+    shadowOpacity: 0.1,
+    shadowOffset: { width: 0, height: 1 },
+    shadowRadius: 3,
+    elevation: 3,
+    width: '100%',
+  },
+  itemTitle: {
+    fontSize: 16,
+    fontWeight: 'bold',
+    color: '#333',
+  },
+  itemValue: {
+    fontSize: 14,
+    color: '#666',
   },
   button: {
     backgroundColor: '#638C80',
@@ -95,3 +113,5 @@ const styles = StyleSheet.create({
     fontWeight: '600',
   },
 });
+
+export default ProfilePage;
