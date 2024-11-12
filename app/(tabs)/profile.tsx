@@ -36,13 +36,6 @@ const ProfilePage = () => {
           Profile
         </ThemedText>
 
-        {/* Displaying playlist information */}
-        <FlatList
-          data={playlistInfo}
-          renderItem={renderItem}
-          keyExtractor={(item) => item.title}
-        />
-
         {/* Navigate to other pages */}
         <Link href="/explore" asChild>
           <TouchableOpacity style={styles.button}>
