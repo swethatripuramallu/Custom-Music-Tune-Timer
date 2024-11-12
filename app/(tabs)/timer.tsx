@@ -1,56 +1,120 @@
-import React, { useState, useEffect } from 'react';
-import { Text, View, StyleSheet } from 'react-native';
+import React, { useEffect, useState } from 'react';
+import { Text, StyleSheet, TouchableOpacity } from 'react-native';
 import { CountdownCircleTimer } from 'react-native-countdown-circle-timer';
-import { useTimer } from '../timerlength'; // Access the global timer length from context
+import { useTimer } from '../timerlength'; 
+import { ThemedView } from '@/components/ThemedView'; 
 
 const Timer: React.FC = () => {
-  const { length } = useTimer(); // Get the length from the context
+  const { length } = useTimer(); // Get the length from the context - WIP
   const [timeRemaining, setTimeRemaining] = useState(length);
+  const [isPlaying, setIsPlaying] = useState(false); // State to track if the timer is playing
 
   useEffect(() => {
-    setTimeRemaining(length); // Reset time remaining whenever the `length` changes
-
-    if (length <= 0) return; // Stop if length is 0
-    const timerId = setInterval(() => {
-      setTimeRemaining((prev) => prev - 1); // Decrease the time remaining
-    }, 1000);
-
-    return () => clearInterval(timerId); // Clean up the interval when the component unmounts or length changes
+    setTimeRemaining(length); // Reset time when length changes
   }, [length]);
 
   const onTimerComplete = () => {
     console.log('Timer Complete!');
   };
 
+  const toggleTimer = () => {
+    setIsPlaying((prev) => !prev); // Toggle the timer state between playing and paused
+  };
+
+  const resetTimer = () => {
+    setIsPlaying(false); // Stop the timer
+    setTimeRemaining(length); // Reset the time
+  };
+
   return (
-    <View style={styles.timer}>
+    <ThemedView style={styles.container}>
+      {/* Heading */}
+      <Text style={styles.heading}>Begin Playing!</Text>
+
       <CountdownCircleTimer
-        isPlaying
-        duration={length} // Use the length from context to set the timer duration
-        initialRemainingTime={timeRemaining}
+        isPlaying={isPlaying}
+        duration={length} 
+        initialRemainingTime={timeRemaining} 
         onComplete={onTimerComplete}
-        size={200}
-        strokeWidth={10}
-        colors="#FF6347"
+        size={250} 
+        strokeWidth={20} 
+        colors='#435f57'
+        rotation="counterclockwise"
+        trailColor="#e6e6e6" 
+        strokeLinecap="round" 
       >
         {({ remainingTime }) => (
-          <Text style={{ fontSize: 30 }}>
+          <Text style={styles.timeText}>
             {remainingTime}s
           </Text>
         )}
       </CountdownCircleTimer>
-    </View>
+
+      {/* Button to start/stop the timer */}
+      <TouchableOpacity style={styles.button} onPress={toggleTimer}>
+        <Text style={styles.buttonText}>
+          {isPlaying ? 'Stop' : 'Start'}
+        </Text>
+      </TouchableOpacity>
+
+      {/* Button to reset the timer */}
+      <TouchableOpacity style={styles.resetButton} onPress={resetTimer}>
+        <Text style={styles.buttonText}>Reset</Text>
+      </TouchableOpacity>
+    </ThemedView>
   );
 };
 
 const styles = StyleSheet.create({
-  timer: {
-    display: 'flex',
+  container: {
+    paddingHorizontal: 20,
+    paddingVertical: 15,
+    backgroundColor: 'transparent',
     alignItems: 'center',
-    justifyContent: 'center',
-    borderWidth: 2,
-    borderColor: '#fff',
-    padding: 20,
+    gap: 10,
+    marginTop: 60,
+  },
+  heading: {
+    fontSize: 24,
+    fontWeight: '700',
+    color: '#435f57', 
+    marginBottom: 20, 
+  },
+  timeText: {
+    fontSize: 40,
+    color: '#fff',
+    fontWeight: '700',
+  },
+  button: {
+    backgroundColor: '#638C80', 
+    paddingVertical: 12,
+    paddingHorizontal: 25,
+    borderRadius: 25,
+    alignItems: 'center',
+    shadowColor: '#B0B7B3',
+    shadowOffset: { width: 0, height: 5 },
+    shadowOpacity: 0.2,
+    shadowRadius: 10,
+    width: '70%',
+    marginTop: 20,
+  },
+  resetButton: {
+    backgroundColor: '#638C80', 
+    paddingVertical: 12,
+    paddingHorizontal: 25,
+    borderRadius: 25,
+    alignItems: 'center',
+    shadowColor: '#B0B7B3',
+    shadowOffset: { width: 0, height: 5 },
+    shadowOpacity: 0.2,
+    shadowRadius: 10,
+    width: '70%',
+    marginTop: 10,
+  },
+  buttonText: {
+    color: 'white',
+    fontSize: 16,
+    fontWeight: '600',
   },
 });
 
