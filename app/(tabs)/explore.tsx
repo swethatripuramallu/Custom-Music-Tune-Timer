@@ -12,15 +12,15 @@ export default function ExploreScreen() {
   const [sad, setSad] = useState(false);
   const [dance, setDance] = useState(false);
   const [productive, setProductive] = useState(false);
-  const [manualLength, setManualLength] = useState<string>(''); // Manual input state
+  const [manualLength, setManualLength] = useState<string>(''); 
 
   const handleManualLengthChange = (text: string) => {
     const value = parseInt(text, 10);
     if (!isNaN(value) && value >= 1 && value <= 120) {
       setLength(value);
-      setManualLength(text); // Update manual input value
+      setManualLength(text); 
     } else {
-      setManualLength(text); // Allow non-valid input for corrections
+      setManualLength(text); 
     }
   };
 
@@ -130,7 +130,7 @@ export default function ExploreScreen() {
           </ThemedText>
         </View>
 
-        <ThemedText style={styles.enterTimeText}>Or Enter Time (1–120 minutes):</ThemedText>
+        <ThemedText style={styles.enterTimeText}>Or Enter Length (1-120 min):</ThemedText>
         <TextInput
           style={styles.input}
           value={manualLength}
