@@ -223,17 +223,27 @@ def play_playlist():
         redirect_uri=REDIRECT_URI,
         scope=('user-library-read user-read-recently-played '
                'playlist-modify-public user-top-read '
-               'playlist-read-private '
+               'playlist-read-private '  # playlist-read-collaborative
                'user-read-playback-state '
                'user-modify-playback-state'),
         cache_path='.cache'
     ))
 
     # Get device ID
-    device_id = sp.devices()['devices'][0]['id']
+    for device in sp.devices()['devices']:
+        if device['is_active']:
+            device_id = device['id']
     print(device_id)
+
+    # Get user ID
+    user_id = sp.current_user()['id']
+    print(user_id)
+
     # Get TUNE TIMER PLAYLIST ID
-    playlist_id = sp.user_playlists(user="maggiesolinsky")['items'][0]['id']
+    for playlist in sp.user_playlists(user=user_id)['items']:
+        if playlist['name'] == 'Tune Timer Playlist':
+            playlist_id = playlist['id']
+            break
     print(playlist_id)
 
     sp.start_playback(device_id=device_id,
