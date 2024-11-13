@@ -282,5 +282,55 @@ def play_playlist():
     return jsonify(playlist_length)
 
 
+@app.route('/resume')
+def resume_playlist():
+    sp = Spotify(auth_manager=SpotifyOAuth(
+        client_id=CLIENT_ID,
+        client_secret=CLIENT_SECRET,
+        redirect_uri=REDIRECT_URI,
+        scope=('user-library-read user-read-recently-played '
+               'playlist-modify-public user-top-read '
+               'playlist-read-private '  # playlist-read-collaborative
+               'user-read-playback-state '
+               'user-modify-playback-state '),
+        cache_path='.cache'
+    ))
+
+    # Get device ID
+    device_id = None
+    for device in sp.devices()['devices']:
+        if device['is_active']:
+            device_id = device['id']
+
+    sp.start_playback(device_id=device_id)
+
+    return "Resuming Playlist"
+
+
+@app.route('/pause')
+def pause_playlist():
+    sp = Spotify(auth_manager=SpotifyOAuth(
+        client_id=CLIENT_ID,
+        client_secret=CLIENT_SECRET,
+        redirect_uri=REDIRECT_URI,
+        scope=('user-library-read user-read-recently-played '
+               'playlist-modify-public user-top-read '
+               'playlist-read-private '  # playlist-read-collaborative
+               'user-read-playback-state '
+               'user-modify-playback-state '),
+        cache_path='.cache'
+    ))
+
+    # Get device ID
+    device_id = None
+    for device in sp.devices()['devices']:
+        if device['is_active']:
+            device_id = device['id']
+
+    sp.pause_playback(device_id=device_id)
+
+    return "Pausing Playlist"
+
+
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=os.getenv('PORT'), debug=True)

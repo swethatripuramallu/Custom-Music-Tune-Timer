@@ -32,13 +32,32 @@ const Timer: React.FC = () => {
       }
       setLength(25); // Set timer length here
     }
+    else {
+      try {
+        const spotifyPlaylistUrl = 'http://127.0.0.1:3002/resume';
+        const response = await fetch(spotifyPlaylistUrl);
+        const result = await response.json();
+        console.log('Response from backend:', result);
+      } 
+      catch (error) {
+        console.error('Error resume playing playlist: ', error);
+      }
+    }
     setPlaylistStarted(true);
-
     setIsPlaying(true); // start the timer
   }
 
   async function pauseSound() {
     setIsPlaying(false); // Stop the timer
+    try {
+      const spotifyPlaylistUrl = 'http://127.0.0.1:3002/pause';
+      const response = await fetch(spotifyPlaylistUrl);
+      const result = await response.json();
+      console.log('Response from backend:', result);
+    } 
+    catch (error) {
+      console.error('Error pausing playlist: ', error);
+    }
   }
 
   async function resetTimer() {
