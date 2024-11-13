@@ -5,9 +5,9 @@ import { useTimer } from '../timerlength';
 import { ThemedView } from '@/components/ThemedView'; 
 
 const Timer: React.FC = () => {
-  const { length } = useTimer(); // Get the length from the context - WIP
-  const [timeRemaining, setTimeRemaining] = useState(length);
   const [isPlaying, setIsPlaying] = useState(false); // State to track if the timer is playing
+  const [length, setLength] = useState(0);
+  const [timeRemaining, setTimeRemaining] = useState(length);
 
   useEffect(() => {
     setTimeRemaining(length); // Reset time when length changes
@@ -18,10 +18,26 @@ const Timer: React.FC = () => {
   };
 
   async function playSound() {
-    toggleTimer();
     try {
-      const spotifyPlaylistUrl = 'http://127.0.0.1:3002/play';
+      const spotifyPlaylistUrl = 'http://127.0.0.1:5001/play';
+      const response = await fetch(spotifyPlaylistUrl);
+      const result = await response.json();
+      console.log('Response from backend:', result);
+    } 
+    catch (error) {
+      console.error('Error playing playlist: ', error);
+    }
 
+    setLength(25); // set length here
+    setIsPlaying(true); // start the timer
+    console.log(isPlaying);
+  }
+
+  async function resetTimer() {
+    setIsPlaying(false); // Stop the timer
+
+    try {
+      const spotifyPlaylistUrl = 'http://127.0.0.1:5001/play';
       const response = await fetch(spotifyPlaylistUrl);
 
       // const result = await response.json();
@@ -31,15 +47,9 @@ const Timer: React.FC = () => {
     } catch (error) {
       console.error('Error playing playlist: ', error);
     }
-  }
-
-  const toggleTimer = () => {
-    setIsPlaying((prev) => !prev); // Toggle the timer state between playing and paused
-  };
-
-  const resetTimer = () => {
-    setIsPlaying(false); // Stop the timer
+    // set length here
     setTimeRemaining(length); // Reset the time
+    setIsPlaying(true); // Start the timer
   };
 
   return (
@@ -48,14 +58,14 @@ const Timer: React.FC = () => {
       <Text style={styles.heading}>Begin Playing!</Text>
 
       <CountdownCircleTimer
-        isPlaying={isPlaying}
-        duration={length} 
-        initialRemainingTime={timeRemaining} 
+        // isPlaying={false} // look at the updating of isPlaying for when Start/Stop is pressed
+        isPlaying
+        duration={25}  // length in seconds
         onComplete={onTimerComplete}
         size={250} 
         strokeWidth={20} 
         colors='#435f57'
-        rotation="counterclockwise"
+        rotation="clockwise"
         trailColor="#e6e6e6" 
         strokeLinecap="round" 
       >
