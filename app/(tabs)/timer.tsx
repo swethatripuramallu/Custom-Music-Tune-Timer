@@ -9,6 +9,7 @@ const Timer: React.FC = () => {
   const [length, setLength] = useState(0);
   const [timeRemaining, setTimeRemaining] = useState(length);
   const [playlistStarted, setPlaylistStarted] = useState(false);
+  const [reset, setReset] = useState(0);
 
   useEffect(() => {
     setTimeRemaining(length); // Reset time when length changes
@@ -29,7 +30,7 @@ const Timer: React.FC = () => {
       catch (error) {
         console.error('Error playing playlist: ', error);
       }
-      setLength(25); // Set length here
+      setLength(25); // Set timer length here
     }
     setPlaylistStarted(true);
 
@@ -41,22 +42,16 @@ const Timer: React.FC = () => {
   }
 
   async function resetTimer() {
-    setIsPlaying(false); // Stop the timer
-
+    // reset playlist through backend
     try {
       const spotifyPlaylistUrl = 'http://127.0.0.1:3002/play';
       const response = await fetch(spotifyPlaylistUrl);
 
-      // const result = await response.json();
-      // console.log('Response from backend:', result);
-      // Linking.openURL(result['playlist_url']);
-
     } catch (error) {
       console.error('Error playing playlist: ', error);
     }
-    // set length here
-    setTimeRemaining(length); // Reset the time
-    setIsPlaying(true); // Start the timer
+
+    setReset(reset + 1); // reset timer icon
   };
 
   return (
@@ -67,7 +62,8 @@ const Timer: React.FC = () => {
       <CountdownCircleTimer
         // isPlaying={false} // look at the updating of isPlaying for when Start/Stop is pressed
         isPlaying = {isPlaying}
-        duration={25}  // length in seconds
+        key={reset}
+        duration={timeRemaining}  // length in seconds
         onComplete={onTimerComplete}
         size={250} 
         strokeWidth={20} 
