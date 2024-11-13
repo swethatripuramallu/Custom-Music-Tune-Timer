@@ -8,6 +8,7 @@ const Timer: React.FC = () => {
   const [isPlaying, setIsPlaying] = useState(false); // State to track if the timer is playing
   const [length, setLength] = useState(0);
   const [timeRemaining, setTimeRemaining] = useState(length);
+  const [playlistStarted, setPlaylistStarted] = useState(false);
 
   useEffect(() => {
     setTimeRemaining(length); // Reset time when length changes
@@ -18,26 +19,32 @@ const Timer: React.FC = () => {
   };
 
   async function playSound() {
-    try {
-      const spotifyPlaylistUrl = 'http://127.0.0.1:5001/play';
-      const response = await fetch(spotifyPlaylistUrl);
-      const result = await response.json();
-      console.log('Response from backend:', result);
-    } 
-    catch (error) {
-      console.error('Error playing playlist: ', error);
+    if(!playlistStarted) {
+      try {
+        const spotifyPlaylistUrl = 'http://127.0.0.1:3002/play';
+        const response = await fetch(spotifyPlaylistUrl);
+        const result = await response.json();
+        console.log('Response from backend:', result);
+      } 
+      catch (error) {
+        console.error('Error playing playlist: ', error);
+      }
+      setLength(25); // Set length here
     }
+    setPlaylistStarted(true);
 
-    setLength(25); // set length here
     setIsPlaying(true); // start the timer
-    console.log(isPlaying);
+  }
+
+  async function pauseSound() {
+    setIsPlaying(false); // Stop the timer
   }
 
   async function resetTimer() {
     setIsPlaying(false); // Stop the timer
 
     try {
-      const spotifyPlaylistUrl = 'http://127.0.0.1:5001/play';
+      const spotifyPlaylistUrl = 'http://127.0.0.1:3002/play';
       const response = await fetch(spotifyPlaylistUrl);
 
       // const result = await response.json();
@@ -59,7 +66,7 @@ const Timer: React.FC = () => {
 
       <CountdownCircleTimer
         // isPlaying={false} // look at the updating of isPlaying for when Start/Stop is pressed
-        isPlaying
+        isPlaying = {isPlaying}
         duration={25}  // length in seconds
         onComplete={onTimerComplete}
         size={250} 
@@ -79,8 +86,13 @@ const Timer: React.FC = () => {
       {/* Button to start/stop the timer */}
       <TouchableOpacity style={styles.button} onPress={playSound}>
         <Text style={styles.buttonText}>
-          {isPlaying ? 'Stop' : 'Start'}
+          {/* {isPlaying ? 'Stop' : 'Start'} */}
+          Start
         </Text>
+      </TouchableOpacity>
+
+      <TouchableOpacity style={styles.resetButton} onPress={pauseSound}>
+        <Text style={styles.buttonText}>Stop</Text>
       </TouchableOpacity>
 
       {/* Button to reset the timer */}
