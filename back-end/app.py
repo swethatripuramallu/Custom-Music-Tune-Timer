@@ -247,7 +247,8 @@ def play_playlist():
     print(playlist_id)
 
     sp.start_playback(device_id=device_id,
-                      context_uri="spotify:playlist:" + playlist_id)
+                      context_uri="spotify:playlist:" + playlist_id,
+                      offset={"position": 0})
     return "Playing Playlist"
 
 
