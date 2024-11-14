@@ -1,6 +1,7 @@
 import os
 from flask import Flask, request, jsonify
 from dotenv import load_dotenv
+import time
 from flask_cors import CORS
 from cachelib.file import FileSystemCache
 
@@ -291,7 +292,7 @@ def resume_playlist():
 
     sp.start_playback(device_id=device_id)
 
-    return "Resuming Playlist"
+    return jsonify("Resuming Playlist")
 
 
 @app.route('/pause')
@@ -306,7 +307,29 @@ def pause_playlist():
 
     sp.pause_playback(device_id=device_id)
 
-    return "Pausing Playlist"
+    return jsonify("Pausing Playlist")
+
+
+@app.route('/alarm')
+def alarm():
+    sp = get_spotify_client()
+
+    # Get device ID
+    device_id = None
+    for device in sp.devices()['devices']:
+        if device['is_active']:
+            device_id = device['id']
+
+    track_uri = "2quaZxFrp6N4lNrajGLnAW"
+
+    sp.start_playback(device_id=device_id,
+                      context_uri="spotify:album:" + track_uri,
+                      offset={"position": 78})
+
+    time.sleep(5)
+    pause_playlist()
+
+    return jsonify("Playing Alarm")
 
 
 if __name__ == '__main__':
