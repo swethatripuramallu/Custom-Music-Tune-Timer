@@ -8,15 +8,14 @@
 1. [Introduction](#introduction)  
 2. [Installation](#installation)  
 3. [Getting Started](#getting-started)  
-4. [Features](#features)  
+4. [Features](#features)
 5. [Usage](#usage)  
    - [Step 1: Setting Up](#step-1-setting-up)  
    - [Step 2: Creating a Playlist](#step-2-creating-a-playlist)  
    - [Step 3: Using Alerts](#step-3-using-alerts)
    - [Step 4: Liking or Disliking Playlists](#step-4-liking-or-disliking-playlists)  
 6. [FAQ](#faq)  
-7. [License](#license)  
-8. [Version](#version) 
+7. [Version](#version) 
 
 ---
 
@@ -56,8 +55,11 @@ Fine-tune your playlists for any duration and vibe.
 Stay on track with subtle audio reminders.  
 
 ### Playlist Feedback
-- Loved the playlist? Press the like button for it to save on your profile for easy access!
-- Not your vibe? Dislike it and we will remove the playlist from your account.
+Loved the playlist? 
+Press the like button for it to save on your profile for easy access!
+
+Not your vibe? 
+Dislike it and we will remove the playlist from your account.
 
 ---
 
@@ -76,7 +78,7 @@ Stay on track with subtle audio reminders.
 
 ### Step 4: Liking or Disliking Playlists  
 - After listening, provide feedback by liking or disliking playlists.  
-- This helps keep your Spotify account as personalized as possible:  
+- This helps keep your Spotify account as personalized as possible.
   - **Liked playlist** will be saved to your profile for future acess. 
   - **Disliked playlists** will be deleted and removed from your account.
 
@@ -91,12 +93,6 @@ Yes, a Spotify Premium account is required to create playlists.
 No, an internet connection is needed for Spotify integration.  
 
 ---
-
-## 📜 License  
-
-This project is licensed under the 
-
--- 
 ## 💡 Version
 
 The Tune Timer is currently on version 1.0.0
