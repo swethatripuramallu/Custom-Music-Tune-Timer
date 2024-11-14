@@ -290,17 +290,7 @@ def resume_playlist():
 
 @app.route('/pause')
 def pause_playlist():
-    sp = Spotify(auth_manager=SpotifyOAuth(
-        client_id=CLIENT_ID,
-        client_secret=CLIENT_SECRET,
-        redirect_uri=REDIRECT_URI,
-        scope=('user-library-read user-read-recently-played '
-               'playlist-modify-public user-top-read '
-               'playlist-read-private '  # playlist-read-collaborative
-               'user-read-playback-state '
-               'user-modify-playback-state '),
-        cache_path='.cache'
-    ))
+    sp = get_spotify_client()
 
     # Get device ID
     device_id = None
