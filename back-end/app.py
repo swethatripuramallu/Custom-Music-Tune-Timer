@@ -28,23 +28,25 @@ AUTH_URL = 'https://accounts.spotify.com/authorize'
 TOKEN_URL = 'https://accounts.spotify.com/api/token'
 API_BASE_URL = 'https://api.spotify.com/v1/'
 
+
 def get_spotify_client():
-    sp = Spotify(auth_manager=SpotifyOAuth(
+    sp = Spotify(auth_manager=SpotifyOAuth( 
         client_id=CLIENT_ID,
         client_secret=CLIENT_SECRET,
         redirect_uri=REDIRECT_URI,
         scope=('user-library-read '
-           'user-read-recently-played '
-           'playlist-modify-public '
-           'user-top-read '
-           'playlist-read-collaborative '
-           'user-read-playback-state '
-           'ugc-image-upload '
-           'user-modify-playback-state'),
+               'user-read-recently-played '
+               'playlist-modify-public '
+               'user-top-read '
+               'playlist-read-collaborative '
+               'user-read-playback-state '
+               'ugc-image-upload '
+               'user-modify-playback-state'),
         cache_path='.cache'
-))
+    ))
 
     return sp
+
 
 def parse_songs(recommended):
 
