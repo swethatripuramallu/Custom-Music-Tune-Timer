@@ -30,7 +30,7 @@ API_BASE_URL = 'https://api.spotify.com/v1/'
 
 
 def get_spotify_client():
-    sp = Spotify(auth_manager=SpotifyOAuth( 
+    sp = Spotify(auth_manager=SpotifyOAuth(
         client_id=CLIENT_ID,
         client_secret=CLIENT_SECRET,
         redirect_uri=REDIRECT_URI,
