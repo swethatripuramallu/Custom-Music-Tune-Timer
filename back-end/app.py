@@ -7,9 +7,9 @@ from cachelib.file import FileSystemCache
 from spotipy.oauth2 import SpotifyOAuth
 from spotipy import Spotify
 
-# from base64 import b64encode
-# import io
-# from PIL import Image
+from base64 import b64encode
+import io
+from PIL import Image
 
 load_dotenv()
 
@@ -71,6 +71,15 @@ def filterSongsByDuration(tracks: list, duration: float):
             break
 
     return selected_tracks
+
+
+# Function to encode cover image to base64
+def encode_image_to_base64(image_path):
+    with Image.open(image_path) as img:
+        img = img.resize((300, 300))  # Spotify requires 300x300 px images
+        buffered = io.BytesIO()
+        img.save(buffered, format="PNG")
+        return b64encode(buffered.getvalue()).decode('utf-8')
 
 
 # Function to fetch Spotify data based on user input
@@ -187,7 +196,10 @@ def get_spotify_data(length, happy, sad, dance, productive):
     }
 
     # Set the custom playlist cover
-    # set_playlist_cover(sp, playlist['id'])
+    cover_image_path = '../assets/images/cover.png'
+    base64_image = encode_image_to_base64(cover_image_path)
+    sp.playlist_upload_cover_image(playlist_id=playlist['id'],
+                                   image_b64=base64_image)
 
     return response_data
 
@@ -221,22 +233,6 @@ def create_playlist():
         print(f"{track_name} by {track_artist}")
 
     return jsonify(spotify_data)
-
-
-# # Function to encode cover image to base64
-# def encode_image_to_base64(image_path):
-#     with Image.open(image_path) as img:
-#         img = img.resize((300, 300))  # Spotify requires 300x300 px images
-#         buffered = io.BytesIO()
-#         img.save(buffered, format="PNG")
-#         return b64encode(buffered.getvalue()).decode('utf-8')
-
-
-# # Function to add cover to playlist
-# def set_playlist_cover(sp, playlist_id):
-#     cover_image_path = './assets/images/cover.png'
-#     base64_image = encode_image_to_base64(cover_image_path)
-#     sp.playlist_upload_cover_image(playlist_id, base64_image)
 
 
 @app.route('/play')
