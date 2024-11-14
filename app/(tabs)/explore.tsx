@@ -70,7 +70,7 @@ export default function ExploreScreen() {
     };
 
     try {
-        const spotifyPlaylistUrl = 'http://127.0.0.1:3002/create-playlist';
+        const spotifyPlaylistUrl = 'http://127.0.0.1:5001/create-playlist';
 
         const response = await fetch(spotifyPlaylistUrl, {
           method: 'POST',
@@ -80,6 +80,7 @@ export default function ExploreScreen() {
           credentials: 'include',
           body: JSON.stringify(data),
         });
+        
 
         const result = await response.json();
         console.log('Response from backend:', result);

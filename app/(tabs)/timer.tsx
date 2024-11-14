@@ -17,12 +17,13 @@ const Timer: React.FC = () => {
 
   const onTimerComplete = () => {
     console.log('Timer Complete!');
+    playAlarm();
   };
 
   async function playSound() {
     if(!playlistStarted) {
       try {
-        const spotifyPlaylistUrl = 'http://127.0.0.1:3002/play';
+        const spotifyPlaylistUrl = 'http://127.0.0.1:5001/play';
         const response = await fetch(spotifyPlaylistUrl);
         const result = await response.json();
         console.log('Response from backend:', result);
@@ -34,7 +35,7 @@ const Timer: React.FC = () => {
     }
     else {
       try {
-        const spotifyPlaylistUrl = 'http://127.0.0.1:3002/resume';
+        const spotifyPlaylistUrl = 'http://127.0.0.1:5001/resume';
         const response = await fetch(spotifyPlaylistUrl);
         const result = await response.json();
         console.log('Response from backend:', result);
@@ -50,7 +51,7 @@ const Timer: React.FC = () => {
   async function pauseSound() {
     setIsPlaying(false); // Stop the timer
     try {
-      const spotifyPlaylistUrl = 'http://127.0.0.1:3002/pause';
+      const spotifyPlaylistUrl = 'http://127.0.0.1:5001/pause';
       const response = await fetch(spotifyPlaylistUrl);
       const result = await response.json();
       console.log('Response from backend:', result);
@@ -63,7 +64,7 @@ const Timer: React.FC = () => {
   async function resetTimer() {
     // reset playlist through backend
     try {
-      const spotifyPlaylistUrl = 'http://127.0.0.1:3002/play';
+      const spotifyPlaylistUrl = 'http://127.0.0.1:5001/play';
       const response = await fetch(spotifyPlaylistUrl);
 
     } catch (error) {
@@ -72,6 +73,16 @@ const Timer: React.FC = () => {
 
     setReset(reset + 1); // reset timer icon
   };
+
+  async function playAlarm(){
+    try {
+      const spotifyPlaylistUrl = 'http://127.0.0.1:5001/alarm';
+      const response = await fetch(spotifyPlaylistUrl);
+    }
+    catch (error) {
+      console.error('Error playing alarm: ', error);
+    }
+  }
 
   return (
     <ThemedView style={styles.container}>
@@ -113,6 +124,11 @@ const Timer: React.FC = () => {
       {/* Button to reset the timer */}
       <TouchableOpacity style={styles.resetButton} onPress={resetTimer}>
         <Text style={styles.buttonText}>Reset</Text>
+      </TouchableOpacity>
+
+      {/* Button to mute alarm */}
+      <TouchableOpacity style={styles.button} onPress={playAlarm}>
+        <Text style={styles.buttonText}>Mute Alarm</Text>
       </TouchableOpacity>
     </ThemedView>
   );
