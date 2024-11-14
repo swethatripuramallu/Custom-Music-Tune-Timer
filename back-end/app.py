@@ -313,6 +313,7 @@ def pause_playlist():
 @app.route('/alarm')
 def alarm():
     sp = get_spotify_client()
+
     # Get device ID
     device_id = None
     for device in sp.devices()['devices']:
