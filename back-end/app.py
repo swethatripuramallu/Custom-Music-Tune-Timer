@@ -29,6 +29,25 @@ TOKEN_URL = 'https://accounts.spotify.com/api/token'
 API_BASE_URL = 'https://api.spotify.com/v1/'
 
 
+def get_spotify_client():
+    sp = Spotify(auth_manager=SpotifyOAuth(
+        client_id=CLIENT_ID,
+        client_secret=CLIENT_SECRET,
+        redirect_uri=REDIRECT_URI,
+        scope=('user-library-read '
+               'user-read-recently-played '
+               'playlist-modify-public '
+               'user-top-read '
+               'playlist-read-collaborative '
+               'user-read-playback-state '
+               'ugc-image-upload '
+               'user-modify-playback-state'),
+        cache_path='.cache'
+    ))
+
+    return sp
+
+
 def parse_songs(recommended):
 
     tracks = []
@@ -84,15 +103,7 @@ def encode_image_to_base64(image_path):
 
 # Function to fetch Spotify data based on user input
 def get_spotify_data(length, happy, sad, dance, productive):
-    sp = Spotify(auth_manager=SpotifyOAuth(
-        client_id=CLIENT_ID,
-        client_secret=CLIENT_SECRET,
-        redirect_uri=REDIRECT_URI,
-        scope=('user-library-read user-read-recently-played '
-               'playlist-modify-public user-top-read '
-               'ugc-image-upload'),
-        cache_path='.cache'
-    ))
+    sp = get_spotify_client()
 
     # Modify recommendations based on moods or user input (happy, sad, etc.)
     min_danceability = 0.0
@@ -237,17 +248,7 @@ def create_playlist():
 
 @app.route('/play')
 def play_playlist():
-    sp = Spotify(auth_manager=SpotifyOAuth(
-        client_id=CLIENT_ID,
-        client_secret=CLIENT_SECRET,
-        redirect_uri=REDIRECT_URI,
-        scope=('user-library-read user-read-recently-played '
-               'playlist-modify-public user-top-read '
-               'playlist-read-private '  # playlist-read-collaborative
-               'user-read-playback-state '
-               'user-modify-playback-state '),
-        cache_path='.cache'
-    ))
+    sp = get_spotify_client()
 
     # Get device ID
     for device in sp.devices()['devices']:
@@ -280,17 +281,7 @@ def play_playlist():
 
 @app.route('/resume')
 def resume_playlist():
-    sp = Spotify(auth_manager=SpotifyOAuth(
-        client_id=CLIENT_ID,
-        client_secret=CLIENT_SECRET,
-        redirect_uri=REDIRECT_URI,
-        scope=('user-library-read user-read-recently-played '
-               'playlist-modify-public user-top-read '
-               'playlist-read-private '  # playlist-read-collaborative
-               'user-read-playback-state '
-               'user-modify-playback-state '),
-        cache_path='.cache'
-    ))
+    sp = get_spotify_client()
 
     # Get device ID
     device_id = None
@@ -305,17 +296,7 @@ def resume_playlist():
 
 @app.route('/pause')
 def pause_playlist():
-    sp = Spotify(auth_manager=SpotifyOAuth(
-        client_id=CLIENT_ID,
-        client_secret=CLIENT_SECRET,
-        redirect_uri=REDIRECT_URI,
-        scope=('user-library-read user-read-recently-played '
-               'playlist-modify-public user-top-read '
-               'playlist-read-private '  # playlist-read-collaborative
-               'user-read-playback-state '
-               'user-modify-playback-state '),
-        cache_path='.cache'
-    ))
+    sp = get_spotify_client()
 
     # Get device ID
     device_id = None

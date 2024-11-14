@@ -22,7 +22,7 @@ const Timer: React.FC = () => {
   async function playSound() {
     if(!playlistStarted) {
       try {
-        const spotifyPlaylistUrl = 'http://127.0.0.1:3002/play';
+        const spotifyPlaylistUrl = 'http://127.0.0.1:5000/play';
         const response = await fetch(spotifyPlaylistUrl);
         const result = await response.json();
         console.log('Response from backend:', result);
@@ -34,7 +34,7 @@ const Timer: React.FC = () => {
     }
     else {
       try {
-        const spotifyPlaylistUrl = 'http://127.0.0.1:3002/resume';
+        const spotifyPlaylistUrl = 'http://127.0.0.1:5000/resume';
         const response = await fetch(spotifyPlaylistUrl);
         const result = await response.json();
         console.log('Response from backend:', result);
@@ -50,7 +50,7 @@ const Timer: React.FC = () => {
   async function pauseSound() {
     setIsPlaying(false); // Stop the timer
     try {
-      const spotifyPlaylistUrl = 'http://127.0.0.1:3002/pause';
+      const spotifyPlaylistUrl = 'http://127.0.0.1:5000/pause';
       const response = await fetch(spotifyPlaylistUrl);
       const result = await response.json();
       console.log('Response from backend:', result);
@@ -63,7 +63,7 @@ const Timer: React.FC = () => {
   async function resetTimer() {
     // reset playlist through backend
     try {
-      const spotifyPlaylistUrl = 'http://127.0.0.1:3002/play';
+      const spotifyPlaylistUrl = 'http://127.0.0.1:5000/play';
       const response = await fetch(spotifyPlaylistUrl);
 
     } catch (error) {
