@@ -5,9 +5,11 @@ import { useTimer } from '../timerlength';
 import { ThemedView } from '@/components/ThemedView'; 
 
 const Timer: React.FC = () => {
-  const { length } = useTimer(); // Get the length from the context - WIP
-  const [timeRemaining, setTimeRemaining] = useState(length);
   const [isPlaying, setIsPlaying] = useState(false); // State to track if the timer is playing
+  const [length, setLength] = useState(0);
+  const [timeRemaining, setTimeRemaining] = useState(length);
+  const [playlistStarted, setPlaylistStarted] = useState(false);
+  const [reset, setReset] = useState(0);
 
   useEffect(() => {
     setTimeRemaining(length); // Reset time when length changes
@@ -17,13 +19,58 @@ const Timer: React.FC = () => {
     console.log('Timer Complete!');
   };
 
-  const toggleTimer = () => {
-    setIsPlaying((prev) => !prev); // Toggle the timer state between playing and paused
-  };
+  async function playSound() {
+    if(!playlistStarted) {
+      try {
+        const spotifyPlaylistUrl = 'http://127.0.0.1:3002/play';
+        const response = await fetch(spotifyPlaylistUrl);
+        const result = await response.json();
+        console.log('Response from backend:', result);
+      } 
+      catch (error) {
+        console.error('Error playing playlist: ', error);
+      }
+      setLength(25); // Set timer length here
+    }
+    else {
+      try {
+        const spotifyPlaylistUrl = 'http://127.0.0.1:3002/resume';
+        const response = await fetch(spotifyPlaylistUrl);
+        const result = await response.json();
+        console.log('Response from backend:', result);
+      } 
+      catch (error) {
+        console.error('Error resume playing playlist: ', error);
+      }
+    }
+    setPlaylistStarted(true);
+    setIsPlaying(true); // start the timer
+  }
 
-  const resetTimer = () => {
+  async function pauseSound() {
     setIsPlaying(false); // Stop the timer
-    setTimeRemaining(length); // Reset the time
+    try {
+      const spotifyPlaylistUrl = 'http://127.0.0.1:3002/pause';
+      const response = await fetch(spotifyPlaylistUrl);
+      const result = await response.json();
+      console.log('Response from backend:', result);
+    } 
+    catch (error) {
+      console.error('Error pausing playlist: ', error);
+    }
+  }
+
+  async function resetTimer() {
+    // reset playlist through backend
+    try {
+      const spotifyPlaylistUrl = 'http://127.0.0.1:3002/play';
+      const response = await fetch(spotifyPlaylistUrl);
+
+    } catch (error) {
+      console.error('Error playing playlist: ', error);
+    }
+
+    setReset(reset + 1); // reset timer icon
   };
 
   return (
@@ -32,14 +79,15 @@ const Timer: React.FC = () => {
       <Text style={styles.heading}>Begin Playing!</Text>
 
       <CountdownCircleTimer
-        isPlaying={isPlaying}
-        duration={length} 
-        initialRemainingTime={timeRemaining} 
+        // isPlaying={false} // look at the updating of isPlaying for when Start/Stop is pressed
+        isPlaying = {isPlaying}
+        key={reset}
+        duration={timeRemaining}  // length in seconds
         onComplete={onTimerComplete}
         size={250} 
         strokeWidth={20} 
         colors='#435f57'
-        rotation="counterclockwise"
+        rotation="clockwise"
         trailColor="#e6e6e6" 
         strokeLinecap="round" 
       >
@@ -51,10 +99,15 @@ const Timer: React.FC = () => {
       </CountdownCircleTimer>
 
       {/* Button to start/stop the timer */}
-      <TouchableOpacity style={styles.button} onPress={toggleTimer}>
+      <TouchableOpacity style={styles.button} onPress={playSound}>
         <Text style={styles.buttonText}>
-          {isPlaying ? 'Stop' : 'Start'}
+          {/* {isPlaying ? 'Stop' : 'Start'} */}
+          Start
         </Text>
+      </TouchableOpacity>
+
+      <TouchableOpacity style={styles.resetButton} onPress={pauseSound}>
+        <Text style={styles.buttonText}>Stop</Text>
       </TouchableOpacity>
 
       {/* Button to reset the timer */}

@@ -7,6 +7,10 @@ from cachelib.file import FileSystemCache
 from spotipy.oauth2 import SpotifyOAuth
 from spotipy import Spotify
 
+from base64 import b64encode
+import io
+from PIL import Image
+
 load_dotenv()
 
 app = Flask(__name__)
@@ -53,12 +57,12 @@ def parse_songs(recommended):
 
 def filterSongsByDuration(tracks: list, duration: float):
     # sort tracks by duration in descending order
-    sorted_tracks = sorted(tracks, key=lambda x: x['duration'], reverse=True)
+    # sorted_tracks = sorted(tracks, key=lambda x: x['duration'], reverse=True)
 
     selected_tracks = []
     current_duration = 0
 
-    for track in sorted_tracks:
+    for track in tracks:
         if current_duration + track['duration'] <= duration:
             selected_tracks.append(track)
             current_duration += track['duration']
@@ -69,6 +73,15 @@ def filterSongsByDuration(tracks: list, duration: float):
     return selected_tracks
 
 
+# Function to encode cover image to base64
+def encode_image_to_base64(image_path):
+    with Image.open(image_path) as img:
+        img = img.resize((300, 300))  # Spotify requires 300x300 px images
+        buffered = io.BytesIO()
+        img.save(buffered, format="PNG")
+        return b64encode(buffered.getvalue()).decode('utf-8')
+
+
 # Function to fetch Spotify data based on user input
 def get_spotify_data(length, happy, sad, dance, productive):
     sp = Spotify(auth_manager=SpotifyOAuth(
@@ -76,7 +89,8 @@ def get_spotify_data(length, happy, sad, dance, productive):
         client_secret=CLIENT_SECRET,
         redirect_uri=REDIRECT_URI,
         scope=('user-library-read user-read-recently-played '
-               'playlist-modify-public user-top-read'),
+               'playlist-modify-public user-top-read '
+               'ugc-image-upload'),
         cache_path='.cache'
     ))
 
@@ -181,6 +195,12 @@ def get_spotify_data(length, happy, sad, dance, productive):
         'tracks': filtered_songs
     }
 
+    # Set the custom playlist cover
+    cover_image_path = '../assets/images/cover.png'
+    base64_image = encode_image_to_base64(cover_image_path)
+    sp.playlist_upload_cover_image(playlist_id=playlist['id'],
+                                   image_b64=base64_image)
+
     return response_data
 
 
@@ -213,6 +233,99 @@ def create_playlist():
         print(f"{track_name} by {track_artist}")
 
     return jsonify(spotify_data)
+
+
+@app.route('/play')
+def play_playlist():
+    sp = Spotify(auth_manager=SpotifyOAuth(
+        client_id=CLIENT_ID,
+        client_secret=CLIENT_SECRET,
+        redirect_uri=REDIRECT_URI,
+        scope=('user-library-read user-read-recently-played '
+               'playlist-modify-public user-top-read '
+               'playlist-read-private '  # playlist-read-collaborative
+               'user-read-playback-state '
+               'user-modify-playback-state '),
+        cache_path='.cache'
+    ))
+
+    # Get device ID
+    for device in sp.devices()['devices']:
+        if device['is_active']:
+            device_id = device['id']
+    print(device_id)
+
+    # Get user ID
+    user_id = sp.current_user()['id']
+    print(user_id)
+
+    # Get TUNE TIMER PLAYLIST ID
+    for playlist in sp.user_playlists(user=user_id)['items']:
+        if playlist['name'] == 'Tune Timer Playlist':
+            playlist_id = playlist['id']
+            break
+    print(playlist_id)
+
+    sp.start_playback(device_id=device_id,
+                      context_uri="spotify:playlist:" + playlist_id,
+                      offset={"position": 0})
+    # return "Playing Playlist"
+    playlist_length = 0.0
+    for track in sp.playlist_items(playlist_id=playlist_id)['items']:
+        playlist_length += track['track']['duration_ms']
+
+    print("playlist length", playlist_length)
+    return jsonify(playlist_length)
+
+
+@app.route('/resume')
+def resume_playlist():
+    sp = Spotify(auth_manager=SpotifyOAuth(
+        client_id=CLIENT_ID,
+        client_secret=CLIENT_SECRET,
+        redirect_uri=REDIRECT_URI,
+        scope=('user-library-read user-read-recently-played '
+               'playlist-modify-public user-top-read '
+               'playlist-read-private '  # playlist-read-collaborative
+               'user-read-playback-state '
+               'user-modify-playback-state '),
+        cache_path='.cache'
+    ))
+
+    # Get device ID
+    device_id = None
+    for device in sp.devices()['devices']:
+        if device['is_active']:
+            device_id = device['id']
+
+    sp.start_playback(device_id=device_id)
+
+    return "Resuming Playlist"
+
+
+@app.route('/pause')
+def pause_playlist():
+    sp = Spotify(auth_manager=SpotifyOAuth(
+        client_id=CLIENT_ID,
+        client_secret=CLIENT_SECRET,
+        redirect_uri=REDIRECT_URI,
+        scope=('user-library-read user-read-recently-played '
+               'playlist-modify-public user-top-read '
+               'playlist-read-private '  # playlist-read-collaborative
+               'user-read-playback-state '
+               'user-modify-playback-state '),
+        cache_path='.cache'
+    ))
+
+    # Get device ID
+    device_id = None
+    for device in sp.devices()['devices']:
+        if device['is_active']:
+            device_id = device['id']
+
+    sp.pause_playback(device_id=device_id)
+
+    return "Pausing Playlist"
 
 
 if __name__ == '__main__':
