@@ -73,12 +73,13 @@ Dislike it and we will remove the playlist from your account.
 2. Select a mood (e.g., Happy, Sad, Dance).  
 3. Let Tune Timer generate your playlist.  
 
-### Step 3: Using Alerts  
+### Step 3: Using Alarms  
 - Get notified when your session is over.
 
 ### Step 4: Liking or Disliking Playlists  
 - After listening, provide feedback by liking or disliking playlists.  
 - This helps keep your Spotify account as personalized as possible.
+
   - **Liked playlist** will be saved to your profile for future acess. 
   - **Disliked playlists** will be deleted and removed from your account.
 
