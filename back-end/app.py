@@ -39,6 +39,7 @@ def get_spotify_client():
            'user-top-read '
            'playlist-read-collaborative '
            'user-read-playback-state '
+           'ugc-image-upload '
            'user-modify-playback-state'),
         cache_path='.cache'
 ))
