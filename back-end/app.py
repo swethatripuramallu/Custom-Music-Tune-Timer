@@ -33,13 +33,16 @@ def get_spotify_client():
         client_id=CLIENT_ID,
         client_secret=CLIENT_SECRET,
         redirect_uri=REDIRECT_URI,
-        scope=('user-library-read user-read-recently-played '
-               'playlist-modify-public user-top-read '
-               'playlist-read-private '  # playlist-read-collaborative
-               'user-read-playback-state '
-               'user-modify-playback-state '),
+        scope=('user-library-read '
+           'user-read-recently-played '
+           'playlist-modify-public '
+           'user-top-read '
+           'playlist-read-collaborative '
+           'user-read-playback-state '
+           'user-modify-playback-state'),
         cache_path='.cache'
-    ))
+))
+
     return sp
 
 def parse_songs(recommended):
