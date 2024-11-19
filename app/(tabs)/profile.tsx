@@ -9,7 +9,7 @@ import { Link } from 'expo-router';
 // Example playlist data
 const ProfilePage: React.FC = () => {
 
-  const [mostRecentPlaylist, setMostRecentPlaylist] = useState(null);
+  const [mostRecentPlaylist, setMostRecentPlaylist] = useState<{ name: string; playlist_modified: string } | null>(null);
   const [error, setError] = useState<string | null>(null);
 
   // Fetch the most recent playlist
@@ -18,14 +18,23 @@ const ProfilePage: React.FC = () => {
       try {
         const most_recent_playlist = 'http://127.0.0.1:5000/most-recent-playlist'; // Change the URL as needed
         const response = await fetch(most_recent_playlist);
+
         if (!response.ok) {
           throw new Error('Network response was not ok');
         }
+
         const result = await response.json();
         console.log('Response from backend:', result);
-        setMostRecentPlaylist(result); // Assuming `result` contains the playlist data
-      } catch (error) {
-        console.error('Error retrieving most recent playlist: ', error);
+
+        // Check if result contains necessary fields
+        if (result && result.name && result.playlist_modified) {
+          setMostRecentPlaylist(result); // Assuming result has playlist data
+          setError(null); // Clear any previous errors
+        } else {
+          throw new Error('Invalid playlist data');
+        }
+      } catch (error: any) {
+        console.error('Error retrieving most recent playlist:', error);
         setError('Could not fetch the most recent playlist.');
       }
     };
@@ -66,17 +75,19 @@ const ProfilePage: React.FC = () => {
         </Link>
 
          {/* Most Recent Playlist */}
-        <View style={styles.recentPlaylistContainer}>
+         <View style={styles.recentPlaylistContainer}>
           <ThemedText style={styles.recentPlaylistTitle}>Most Recent Playlist:</ThemedText>
           {error ? (
             <Text style={styles.errorText}>{error}</Text>
           ) : mostRecentPlaylist ? (
             <View style={styles.recentPlaylistItem}>
-              <Text style={styles.itemTitle}>{mostRecentPlaylist}</Text>
-              <Text style={styles.itemValue}>{mostRecentPlaylist}</Text>
+              <Text style={styles.itemTitle}>Name:</Text>
+              <Text style={styles.itemValue}>{mostRecentPlaylist.name}</Text>
+              <Text style={styles.itemTitle}>Modified Date:</Text>
+              <Text style={styles.itemValue}>{mostRecentPlaylist.playlist_modified}</Text>
             </View>
           ) : (
-            <Text style={styles.loadingText}>No recent tune timer playlists</Text>
+            <Text style={styles.loadingText}>No recent Tune Timer playlists available.</Text>
           )}
         </View>
 

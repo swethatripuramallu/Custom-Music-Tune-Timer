@@ -351,20 +351,42 @@ def delete_playlist():
     return jsonify("Playlist Deleted")
 
 
-@app.rounte('/most-recent-playlist')
+@app.route('/most-recent-playlist')
 def most_recent_playlist():
     sp = get_spotify_client()
 
     # Get user ID
     user_id = sp.current_user()['id']
-    playlist_id = ''
-    # Get playlist ID
+    playlist_info = None
+
+    # Get playlist ID and name
     for playlist in sp.user_playlists(user=user_id)['items']:
         if playlist['name'] == 'Tune Timer Playlist':
-            playlist_id = playlist['id']
+            playlist_info = {
+                "playlist_id": playlist['id'],
+                "name": playlist['name']
+            }
             break
-        
-    return playlist_id
+    
+    if playlist_info:
+        playlist = sp.playlist(playlist_info['playlist_info'])
+        # Extract track added dates
+        added_at_dates = [
+            item['added_at'] for item in playlist['tracks']['items'] if item['added_at']
+        ]
+
+        # Find the earliest added_at date
+        if added_at_dates:
+            earliest_date = min(added_at_dates)
+        return jsonify({
+            "playlist_modified": earliest_date,
+            "name": playlist_info['name'],
+            "message": "Successfully retrieved playlist information."
+        })
+    else:
+        return jsonify({
+            "error": "Playlist not found."
+        }), 404
 
 
 if __name__ == '__main__':
