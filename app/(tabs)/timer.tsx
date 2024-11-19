@@ -30,23 +30,29 @@ export default function ExploreScreen() {
 
   async function playSound() {
     if(!playlistStarted) {
+      var duration = 0;
       try {
         const spotifyPlaylistUrl = 'http://127.0.0.1:3002/play';
         const response = await fetch(spotifyPlaylistUrl);
         const result = await response.json();
-        console.log('Response from backend:', result);
+        console.log('Response from backend in play:', result);
+        duration = parseInt(result, 10);
+        console.log(duration);
       } 
       catch (error) {
         console.error('Error playing playlist: ', error);
       }
-      setLength(25); // Set timer length here
+      console.log('Duration:', duration);
+      setLength(duration);
+      console.log('Length:', length);
+      setIsPlaying(true); // start the timer
     }
     else {
       try {
         const spotifyPlaylistUrl = 'http://127.0.0.1:3002/resume';
         const response = await fetch(spotifyPlaylistUrl);
         const result = await response.json();
-        console.log('Response from backend:', result);
+        console.log('Play sound response from backend:', result);
       } 
       catch (error) {
         console.error('Error resume playing playlist: ', error);
@@ -54,6 +60,7 @@ export default function ExploreScreen() {
     }
     setPlaylistStarted(true);
     setIsPlaying(true); // start the timer
+    console.log('Playing sound: ', isPlaying);
   }
 
   async function pauseSound() {
@@ -62,7 +69,7 @@ export default function ExploreScreen() {
       const spotifyPlaylistUrl = 'http://127.0.0.1:3002/pause';
       const response = await fetch(spotifyPlaylistUrl);
       const result = await response.json();
-      console.log('Response from backend:', result);
+      console.log('Pause sound response from backend:', result);
     } 
     catch (error) {
       console.error('Error pausing playlist: ', error);
@@ -74,7 +81,10 @@ export default function ExploreScreen() {
     try {
       const spotifyPlaylistUrl = 'http://127.0.0.1:3002/play';
       const response = await fetch(spotifyPlaylistUrl);
-
+      const result = await response.json();
+      console.log('Reset Timer response from backend:', result);
+      const duration = result;
+      setLength(duration);
     } catch (error) {
       console.error('Error playing playlist: ', error);
     }
