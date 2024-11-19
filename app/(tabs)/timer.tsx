@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
-import { Text, StyleSheet, TouchableOpacity } from 'react-native';
+import { Text, StyleSheet, TouchableOpacity, View, Image } from 'react-native';
+import Icon from 'react-native-vector-icons/FontAwesome';
 import { CountdownCircleTimer } from 'react-native-countdown-circle-timer';
 import { ThemedView } from '@/components/ThemedView'; 
 import { ParallaxScrollView } from '@/components/ParallaxScrollView';
@@ -10,7 +11,7 @@ export default function ExploreScreen() {
   const [timeRemaining, setTimeRemaining] = useState(length);
   const [playlistStarted, setPlaylistStarted] = useState(false);
   const [reset, setReset] = useState(0);
-  const [likePlaylist, setLikePlaylist] = useState(true); // automaticall saves playlist
+  const [likePlaylist, setLikePlaylist] = useState(true); // automatically saves playlist
 
   useEffect(() => {
     setTimeRemaining(length); // Reset time when length changes
@@ -19,75 +20,67 @@ export default function ExploreScreen() {
   const onTimerComplete = () => {
     console.log('Timer Complete!');
     playAlarm();
-    if(likePlaylist) {
+    if (likePlaylist) {
       console.log('Playlist liked');
-    }
-    else {
+    } else {
       console.log('Playlist disliked');
       deletePlaylist();
     }
   };
 
   async function playSound() {
-    if(!playlistStarted) {
+    if (!playlistStarted) {
       try {
-        const spotifyPlaylistUrl = 'http://127.0.0.1:3002/play';
+        const spotifyPlaylistUrl = 'http://127.0.0.1:5001/play';
         const response = await fetch(spotifyPlaylistUrl);
         const result = await response.json();
         console.log('Response from backend:', result);
-      } 
-      catch (error) {
+      } catch (error) {
         console.error('Error playing playlist: ', error);
       }
       setLength(25); // Set timer length here
-    }
-    else {
+    } else {
       try {
-        const spotifyPlaylistUrl = 'http://127.0.0.1:3002/resume';
+        const spotifyPlaylistUrl = 'http://127.0.0.1:5001/resume';
         const response = await fetch(spotifyPlaylistUrl);
         const result = await response.json();
         console.log('Response from backend:', result);
-      } 
-      catch (error) {
-        console.error('Error resume playing playlist: ', error);
+      } catch (error) {
+        console.error('Error resuming playlist: ', error);
       }
     }
     setPlaylistStarted(true);
-    setIsPlaying(true); // start the timer
+    setIsPlaying(true); // Start the timer
   }
 
   async function pauseSound() {
     setIsPlaying(false); // Stop the timer
     try {
-      const spotifyPlaylistUrl = 'http://127.0.0.1:3002/pause';
+      const spotifyPlaylistUrl = 'http://127.0.0.1:5001/pause';
       const response = await fetch(spotifyPlaylistUrl);
       const result = await response.json();
       console.log('Response from backend:', result);
-    } 
-    catch (error) {
+    } catch (error) {
       console.error('Error pausing playlist: ', error);
     }
   }
 
   async function resetTimer() {
-    // reset playlist through backend
     try {
-      const spotifyPlaylistUrl = 'http://127.0.0.1:3002/play';
-      const response = await fetch(spotifyPlaylistUrl);
-
+      const spotifyPlaylistUrl = 'http://127.0.0.1:5001/play';
+      await fetch(spotifyPlaylistUrl);
     } catch (error) {
       console.error('Error playing playlist: ', error);
     }
 
-    setReset(reset + 1); // reset timer icon
-  };
+    setReset(reset + 1); // Reset timer icon
+  }
 
-  async function playAlarm(){
+  async function playAlarm() {
     try {
-      const spotifyPlaylistUrl = 'http://127.0.0.1:3002/alarm';
-      const response = await fetch(spotifyPlaylistUrl);
-    }
-    catch (error) {
+      const spotifyPlaylistUrl = 'http://127.0.0.1:5001/alarm';
+      await fetch(spotifyPlaylistUrl);
+    } catch (error) {
       console.error('Error playing alarm: ', error);
     }
   }
@@ -104,130 +97,80 @@ export default function ExploreScreen() {
 
   async function deletePlaylist() {
     try {
-      const spotifyPlaylistUrl = 'http://127.0.0.1:3002/delete';
-      const response = await fetch(spotifyPlaylistUrl);
-    }
-    catch (error) {
+      const spotifyPlaylistUrl = 'http://127.0.0.1:5001/delete';
+      await fetch(spotifyPlaylistUrl);
+    } catch (error) {
       console.error('Error deleting playlist: ', error);
     }
   }
 
   return (
     <ParallaxScrollView
-      headerBackgroundColor={{ light: '#F1F0ED', dark: '#F1F0ED' }}
-      headerImage={
-        <ThemedView style={styles.container}>
-          {/* <Image
-            source={require('@/assets/images/background.png')}
+      headerBackgroundColor={{ dark: "#F1F0ED", light: "#F1F0ED" }}
+      headerImage={(
+        <ThemedView style={styles.logoContainer}>
+          <Image
+            source={require('@/assets/images/blank.png')}
             style={styles.tuneTimerLogo}
-          /> */}
+          />
         </ThemedView>
-      }
+      )}
+      // headerImage={<Image source={require('@/assets/images/blank.png')} style={styles.headerImage} />} // Header image here
     >
-    <ThemedView style={styles.container}>
-      <Text style={styles.heading}>Begin Playing!</Text>
-      <CountdownCircleTimer
-        isPlaying = {isPlaying}
-        key={reset}
-        duration={timeRemaining}  // length in seconds
-        onComplete={onTimerComplete}
-        size={250} 
-        strokeWidth={20} 
-        colors='#435f57'
-        rotation="clockwise"
-        trailColor="#e6e6e6" 
-        strokeLinecap="round" 
-      >
-        {({ remainingTime }) => (
-          <Text style={styles.timeText}>
-            {remainingTime}s
-          </Text>
-        )}
-      </CountdownCircleTimer>
+      <ThemedView style={styles.container}>
+        <Text style={styles.heading}>Begin Playing!</Text>
+        <CountdownCircleTimer
+          isPlaying={isPlaying}
+          key={reset}
+          duration={timeRemaining}
+          onComplete={onTimerComplete}
+          size={250}
+          strokeWidth={20}
+          colors="#435f57"
+          rotation="clockwise"
+          trailColor="#e6e6e6"
+          strokeLinecap="round"
+        >
+          {({ remainingTime }) => <Text style={styles.timeText}>{remainingTime}s</Text>}
+        </CountdownCircleTimer>
 
-      {/* Button to start/stop the timer */}
-      <TouchableOpacity style={styles.button} onPress={playSound}>
-        <Text style={styles.buttonText}>Start</Text>
-      </TouchableOpacity>
+        {/* Timer Controls */}
+        <View style={styles.row}>
+          <TouchableOpacity style={styles.button} onPress={playSound}>
+            <Text style={styles.buttonText}>Start</Text>
+          </TouchableOpacity>
+          <TouchableOpacity style={styles.button} onPress={resetTimer}>
+            <Text style={styles.buttonText}>Reset</Text>
+          </TouchableOpacity>
+          <TouchableOpacity style={styles.button} onPress={pauseSound}>
+            <Text style={styles.buttonText}>Stop</Text>
+          </TouchableOpacity>
+        </View>
 
-      <TouchableOpacity style={styles.resetButton} onPress={pauseSound}>
-        <Text style={styles.buttonText}>Stop</Text>
-      </TouchableOpacity>
-
-      {/* Button to reset the timer */}
-      <TouchableOpacity style={styles.resetButton} onPress={resetTimer}>
-        <Text style={styles.buttonText}>Reset</Text>
-      </TouchableOpacity>
-
-      {/* Button to mute alarm */}
-      <TouchableOpacity style={styles.button} onPress={playAlarm}>
-        <Text style={styles.buttonText}>Mute Alarm</Text>
-      </TouchableOpacity>
-
-      {/* Button to like playlist */}
-      <TouchableOpacity style={styles.button} onPress={like}>
-        <Text style={styles.buttonText}>Like</Text>
-      </TouchableOpacity>
-
-      {/* Button to dislike playlist */}
-      <TouchableOpacity style={styles.button} onPress={dislike}>
-        <Text style={styles.buttonText}>Dislike</Text>
-      </TouchableOpacity>
-    </ThemedView>
+        {/* Playlist Actions */}
+        <View style={styles.iconRow}>
+          <TouchableOpacity style={styles.iconButton} onPress={like}>
+            <Icon name="thumbs-up" size={24} color="white" />
+          </TouchableOpacity>
+          <TouchableOpacity style={styles.iconButton} onPress={dislike}>
+            <Icon name="thumbs-down" size={24} color="white" />
+          </TouchableOpacity>
+        </View>
+      </ThemedView>
     </ParallaxScrollView>
   );
-};
+}
 
 const styles = StyleSheet.create({
   container: {
     paddingHorizontal: 20,
-    paddingVertical: 0,
+    alignItems: 'center',
     backgroundColor: 'transparent',
+  },
+  logoContainer: {
+    justifyContent: 'center',
     alignItems: 'center',
-    // gap: 10,
-    marginTop: 0,
-  },
-  heading: {
-    fontSize: 24,
-    fontWeight: '700',
-    color: '#435f57', 
-    marginBottom: 20, 
-  },
-  timeText: {
-    fontSize: 40,
-    color: '#fff',
-    fontWeight: '700',
-  },
-  button: {
-    backgroundColor: '#638C80', 
-    paddingVertical: 12,
-    paddingHorizontal: 25,
-    borderRadius: 25,
-    alignItems: 'center',
-    shadowColor: '#B0B7B3',
-    shadowOffset: { width: 0, height: 5 },
-    shadowOpacity: 0.2,
-    shadowRadius: 10,
-    width: '70%',
-    marginTop: 20,
-  },
-  resetButton: {
-    backgroundColor: '#638C80', 
-    paddingVertical: 12,
-    paddingHorizontal: 25,
-    borderRadius: 25,
-    alignItems: 'center',
-    shadowColor: '#B0B7B3',
-    shadowOffset: { width: 0, height: 5 },
-    shadowOpacity: 0.2,
-    shadowRadius: 10,
-    width: '70%',
-    marginTop: 10,
-  },
-  buttonText: {
-    color: 'white',
-    fontSize: 16,
-    fontWeight: '600',
+    paddingVertical: 20,
   },
   tuneTimerLogo: {
     height: 250,
@@ -235,4 +178,52 @@ const styles = StyleSheet.create({
     resizeMode: 'contain',
     borderRadius: 15,
   },
-});
+  heading: {
+    fontSize: 30,
+    fontWeight: '700',
+    color: '#435f57',
+    marginBottom: 20,
+  },
+  timeText: {
+    fontSize: 40,
+    color: '#fff',
+    fontWeight: '700',
+  },
+  row: {
+    flexDirection: 'row',
+    justifyContent: 'space-around',
+    marginVertical: 15,
+    width: '100%',
+  },
+  button: {
+    backgroundColor: '#638C80',
+    paddingVertical: 15,
+    borderRadius: 25,
+    alignItems: 'center',
+    width: '30%',
+  },
+  buttonText: {
+    color: 'white',
+    fontSize: 16,
+    fontWeight: '600',
+  },
+  iconRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-around',
+    marginTop: 15,
+    width: '50%',
+  },
+  iconButton: {
+    backgroundColor: '#638C80',
+    borderRadius: 50,
+    padding: 17,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  headerImage: {
+    justifyContent: 'center',
+    alignItems: 'center',
+    paddingVertical: 20,
+    },
+  },
+);
