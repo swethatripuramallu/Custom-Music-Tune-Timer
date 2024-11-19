@@ -1,16 +1,26 @@
-import React from 'react';
+import React, {useState} from 'react';
 import { View, Text, FlatList, StyleSheet, Image, TouchableOpacity } from 'react-native';
 import { ParallaxScrollView } from '@/components/ParallaxScrollView';
 import { ThemedText } from '@/components/ThemedText';
 import { ThemedView } from '@/components/ThemedView';
 import { Link } from 'expo-router';
 
-// Example playlist data
-const playlistInfo = [
-  { title: 'Playlist Archive', value: 'hello test' },
-];
 
-const ProfilePage = () => {
+// Example playlist data
+const ProfilePage: React.FC = () => {
+
+  async function setRecentPlaylist() {
+    try {
+      const most_recent_playlist = 'http://127.0.0.1:5000/most-recent-playlist'; //change the url accordingly
+      const response = await fetch(most_recent_playlist);
+      const result = await response.json();
+      console.log('Response from backend:', result);
+    } 
+    catch (error) {
+      console.error('Error retrieving most recent playlist: ', error);
+    }
+  }
+
   // Render each item in the profile data
   const renderItem = ({ item }: { item: { title: string; value: string } }) => (
     <View style={styles.profileItem}>
@@ -42,6 +52,20 @@ const ProfilePage = () => {
             <ThemedText style={styles.buttonText}>Create New Playlist</ThemedText>
           </TouchableOpacity>
         </Link>
+
+         {/* Most Recent Playlist */}
+         <View style={styles.recentPlaylistContainer}>
+          <ThemedText style={styles.recentPlaylistTitle}>Most Recent Tune Timer Playlist:</ThemedText>
+          {/* mostRecentPlaylist ? (
+            <View style={styles.recentPlaylistItem}>
+              <Text style={styles.itemTitle}>{mostRecentPlaylist.title}</Text>
+              <Text style={styles.itemValue}>{mostRecentPlaylist.value}</Text>
+            </View>
+          ) : (
+            <Text style={styles.noPlaylistText}>No playlists available.</Text>
+          )*/}
+        </View>
+
       </ThemedView>
     </ParallaxScrollView>
   );
@@ -85,6 +109,38 @@ const styles = StyleSheet.create({
     elevation: 3,
     width: '100%',
   },
+
+  recentPlaylistContainer: {
+    marginTop: 20,
+    width: '100%',
+    alignItems: 'center',
+  },
+  recentPlaylistTitle: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    color: '#435f57',
+    marginBottom: 10,
+  },
+  recentPlaylistItem: {
+    padding: 10,
+    backgroundColor: '#fff',
+    borderRadius: 5,
+    shadowColor: '#000',
+    shadowOpacity: 0.1,
+    shadowOffset: { width: 0, height: 1 },
+    shadowRadius: 3,
+    elevation: 3,
+    width: '100%',
+    maxWidth: 300,
+    alignItems: 'center',
+  },
+
+  noPlaylistText: {
+    fontSize: 14,
+    color: '#999',
+    marginTop: 10,
+  },
+
   itemTitle: {
     fontSize: 16,
     fontWeight: 'bold',
