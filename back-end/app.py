@@ -351,5 +351,21 @@ def delete_playlist():
     return jsonify("Playlist Deleted")
 
 
+@app.rounte('/most-recent-playlist')
+def most_recent_playlist():
+    sp = get_spotify_client()
+
+    # Get user ID
+    user_id = sp.current_user()['id']
+    playlist_id = ''
+    # Get playlist ID
+    for playlist in sp.user_playlists(user=user_id)['items']:
+        if playlist['name'] == 'Tune Timer Playlist':
+            playlist_id = playlist['id']
+            break
+        
+    return playlist_id
+
+
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=os.getenv('PORT'), debug=True)
