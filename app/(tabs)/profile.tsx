@@ -1,4 +1,4 @@
-import React, {useState} from 'react';
+import React, {useState, useEffect} from 'react';
 import { View, Text, FlatList, StyleSheet, Image, TouchableOpacity } from 'react-native';
 import { ParallaxScrollView } from '@/components/ParallaxScrollView';
 import { ThemedText } from '@/components/ThemedText';
@@ -9,17 +9,29 @@ import { Link } from 'expo-router';
 // Example playlist data
 const ProfilePage: React.FC = () => {
 
-  async function setRecentPlaylist() {
-    try {
-      const most_recent_playlist = 'http://127.0.0.1:5000/most-recent-playlist'; //change the url accordingly
-      const response = await fetch(most_recent_playlist);
-      const result = await response.json();
-      console.log('Response from backend:', result);
-    } 
-    catch (error) {
-      console.error('Error retrieving most recent playlist: ', error);
-    }
-  }
+  const [mostRecentPlaylist, setMostRecentPlaylist] = useState(null);
+  const [error, setError] = useState<string | null>(null);
+
+  // Fetch the most recent playlist
+  useEffect(() => {
+    const fetchMostRecentPlaylist = async () => {
+      try {
+        const most_recent_playlist = 'http://127.0.0.1:5000/most-recent-playlist'; // Change the URL as needed
+        const response = await fetch(most_recent_playlist);
+        if (!response.ok) {
+          throw new Error('Network response was not ok');
+        }
+        const result = await response.json();
+        console.log('Response from backend:', result);
+        setMostRecentPlaylist(result); // Assuming `result` contains the playlist data
+      } catch (error) {
+        console.error('Error retrieving most recent playlist: ', error);
+        setError('Could not fetch the most recent playlist.');
+      }
+    };
+
+    fetchMostRecentPlaylist();
+  }, []);
 
   // Render each item in the profile data
   const renderItem = ({ item }: { item: { title: string; value: string } }) => (
@@ -54,16 +66,18 @@ const ProfilePage: React.FC = () => {
         </Link>
 
          {/* Most Recent Playlist */}
-         <View style={styles.recentPlaylistContainer}>
-          <ThemedText style={styles.recentPlaylistTitle}>Most Recent Tune Timer Playlist:</ThemedText>
-          {/* mostRecentPlaylist ? (
+        <View style={styles.recentPlaylistContainer}>
+          <ThemedText style={styles.recentPlaylistTitle}>Most Recent Playlist:</ThemedText>
+          {error ? (
+            <Text style={styles.errorText}>{error}</Text>
+          ) : mostRecentPlaylist ? (
             <View style={styles.recentPlaylistItem}>
-              <Text style={styles.itemTitle}>{mostRecentPlaylist.title}</Text>
-              <Text style={styles.itemValue}>{mostRecentPlaylist.value}</Text>
+              <Text style={styles.itemTitle}>{mostRecentPlaylist}</Text>
+              <Text style={styles.itemValue}>{mostRecentPlaylist}</Text>
             </View>
           ) : (
-            <Text style={styles.noPlaylistText}>No playlists available.</Text>
-          )*/}
+            <Text style={styles.loadingText}>No recent tune timer playlists</Text>
+          )}
         </View>
 
       </ThemedView>
@@ -149,6 +163,16 @@ const styles = StyleSheet.create({
   itemValue: {
     fontSize: 14,
     color: '#666',
+  },
+  errorText: {
+    fontSize: 14,
+    color: 'red',
+    marginTop: 10,
+  },
+  loadingText: {
+    fontSize: 14,
+    color: '#999',
+    marginTop: 10,
   },
   button: {
     backgroundColor: '#638C80',
