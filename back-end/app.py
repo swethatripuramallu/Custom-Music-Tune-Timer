@@ -332,5 +332,24 @@ def alarm():
     return jsonify("Playing Alarm")
 
 
+@app.route('/delete')
+def delete_playlist():
+    sp = get_spotify_client()
+
+    # Get user ID
+    user_id = sp.current_user()['id']
+
+    # Get playlist ID
+    for playlist in sp.user_playlists(user=user_id)['items']:
+        if playlist['name'] == 'Tune Timer Playlist':
+            playlist_id = playlist['id']
+            break
+
+    # Delete (unfollow) playlist
+    sp.current_user_unfollow_playlist(playlist_id=playlist_id)
+
+    return jsonify("Playlist Deleted")
+
+
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=os.getenv('PORT'), debug=True)

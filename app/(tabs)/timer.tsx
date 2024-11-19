@@ -1,15 +1,16 @@
 import React, { useEffect, useState } from 'react';
 import { Text, StyleSheet, TouchableOpacity } from 'react-native';
 import { CountdownCircleTimer } from 'react-native-countdown-circle-timer';
-import { useTimer } from '../timerlength'; 
 import { ThemedView } from '@/components/ThemedView'; 
+import { ParallaxScrollView } from '@/components/ParallaxScrollView';
 
-const Timer: React.FC = () => {
+export default function ExploreScreen() {
   const [isPlaying, setIsPlaying] = useState(false); // State to track if the timer is playing
   const [length, setLength] = useState(0);
   const [timeRemaining, setTimeRemaining] = useState(length);
   const [playlistStarted, setPlaylistStarted] = useState(false);
   const [reset, setReset] = useState(0);
+  const [likePlaylist, setLikePlaylist] = useState(true); // automaticall saves playlist
 
   useEffect(() => {
     setTimeRemaining(length); // Reset time when length changes
@@ -18,12 +19,19 @@ const Timer: React.FC = () => {
   const onTimerComplete = () => {
     console.log('Timer Complete!');
     playAlarm();
+    if(likePlaylist) {
+      console.log('Playlist liked');
+    }
+    else {
+      console.log('Playlist disliked');
+      deletePlaylist();
+    }
   };
 
   async function playSound() {
     if(!playlistStarted) {
       try {
-        const spotifyPlaylistUrl = 'http://127.0.0.1:5001/play';
+        const spotifyPlaylistUrl = 'http://127.0.0.1:3002/play';
         const response = await fetch(spotifyPlaylistUrl);
         const result = await response.json();
         console.log('Response from backend:', result);
@@ -35,7 +43,7 @@ const Timer: React.FC = () => {
     }
     else {
       try {
-        const spotifyPlaylistUrl = 'http://127.0.0.1:5001/resume';
+        const spotifyPlaylistUrl = 'http://127.0.0.1:3002/resume';
         const response = await fetch(spotifyPlaylistUrl);
         const result = await response.json();
         console.log('Response from backend:', result);
@@ -51,7 +59,7 @@ const Timer: React.FC = () => {
   async function pauseSound() {
     setIsPlaying(false); // Stop the timer
     try {
-      const spotifyPlaylistUrl = 'http://127.0.0.1:5001/pause';
+      const spotifyPlaylistUrl = 'http://127.0.0.1:3002/pause';
       const response = await fetch(spotifyPlaylistUrl);
       const result = await response.json();
       console.log('Response from backend:', result);
@@ -64,7 +72,7 @@ const Timer: React.FC = () => {
   async function resetTimer() {
     // reset playlist through backend
     try {
-      const spotifyPlaylistUrl = 'http://127.0.0.1:5001/play';
+      const spotifyPlaylistUrl = 'http://127.0.0.1:3002/play';
       const response = await fetch(spotifyPlaylistUrl);
 
     } catch (error) {
@@ -76,7 +84,7 @@ const Timer: React.FC = () => {
 
   async function playAlarm(){
     try {
-      const spotifyPlaylistUrl = 'http://127.0.0.1:5001/alarm';
+      const spotifyPlaylistUrl = 'http://127.0.0.1:3002/alarm';
       const response = await fetch(spotifyPlaylistUrl);
     }
     catch (error) {
@@ -84,13 +92,41 @@ const Timer: React.FC = () => {
     }
   }
 
-  return (
-    <ThemedView style={styles.container}>
-      {/* Heading */}
-      <Text style={styles.heading}>Begin Playing!</Text>
+  async function like() {
+    console.log('Liked playlist');
+    setLikePlaylist(true);
+  }
 
+  async function dislike() {
+    console.log('Disliked playlist');
+    setLikePlaylist(false);
+  }
+
+  async function deletePlaylist() {
+    try {
+      const spotifyPlaylistUrl = 'http://127.0.0.1:3002/delete';
+      const response = await fetch(spotifyPlaylistUrl);
+    }
+    catch (error) {
+      console.error('Error deleting playlist: ', error);
+    }
+  }
+
+  return (
+    <ParallaxScrollView
+      headerBackgroundColor={{ light: '#F1F0ED', dark: '#F1F0ED' }}
+      headerImage={
+        <ThemedView style={styles.container}>
+          {/* <Image
+            source={require('@/assets/images/background.png')}
+            style={styles.tuneTimerLogo}
+          /> */}
+        </ThemedView>
+      }
+    >
+    <ThemedView style={styles.container}>
+      <Text style={styles.heading}>Begin Playing!</Text>
       <CountdownCircleTimer
-        // isPlaying={false} // look at the updating of isPlaying for when Start/Stop is pressed
         isPlaying = {isPlaying}
         key={reset}
         duration={timeRemaining}  // length in seconds
@@ -111,10 +147,7 @@ const Timer: React.FC = () => {
 
       {/* Button to start/stop the timer */}
       <TouchableOpacity style={styles.button} onPress={playSound}>
-        <Text style={styles.buttonText}>
-          {/* {isPlaying ? 'Stop' : 'Start'} */}
-          Start
-        </Text>
+        <Text style={styles.buttonText}>Start</Text>
       </TouchableOpacity>
 
       <TouchableOpacity style={styles.resetButton} onPress={pauseSound}>
@@ -130,18 +163,29 @@ const Timer: React.FC = () => {
       <TouchableOpacity style={styles.button} onPress={playAlarm}>
         <Text style={styles.buttonText}>Mute Alarm</Text>
       </TouchableOpacity>
+
+      {/* Button to like playlist */}
+      <TouchableOpacity style={styles.button} onPress={like}>
+        <Text style={styles.buttonText}>Like</Text>
+      </TouchableOpacity>
+
+      {/* Button to dislike playlist */}
+      <TouchableOpacity style={styles.button} onPress={dislike}>
+        <Text style={styles.buttonText}>Dislike</Text>
+      </TouchableOpacity>
     </ThemedView>
+    </ParallaxScrollView>
   );
 };
 
 const styles = StyleSheet.create({
   container: {
     paddingHorizontal: 20,
-    paddingVertical: 15,
+    paddingVertical: 0,
     backgroundColor: 'transparent',
     alignItems: 'center',
-    gap: 10,
-    marginTop: 60,
+    // gap: 10,
+    marginTop: 0,
   },
   heading: {
     fontSize: 24,
@@ -185,6 +229,10 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: '600',
   },
+  tuneTimerLogo: {
+    height: 250,
+    width: 400,
+    resizeMode: 'contain',
+    borderRadius: 15,
+  },
 });
-
-export default Timer;
