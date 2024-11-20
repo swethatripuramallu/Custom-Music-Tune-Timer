@@ -142,7 +142,15 @@ export default function ExploreScreen() {
           trailColor="#e6e6e6"
           strokeLinecap="round"
         >
-          {({ remainingTime }) => <Text style={styles.timeText}>{remainingTime}s</Text>}
+          {({ remainingTime }) => {
+            const minutes = Math.floor(remainingTime / 60);
+            const seconds = remainingTime % 60;
+            return (
+              <Text style={styles.timeText}>
+                {minutes}:{seconds < 10 ? `0${seconds}` : seconds}
+              </Text>
+            );
+          }}
         </CountdownCircleTimer>
 
         {/* Timer Controls */}
