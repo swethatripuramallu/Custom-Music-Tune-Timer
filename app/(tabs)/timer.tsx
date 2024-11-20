@@ -5,16 +5,17 @@ import { CountdownCircleTimer } from 'react-native-countdown-circle-timer';
 import { ThemedView } from '@/components/ThemedView'; 
 import { ParallaxScrollView } from '@/components/ParallaxScrollView';
 
+const PORT = 5001; // set port number
+
 export default function ExploreScreen() {
-  const [isPlaying, setIsPlaying] = useState(false); // State to track if the timer is playing
+  const [isPlaying, setIsPlaying] = useState(false);
   const [length, setLength] = useState(0);
-  const [timeRemaining, setTimeRemaining] = useState(length);
-  const [playlistStarted, setPlaylistStarted] = useState(false);
   const [reset, setReset] = useState(0);
-  const [likePlaylist, setLikePlaylist] = useState(true); // automatically saves playlist
+  const [playlistStarted, setPlaylistStarted] = useState(false);
+  const [likePlaylist, setLikePlaylist] = useState(true); 
 
   useEffect(() => {
-    setTimeRemaining(length); // Reset time when length changes
+    console.log('Timer duration updated:', length);
   }, [length]);
 
   const onTimerComplete = () => {
@@ -31,17 +32,21 @@ export default function ExploreScreen() {
   async function playSound() {
     if (!playlistStarted) {
       try {
-        const spotifyPlaylistUrl = 'http://127.0.0.1:5001/play';
+        const spotifyPlaylistUrl = `http://127.0.0.1:${PORT}/play`;
+
         const response = await fetch(spotifyPlaylistUrl);
         const result = await response.json();
-        console.log('Response from backend:', result);
+        const duration = parseInt(result, 10) / 1000; // Covnert to seconds
+        console.log('Playlist duration:', duration);
+        setLength(duration); // Update timer duration
+        setIsPlaying(true);
       } catch (error) {
-        console.error('Error playing playlist: ', error);
+        console.error('Error playing playlist:', error);
       }
-      setLength(25); // Set timer length here
     } else {
       try {
-        const spotifyPlaylistUrl = 'http://127.0.0.1:5001/resume';
+
+        const spotifyPlaylistUrl = `http://127.0.0.1:${PORT}/resume`;
         const response = await fetch(spotifyPlaylistUrl);
         const result = await response.json();
         console.log('Response from backend:', result);
@@ -50,13 +55,13 @@ export default function ExploreScreen() {
       }
     }
     setPlaylistStarted(true);
-    setIsPlaying(true); // Start the timer
+    setIsPlaying(true);
   }
 
   async function pauseSound() {
-    setIsPlaying(false); // Stop the timer
+    setIsPlaying(false);
     try {
-      const spotifyPlaylistUrl = 'http://127.0.0.1:5001/pause';
+      const spotifyPlaylistUrl = `http://127.0.0.1:${PORT}/pause`;
       const response = await fetch(spotifyPlaylistUrl);
       const result = await response.json();
       console.log('Response from backend:', result);
@@ -67,20 +72,25 @@ export default function ExploreScreen() {
 
   async function resetTimer() {
     try {
-      const spotifyPlaylistUrl = 'http://127.0.0.1:5001/play';
-      await fetch(spotifyPlaylistUrl);
+      const spotifyPlaylistUrl = `http://127.0.0.1:${PORT}/play`;
+      const response = await fetch(spotifyPlaylistUrl);
+      const result = await response.json();
+      const duration = parseInt(result, 10) / 1000; // Convert ms to seconds
+      console.log('Playlist duration in seconds:', duration);
+      setLength(duration); // Update length for timer
     } catch (error) {
-      console.error('Error playing playlist: ', error);
+      console.error('Error resetting playlist:', error);
     }
-
-    setReset(reset + 1); // Reset timer icon
+    setReset(reset + 1); // Trigger re-render
   }
 
   async function playAlarm() {
     try {
-      const spotifyPlaylistUrl = 'http://127.0.0.1:5001/alarm';
-      await fetch(spotifyPlaylistUrl);
-    } catch (error) {
+      const spotifyPlaylistUrl = `http://127.0.0.1:${PORT}/alarm`;
+
+      const response = await fetch(spotifyPlaylistUrl);
+    }
+    catch (error) {
       console.error('Error playing alarm: ', error);
     }
   }
@@ -97,9 +107,10 @@ export default function ExploreScreen() {
 
   async function deletePlaylist() {
     try {
-      const spotifyPlaylistUrl = 'http://127.0.0.1:5001/delete';
-      await fetch(spotifyPlaylistUrl);
-    } catch (error) {
+      const spotifyPlaylistUrl = `http://127.0.0.1:${PORT}/delete`;
+      const response = await fetch(spotifyPlaylistUrl);
+    }
+    catch (error) {
       console.error('Error deleting playlist: ', error);
     }
   }
@@ -186,7 +197,7 @@ const styles = StyleSheet.create({
   },
   timeText: {
     fontSize: 40,
-    color: '#fff',
+    color: '#638C80',
     fontWeight: '700',
   },
   row: {

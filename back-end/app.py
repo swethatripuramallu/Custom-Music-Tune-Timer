@@ -351,5 +351,55 @@ def delete_playlist():
     return jsonify("Playlist Deleted")
 
 
+@app.route('/most-recent-playlist')
+def most_recent_playlist():
+    sp = get_spotify_client()
+
+    # Get user ID
+    user_id = sp.current_user()['id']
+    playlist_info = None
+
+    # Get playlist ID and name
+    for playlist in sp.user_playlists(user=user_id)['items']:
+        if playlist['name'] == 'Tune Timer Playlist':
+            playlist_info = {
+                "playlist_id": playlist['id'],
+                "name": playlist['name']
+            }
+            break
+
+    if playlist_info:
+        playlist = sp.playlist(playlist_info['playlist_id'])
+        print(f"Playlist found: {playlist_info['name']}")  # Debug log
+
+        # Extract track added dates
+        added_at_dates = [
+            item['added_at'] for item in
+            playlist['tracks']['items'] if item['added_at']
+        ]
+
+        # If the playlist has tracks, return the earliest date
+        if added_at_dates:
+            earliest_date = min(added_at_dates)
+            return jsonify({
+                "playlist_modified": earliest_date,
+                "name": playlist_info['name'],
+                "message": "Successfully retrieved playlist information."
+            })
+
+        # If the playlist has no tracks, return the name and message
+        else:
+            return jsonify({
+                "playlist_modified": None,
+                "name": playlist_info['name'],
+                "message": "This playlist has no tracks."
+            })
+    else:
+        print("Playlist not found.")  # Debug log
+        return jsonify({
+            "error": "Playlist not found."
+        }), 404
+
+
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=os.getenv('PORT'), debug=True)
