@@ -6,6 +6,8 @@ import { ThemedView } from '@/components/ThemedView';
 import { Link } from 'expo-router';
 import { useFocusEffect } from '@react-navigation/native';
 
+const PORT = 5001; // set port number
+
 const ProfilePage: React.FC = () => {
   const [mostRecentPlaylist, setMostRecentPlaylist] = useState<{ name: string; playlist_modified: string | null; message?: string } | null>(null);
   const [error, setError] = useState<string | null>(null);
@@ -13,7 +15,9 @@ const ProfilePage: React.FC = () => {
 
   const fetchMostRecentPlaylist = async () => {
     try {
-      const most_recent_playlist = 'http://127.0.0.1:5001/most-recent-playlist';
+      const most_recent_playlist = `http://127.0.0.1:${PORT}/most-recent-playlist`;
+
+
       const response = await fetch(most_recent_playlist);
 
       if (!response.ok) {
@@ -45,7 +49,8 @@ const ProfilePage: React.FC = () => {
 
   const deletePlaylist = async () => {
     try {
-      const delete_endpoint = 'http://127.0.0.1:5001/delete';
+      const delete_endpoint = `http://127.0.0.1:${PORT}/delete`;
+
       const response = await fetch(delete_endpoint);
 
       if (!response.ok) {

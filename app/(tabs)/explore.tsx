@@ -7,6 +7,8 @@ import { ThemedText } from '@/components/ThemedText';
 import { ThemedView } from '@/components/ThemedView';
 import { Link } from 'expo-router';
 
+const PORT = 5001; // set port number
+
 export default function ExploreScreen() {
   const [length, setLength] = useState<number>(0); 
   const [happy, setHappy] = useState(false);
@@ -70,7 +72,8 @@ export default function ExploreScreen() {
     };
 
     try {
-        const spotifyPlaylistUrl = 'http://127.0.0.1:5001/create-playlist';
+        const spotifyPlaylistUrl = `http://127.0.0.1:${PORT}/create-playlist`;
+
 
         const response = await fetch(spotifyPlaylistUrl, {
           method: 'POST',
@@ -84,7 +87,6 @@ export default function ExploreScreen() {
 
         const result = await response.json();
         console.log('Response from backend:', result);
-        // Linking.openURL(result['playlist_url']);
 
     } catch (error) {
         console.error('Error sending data:', error);
