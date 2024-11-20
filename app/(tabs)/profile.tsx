@@ -15,26 +15,28 @@ const ProfilePage: React.FC = () => {
     try {
       const most_recent_playlist = 'http://127.0.0.1:5000/most-recent-playlist';
       const response = await fetch(most_recent_playlist);
-
+  
       if (!response.ok) {
         const errorData = await response.json();
+        // Handle "Playlist not found" explicitly
         if (response.status === 404 && errorData.error === "Playlist not found.") {
-          setError(null);
-          setMostRecentPlaylist(null);
+          setError('No recent Tune Timer playlists available.');
+          setMostRecentPlaylist(null); // Clear any existing playlist data
+          return; // Exit the function
         } else {
           throw new Error(errorData.error || 'Unknown error occurred');
         }
+      }
+  
+      const result = await response.json();
+      console.log('Response from backend:', result);
+  
+      if (result && result.name && result.playlist_modified) {
+        setMostRecentPlaylist(result);
+        setError(null); // Clear any errors
       } else {
-        const result = await response.json();
-        console.log('Response from backend:', result);
-
-        if (result && result.name && result.playlist_modified) {
-          setMostRecentPlaylist(result);
-          setError(null);
-        } else {
-          setMostRecentPlaylist(null);
-          setError('No valid playlist data available.');
-        }
+        setMostRecentPlaylist(null);
+        setError('No valid playlist data available.');
       }
     } catch (error: any) {
       console.error('Error retrieving most recent playlist:', error.message);
