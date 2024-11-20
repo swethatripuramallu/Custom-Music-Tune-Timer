@@ -7,45 +7,45 @@ import { ParallaxScrollView } from '@/components/ParallaxScrollView';
 const PORT = 5001; // set port number
 
 export default function ExploreScreen() {
-  const [isPlaying, setIsPlaying] = useState(false); // State to track if the timer is playing
+  const [isPlaying, setIsPlaying] = useState(false);
   const [length, setLength] = useState(0);
-  const [timeRemaining, setTimeRemaining] = useState(length);
-  const [playlistStarted, setPlaylistStarted] = useState(false);
   const [reset, setReset] = useState(0);
-  const [likePlaylist, setLikePlaylist] = useState(true); // automaticall saves playlist
+  const [playlistStarted, setPlaylistStarted] = useState(false);
+  const [likePlaylist, setLikePlaylist] = useState(true); 
 
   useEffect(() => {
-    setTimeRemaining(length); // Reset time when length changes
+    console.log('Timer duration updated:', length);
   }, [length]);
 
   const onTimerComplete = () => {
     console.log('Timer Complete!');
     playAlarm();
-    if(likePlaylist) {
+    if (likePlaylist) {
       console.log('Playlist liked');
-    }
-    else {
+    } else {
       console.log('Playlist disliked');
       deletePlaylist();
     }
   };
 
   async function playSound() {
-    if(!playlistStarted) {
+    if (!playlistStarted) {
       try {
+
         const spotifyPlaylistUrl = `http://127.0.0.1:${PORT}/play`;
 
         const response = await fetch(spotifyPlaylistUrl);
         const result = await response.json();
-        console.log('Response from backend:', result);
-      } 
-      catch (error) {
-        console.error('Error playing playlist: ', error);
+        const duration = parseInt(result, 10) / 1000; // Covnert to seconds
+        console.log('Playlist duration:', duration);
+        setLength(duration); // Update timer duration
+        setIsPlaying(true);
+      } catch (error) {
+        console.error('Error playing playlist:', error);
       }
-      setLength(25); // Set timer length here
-    }
-    else {
+    } else {
       try {
+
         const spotifyPlaylistUrl = `http://127.0.0.1:${PORT}/resume`;
 
         const response = await fetch(spotifyPlaylistUrl);
@@ -57,12 +57,13 @@ export default function ExploreScreen() {
       }
     }
     setPlaylistStarted(true);
-    setIsPlaying(true); // start the timer
+    setIsPlaying(true);
   }
 
   async function pauseSound() {
-    setIsPlaying(false); // Stop the timer
+    setIsPlaying(false);
     try {
+
       const spotifyPlaylistUrl = `http://127.0.0.1:${PORT}/pause`;
 
       const response = await fetch(spotifyPlaylistUrl);
@@ -75,20 +76,21 @@ export default function ExploreScreen() {
   }
 
   async function resetTimer() {
-    // reset playlist through backend
     try {
+
       const spotifyPlaylistUrl = `http://127.0.0.1:${PORT}/play`;
-
       const response = await fetch(spotifyPlaylistUrl);
-
+      const result = await response.json();
+      const duration = parseInt(result, 10) / 1000; // Convert ms to seconds
+      console.log('Playlist duration in seconds:', duration);
+      setLength(duration); // Update length for timer
     } catch (error) {
-      console.error('Error playing playlist: ', error);
+      console.error('Error resetting playlist:', error);
     }
+    setReset(reset + 1); // Trigger re-render
+  }
 
-    setReset(reset + 1); // reset timer icon
-  };
-
-  async function playAlarm(){
+  async function playAlarm() {
     try {
       const spotifyPlaylistUrl = `http://127.0.0.1:${PORT}/alarm`;
 
@@ -111,6 +113,7 @@ export default function ExploreScreen() {
 
   async function deletePlaylist() {
     try {
+
       const spotifyPlaylistUrl = `http://127.0.0.1:${PORT}/delete`;
       const response = await fetch(spotifyPlaylistUrl);
     }
@@ -124,66 +127,62 @@ export default function ExploreScreen() {
       headerBackgroundColor={{ light: '#F1F0ED', dark: '#F1F0ED' }}
       headerImage={
         <ThemedView style={styles.container}>
-          {/* <Image
-            source={require('@/assets/images/background.png')}
-            style={styles.tuneTimerLogo}
-          /> */}
+          {/* This has been changed UI-vise on sg-timer-page-ui, can use that*/}
         </ThemedView>
       }
     >
-    <ThemedView style={styles.container}>
-      <Text style={styles.heading}>Begin Playing!</Text>
-      <CountdownCircleTimer
-        isPlaying = {isPlaying}
-        key={reset}
-        duration={timeRemaining}  // length in seconds
-        onComplete={onTimerComplete}
-        size={250} 
-        strokeWidth={20} 
-        colors='#435f57'
-        rotation="clockwise"
-        trailColor="#e6e6e6" 
-        strokeLinecap="round" 
-      >
-        {({ remainingTime }) => (
-          <Text style={styles.timeText}>
-            {remainingTime}s
-          </Text>
-        )}
-      </CountdownCircleTimer>
+      <ThemedView style={styles.container}>
+        <Text style={styles.heading}>Begin Playing!</Text>
+        <CountdownCircleTimer
+          isPlaying={isPlaying}
+          key={`${reset}-${length}`} // Ensure re-initialization of the timer
+          duration={length} // Dynamically update the duration
+          onComplete={onTimerComplete}
+          size={250}
+          strokeWidth={20}
+          colors="#435f57"
+          rotation="clockwise"
+          trailColor="#e6e6e6"
+          strokeLinecap="round"
+        >
+          {({ remainingTime }) => {
+            const minutes = Math.floor(remainingTime / 60);
+            const seconds = remainingTime % 60;
+            return (
+              <Text style={styles.timeText}>
+                {minutes}:{seconds < 10 ? `0${seconds}` : seconds}
+              </Text>
+            );
+          }}
+        </CountdownCircleTimer>
 
-      {/* Button to start/stop the timer */}
-      <TouchableOpacity style={styles.button} onPress={playSound}>
-        <Text style={styles.buttonText}>Start</Text>
-      </TouchableOpacity>
+        <TouchableOpacity style={styles.button} onPress={playSound}>
+          <Text style={styles.buttonText}>Start</Text>
+        </TouchableOpacity>
 
-      <TouchableOpacity style={styles.resetButton} onPress={pauseSound}>
-        <Text style={styles.buttonText}>Stop</Text>
-      </TouchableOpacity>
+        <TouchableOpacity style={styles.resetButton} onPress={pauseSound}>
+          <Text style={styles.buttonText}>Stop</Text>
+        </TouchableOpacity>
 
-      {/* Button to reset the timer */}
-      <TouchableOpacity style={styles.resetButton} onPress={resetTimer}>
-        <Text style={styles.buttonText}>Reset</Text>
-      </TouchableOpacity>
+        <TouchableOpacity style={styles.resetButton} onPress={resetTimer}>
+          <Text style={styles.buttonText}>Reset</Text>
+        </TouchableOpacity>
 
-      {/* Button to mute alarm */}
-      <TouchableOpacity style={styles.button} onPress={playAlarm}>
-        <Text style={styles.buttonText}>Mute Alarm</Text>
-      </TouchableOpacity>
+        <TouchableOpacity style={styles.button} onPress={playAlarm}>
+          <Text style={styles.buttonText}>Mute Alarm</Text>
+        </TouchableOpacity>
 
-      {/* Button to like playlist */}
-      <TouchableOpacity style={styles.button} onPress={like}>
-        <Text style={styles.buttonText}>Like</Text>
-      </TouchableOpacity>
+        <TouchableOpacity style={styles.button} onPress={like}>
+          <Text style={styles.buttonText}>Like</Text>
+        </TouchableOpacity>
 
-      {/* Button to dislike playlist */}
-      <TouchableOpacity style={styles.button} onPress={dislike}>
-        <Text style={styles.buttonText}>Dislike</Text>
-      </TouchableOpacity>
-    </ThemedView>
+        <TouchableOpacity style={styles.button} onPress={dislike}>
+          <Text style={styles.buttonText}>Dislike</Text>
+        </TouchableOpacity>
+      </ThemedView>
     </ParallaxScrollView>
   );
-};
+}
 
 const styles = StyleSheet.create({
   container: {
@@ -191,7 +190,6 @@ const styles = StyleSheet.create({
     paddingVertical: 0,
     backgroundColor: 'transparent',
     alignItems: 'center',
-    // gap: 10,
     marginTop: 0,
   },
   heading: {
@@ -202,7 +200,7 @@ const styles = StyleSheet.create({
   },
   timeText: {
     fontSize: 40,
-    color: '#fff',
+    color: '#638C80',
     fontWeight: '700',
   },
   button: {
@@ -235,11 +233,5 @@ const styles = StyleSheet.create({
     color: 'white',
     fontSize: 16,
     fontWeight: '600',
-  },
-  tuneTimerLogo: {
-    height: 250,
-    width: 400,
-    resizeMode: 'contain',
-    borderRadius: 15,
   },
 });
