@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
-import { Text, StyleSheet, TouchableOpacity } from 'react-native';
+import { Text, StyleSheet, TouchableOpacity, View, Image } from 'react-native';
+import Icon from 'react-native-vector-icons/FontAwesome';
 import { CountdownCircleTimer } from 'react-native-countdown-circle-timer';
 import { ThemedView } from '@/components/ThemedView'; 
 import { ParallaxScrollView } from '@/components/ParallaxScrollView';
@@ -31,7 +32,6 @@ export default function ExploreScreen() {
   async function playSound() {
     if (!playlistStarted) {
       try {
-
         const spotifyPlaylistUrl = `http://127.0.0.1:${PORT}/play`;
 
         const response = await fetch(spotifyPlaylistUrl);
@@ -47,13 +47,11 @@ export default function ExploreScreen() {
       try {
 
         const spotifyPlaylistUrl = `http://127.0.0.1:${PORT}/resume`;
-
         const response = await fetch(spotifyPlaylistUrl);
         const result = await response.json();
         console.log('Response from backend:', result);
-      } 
-      catch (error) {
-        console.error('Error resume playing playlist: ', error);
+      } catch (error) {
+        console.error('Error resuming playlist: ', error);
       }
     }
     setPlaylistStarted(true);
@@ -63,21 +61,17 @@ export default function ExploreScreen() {
   async function pauseSound() {
     setIsPlaying(false);
     try {
-
       const spotifyPlaylistUrl = `http://127.0.0.1:${PORT}/pause`;
-
       const response = await fetch(spotifyPlaylistUrl);
       const result = await response.json();
       console.log('Response from backend:', result);
-    } 
-    catch (error) {
+    } catch (error) {
       console.error('Error pausing playlist: ', error);
     }
   }
 
   async function resetTimer() {
     try {
-
       const spotifyPlaylistUrl = `http://127.0.0.1:${PORT}/play`;
       const response = await fetch(spotifyPlaylistUrl);
       const result = await response.json();
@@ -113,7 +107,6 @@ export default function ExploreScreen() {
 
   async function deletePlaylist() {
     try {
-
       const spotifyPlaylistUrl = `http://127.0.0.1:${PORT}/delete`;
       const response = await fetch(spotifyPlaylistUrl);
     }
@@ -124,19 +117,23 @@ export default function ExploreScreen() {
 
   return (
     <ParallaxScrollView
-      headerBackgroundColor={{ light: '#F1F0ED', dark: '#F1F0ED' }}
-      headerImage={
-        <ThemedView style={styles.container}>
-          {/* This has been changed UI-vise on sg-timer-page-ui, can use that*/}
+      headerBackgroundColor={{ dark: "#F1F0ED", light: "#F1F0ED" }}
+      headerImage={(
+        <ThemedView style={styles.logoContainer}>
+          <Image
+            source={require('@/assets/images/blank.png')}
+            style={styles.tuneTimerLogo}
+          />
         </ThemedView>
-      }
+      )}
+      // headerImage={<Image source={require('@/assets/images/blank.png')} style={styles.headerImage} />} // Header image here
     >
       <ThemedView style={styles.container}>
         <Text style={styles.heading}>Begin Playing!</Text>
         <CountdownCircleTimer
           isPlaying={isPlaying}
-          key={`${reset}-${length}`} // Ensure re-initialization of the timer
-          duration={length} // Dynamically update the duration
+          key={reset}
+          duration={length}
           onComplete={onTimerComplete}
           size={250}
           strokeWidth={20}
@@ -156,29 +153,28 @@ export default function ExploreScreen() {
           }}
         </CountdownCircleTimer>
 
-        <TouchableOpacity style={styles.button} onPress={playSound}>
-          <Text style={styles.buttonText}>Start</Text>
-        </TouchableOpacity>
+        {/* Timer Controls */}
+        <View style={styles.row}>
+          <TouchableOpacity style={styles.button} onPress={playSound}>
+            <Text style={styles.buttonText}>Start</Text>
+          </TouchableOpacity>
+          <TouchableOpacity style={styles.button} onPress={resetTimer}>
+            <Text style={styles.buttonText}>Reset</Text>
+          </TouchableOpacity>
+          <TouchableOpacity style={styles.button} onPress={pauseSound}>
+            <Text style={styles.buttonText}>Stop</Text>
+          </TouchableOpacity>
+        </View>
 
-        <TouchableOpacity style={styles.resetButton} onPress={pauseSound}>
-          <Text style={styles.buttonText}>Stop</Text>
-        </TouchableOpacity>
-
-        <TouchableOpacity style={styles.resetButton} onPress={resetTimer}>
-          <Text style={styles.buttonText}>Reset</Text>
-        </TouchableOpacity>
-
-        <TouchableOpacity style={styles.button} onPress={playAlarm}>
-          <Text style={styles.buttonText}>Mute Alarm</Text>
-        </TouchableOpacity>
-
-        <TouchableOpacity style={styles.button} onPress={like}>
-          <Text style={styles.buttonText}>Like</Text>
-        </TouchableOpacity>
-
-        <TouchableOpacity style={styles.button} onPress={dislike}>
-          <Text style={styles.buttonText}>Dislike</Text>
-        </TouchableOpacity>
+        {/* Playlist Actions */}
+        <View style={styles.iconRow}>
+          <TouchableOpacity style={styles.iconButton} onPress={like}>
+            <Icon name="thumbs-up" size={24} color="white" />
+          </TouchableOpacity>
+          <TouchableOpacity style={styles.iconButton} onPress={dislike}>
+            <Icon name="thumbs-down" size={24} color="white" />
+          </TouchableOpacity>
+        </View>
       </ThemedView>
     </ParallaxScrollView>
   );
@@ -187,51 +183,66 @@ export default function ExploreScreen() {
 const styles = StyleSheet.create({
   container: {
     paddingHorizontal: 20,
-    paddingVertical: 0,
-    backgroundColor: 'transparent',
     alignItems: 'center',
-    marginTop: 0,
+    backgroundColor: 'transparent',
+  },
+  logoContainer: {
+    justifyContent: 'center',
+    alignItems: 'center',
+    paddingVertical: 20,
+  },
+  tuneTimerLogo: {
+    height: 250,
+    width: 400,
+    resizeMode: 'contain',
+    borderRadius: 15,
   },
   heading: {
-    fontSize: 24,
+    fontSize: 30,
     fontWeight: '700',
-    color: '#435f57', 
-    marginBottom: 20, 
+    color: '#435f57',
+    marginBottom: 20,
   },
   timeText: {
     fontSize: 40,
     color: '#638C80',
     fontWeight: '700',
   },
-  button: {
-    backgroundColor: '#638C80', 
-    paddingVertical: 12,
-    paddingHorizontal: 25,
-    borderRadius: 25,
-    alignItems: 'center',
-    shadowColor: '#B0B7B3',
-    shadowOffset: { width: 0, height: 5 },
-    shadowOpacity: 0.2,
-    shadowRadius: 10,
-    width: '70%',
-    marginTop: 20,
+  row: {
+    flexDirection: 'row',
+    justifyContent: 'space-around',
+    marginVertical: 15,
+    width: '100%',
   },
-  resetButton: {
-    backgroundColor: '#638C80', 
-    paddingVertical: 12,
-    paddingHorizontal: 25,
+  button: {
+    backgroundColor: '#638C80',
+    paddingVertical: 15,
     borderRadius: 25,
     alignItems: 'center',
-    shadowColor: '#B0B7B3',
-    shadowOffset: { width: 0, height: 5 },
-    shadowOpacity: 0.2,
-    shadowRadius: 10,
-    width: '70%',
-    marginTop: 10,
+    width: '30%',
   },
   buttonText: {
     color: 'white',
     fontSize: 16,
     fontWeight: '600',
   },
-});
+  iconRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-around',
+    marginTop: 15,
+    width: '50%',
+  },
+  iconButton: {
+    backgroundColor: '#638C80',
+    borderRadius: 50,
+    padding: 17,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  headerImage: {
+    justifyContent: 'center',
+    alignItems: 'center',
+    paddingVertical: 20,
+    },
+  },
+);

@@ -72,7 +72,6 @@ export default function ExploreScreen() {
     };
 
     try {
-
         const spotifyPlaylistUrl = `http://127.0.0.1:${PORT}/create-playlist`;
 
         const response = await fetch(spotifyPlaylistUrl, {
