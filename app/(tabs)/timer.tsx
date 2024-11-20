@@ -133,7 +133,7 @@ export default function ExploreScreen() {
         <CountdownCircleTimer
           isPlaying={isPlaying}
           key={reset}
-          duration={timeRemaining}
+          duration={length}
           onComplete={onTimerComplete}
           size={250}
           strokeWidth={20}
