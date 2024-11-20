@@ -13,12 +13,12 @@ const ProfilePage: React.FC = () => {
 
   const fetchMostRecentPlaylist = async () => {
     try {
-      const most_recent_playlist = 'http://127.0.0.1:5001/most-recent-playlist';
+      const most_recent_playlist = 'http://127.0.0.1:5000/most-recent-playlist';
       const response = await fetch(most_recent_playlist);
 
       if (!response.ok) {
         const errorData = await response.json();
-        if (errorData.error === "Playlist not found.") {
+        if (response.status === 404 && errorData.error === "Playlist not found.") {
           setError(null);
           setMostRecentPlaylist(null);
         } else {
@@ -45,7 +45,7 @@ const ProfilePage: React.FC = () => {
 
   const deletePlaylist = async () => {
     try {
-      const delete_endpoint = 'http://127.0.0.1:5001/delete';
+      const delete_endpoint = 'http://127.0.0.1:5000/delete';
       const response = await fetch(delete_endpoint);
 
       if (!response.ok) {
