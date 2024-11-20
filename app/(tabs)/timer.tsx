@@ -45,17 +45,17 @@ export default function ExploreScreen() {
       }
     } else {
       try {
-
         const spotifyPlaylistUrl = `http://127.0.0.1:${PORT}/resume`;
         const response = await fetch(spotifyPlaylistUrl);
         const result = await response.json();
         console.log('Response from backend:', result);
+        setIsPlaying(true);
       } catch (error) {
         console.error('Error resuming playlist: ', error);
       }
     }
     setPlaylistStarted(true);
-    setIsPlaying(true);
+    // setIsPlaying(true);
   }
 
   async function pauseSound() {
@@ -81,6 +81,7 @@ export default function ExploreScreen() {
     } catch (error) {
       console.error('Error resetting playlist:', error);
     }
+    setIsPlaying(true);
     setReset(reset + 1); // Trigger re-render
   }
 
