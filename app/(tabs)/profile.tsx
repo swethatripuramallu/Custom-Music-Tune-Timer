@@ -1,4 +1,4 @@
-import React, {useState, useEffect, useCallback} from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { View, Text, FlatList, StyleSheet, Image, TouchableOpacity, Alert } from 'react-native';
 import { ParallaxScrollView } from '@/components/ParallaxScrollView';
 import { ThemedText } from '@/components/ThemedText';
@@ -6,32 +6,28 @@ import { ThemedView } from '@/components/ThemedView';
 import { Link } from 'expo-router';
 import { useFocusEffect } from '@react-navigation/native';
 
-
-
-// Example playlist data
 const ProfilePage: React.FC = () => {
   const [mostRecentPlaylist, setMostRecentPlaylist] = useState<{ name: string; playlist_modified: string | null; message?: string } | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [message, setMessage] = useState<string | null>(null);
 
-  // Fetch the most recent playlist
   const fetchMostRecentPlaylist = async () => {
     try {
-      const most_recent_playlist = 'http://127.0.0.1:5000/most-recent-playlist';
+      const most_recent_playlist = 'http://127.0.0.1:5001/most-recent-playlist';
       const response = await fetch(most_recent_playlist);
-  
+
       if (!response.ok) {
         const errorData = await response.json();
         if (errorData.error === "Playlist not found.") {
-          setError(null); // Clear the error message
-          setMostRecentPlaylist(null); // No playlist found
+          setError(null);
+          setMostRecentPlaylist(null);
         } else {
           throw new Error(errorData.error || 'Unknown error occurred');
         }
       } else {
         const result = await response.json();
         console.log('Response from backend:', result);
-  
+
         if (result && result.name && result.playlist_modified) {
           setMostRecentPlaylist(result);
           setError(null);
@@ -47,10 +43,9 @@ const ProfilePage: React.FC = () => {
     }
   };
 
-  // Delete the playlist
   const deletePlaylist = async () => {
     try {
-      const delete_endpoint = 'http://127.0.0.1:5000/delete';
+      const delete_endpoint = 'http://127.0.0.1:5001/delete';
       const response = await fetch(delete_endpoint);
 
       if (!response.ok) {
@@ -62,7 +57,6 @@ const ProfilePage: React.FC = () => {
 
       setMessage('The playlist has been deleted.');
 
-      // Fetch the most recent playlist after deletion
       await fetchMostRecentPlaylist();
     } catch (error: any) {
       console.error('Error deleting playlist:', error.message);
@@ -76,28 +70,18 @@ const ProfilePage: React.FC = () => {
     }, [])
   );
 
-  const formatDate = (isoDate) => {
+  const formatDate = (isoDate: string) => {
     const date = new Date(isoDate);
-
-  return new Intl.DateTimeFormat('en-US', {
-    month: 'long',
-    day: 'numeric',
-    year: 'numeric',
-    hour: '2-digit',
-    minute: '2-digit',
-    second: '2-digit',
-    timeZone: 'America/New_York',
-    timeZoneName: 'short',
-  }).format(date);
-};
-
-  // Render each item in the profile data
-  const renderItem = ({ item }: { item: { title: string; value: string } }) => (
-    <View style={styles.profileItem}>
-      <Text style={styles.itemTitle}>{item.title}:</Text>
-      <Text style={styles.itemValue}>{item.value}</Text>
-    </View>
-  );
+    return new Intl.DateTimeFormat('en-US', {
+      month: 'short',
+      day: 'numeric',
+      year: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit',
+      timeZone: 'America/New_York',
+      timeZoneName: 'short',
+    }).format(date);
+  };
 
   return (
     <ParallaxScrollView
@@ -116,18 +100,16 @@ const ProfilePage: React.FC = () => {
           Profile
         </ThemedText>
 
-        {/* Navigate to other pages */}
         <Link href="/explore" asChild>
           <TouchableOpacity style={styles.button}>
             <ThemedText style={styles.buttonText}>Create New Playlist</ThemedText>
           </TouchableOpacity>
         </Link>
 
-        {/* Most Recent Playlist */}
         <View style={styles.recentPlaylistContainer}>
           <ThemedText style={styles.recentPlaylistTitle}>Most Recent Playlist:</ThemedText>
           {error ? (
-            <Text style={styles.loadingText}>No recent Tune Timer playlists available.</Text>
+            <Text style={styles.noPlaylistText}>No recent Tune Timer playlists available.</Text>
           ) : mostRecentPlaylist ? (
             <View style={styles.recentPlaylistItem}>
               <Text style={styles.itemTitle}>Name:</Text>
@@ -139,9 +121,10 @@ const ProfilePage: React.FC = () => {
                 <Text style={styles.errorText}>This playlist has no tracks.</Text>
               )}
 
-              {/* Yes/No Buttons */}
               <View style={styles.confirmationContainer}>
-                <ThemedText style={styles.confirmationText}>Do you want to keep this playlist?</ThemedText>
+                <ThemedText style={styles.confirmationText}>
+                  Keep this playlist?
+                </ThemedText>
                 <View style={styles.buttonRow}>
                   <TouchableOpacity style={styles.yesButton} onPress={() => Alert.alert('Playlist kept.')}>
                     <Text style={styles.buttonText}>Yes</Text>
@@ -153,17 +136,15 @@ const ProfilePage: React.FC = () => {
               </View>
             </View>
           ) : (
-            <Text style={styles.loadingText}>No recent Tune Timer playlists available.</Text>
+            <Text style={styles.loadingText}>Loading playlist information...</Text>
           )}
         </View>
 
-        {/* Success or Error Message */}
         {message && <Text style={styles.successMessage}>{message}</Text>}
       </ThemedView>
     </ParallaxScrollView>
   );
 };
-
 
 const styles = StyleSheet.create({
   logoContainer: {
@@ -191,19 +172,6 @@ const styles = StyleSheet.create({
     marginBottom: 10,
     textAlign: 'center',
   },
-  profileItem: {
-    marginBottom: 15,
-    padding: 10,
-    backgroundColor: '#fff',
-    borderRadius: 5,
-    shadowColor: '#000',
-    shadowOpacity: 0.1,
-    shadowOffset: { width: 0, height: 1 },
-    shadowRadius: 3,
-    elevation: 3,
-    width: '100%',
-  },
-
   recentPlaylistContainer: {
     marginTop: 20,
     width: '100%',
@@ -228,14 +196,13 @@ const styles = StyleSheet.create({
     maxWidth: 300,
     alignItems: 'center',
   },
-
   noPlaylistText: {
     fontSize: 14,
     color: '#999',
     marginTop: 10,
   },
-
   itemTitle: {
+    padding: 5,
     fontSize: 16,
     fontWeight: 'bold',
     color: '#333',
@@ -272,15 +239,17 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: '600',
   },
-
   confirmationContainer: {
-    marginTop: 20,
+    borderRadius: 15,
     alignItems: 'center',
+    padding: 15,  
+    maxWidth: 350,  
   },
   confirmationText: {
     fontSize: 16,
     color: '#435f57',
-    marginBottom: 10,
+    fontWeight: 'bold',
+    marginBottom: 15,
   },
   buttonRow: {
     flexDirection: 'row',
@@ -294,7 +263,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   noButton: {
-    backgroundColor: '#d9534f',
+    backgroundColor: '#638C80',
     padding: 12,
     borderRadius: 25,
     width: 100,
