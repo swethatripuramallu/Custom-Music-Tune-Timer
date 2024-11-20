@@ -374,7 +374,8 @@ def most_recent_playlist():
 
         # Extract track added dates
         added_at_dates = [
-            item['added_at'] for item in playlist['tracks']['items'] if item['added_at']
+            item['added_at'] for item in
+            playlist['tracks']['items'] if item['added_at']
         ]
 
         # If the playlist has tracks, return the earliest date

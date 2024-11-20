@@ -131,7 +131,7 @@ const ProfilePage: React.FC = () => {
                   Keep this playlist?
                 </ThemedText>
                 <View style={styles.buttonRow}>
-                  <TouchableOpacity style={styles.yesButton} onPress={() => Alert.alert('Playlist kept.')}>
+                  <TouchableOpacity style={styles.yesButton} onPress={() => Alert.alert('Playlist saved.')}>
                     <Text style={styles.buttonText}>Yes</Text>
                   </TouchableOpacity>
                   <TouchableOpacity style={styles.noButton} onPress={deletePlaylist}>
