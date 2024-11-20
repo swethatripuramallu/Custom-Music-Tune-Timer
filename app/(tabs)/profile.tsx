@@ -1,46 +1,95 @@
-import React, {useState, useEffect} from 'react';
-import { View, Text, FlatList, StyleSheet, Image, TouchableOpacity } from 'react-native';
+import React, {useState, useEffect, useCallback} from 'react';
+import { View, Text, FlatList, StyleSheet, Image, TouchableOpacity, Alert } from 'react-native';
 import { ParallaxScrollView } from '@/components/ParallaxScrollView';
 import { ThemedText } from '@/components/ThemedText';
 import { ThemedView } from '@/components/ThemedView';
 import { Link } from 'expo-router';
+import { useFocusEffect } from '@react-navigation/native';
+
 
 
 // Example playlist data
 const ProfilePage: React.FC = () => {
-
-  const [mostRecentPlaylist, setMostRecentPlaylist] = useState<{ name: string; playlist_modified: string } | null>(null);
+  const [mostRecentPlaylist, setMostRecentPlaylist] = useState<{ name: string; playlist_modified: string | null; message?: string } | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [message, setMessage] = useState<string | null>(null);
 
   // Fetch the most recent playlist
-  useEffect(() => {
-    const fetchMostRecentPlaylist = async () => {
-      try {
-        const most_recent_playlist = 'http://127.0.0.1:5000/most-recent-playlist'; // Change the URL as needed
-        const response = await fetch(most_recent_playlist);
-
-        if (!response.ok) {
-          throw new Error('Network response was not ok');
+  const fetchMostRecentPlaylist = async () => {
+    try {
+      const most_recent_playlist = 'http://127.0.0.1:5000/most-recent-playlist';
+      const response = await fetch(most_recent_playlist);
+  
+      if (!response.ok) {
+        const errorData = await response.json();
+        if (errorData.error === "Playlist not found.") {
+          setError(null); // Clear the error message
+          setMostRecentPlaylist(null); // No playlist found
+        } else {
+          throw new Error(errorData.error || 'Unknown error occurred');
         }
-
+      } else {
         const result = await response.json();
         console.log('Response from backend:', result);
-
-        // Check if result contains necessary fields
+  
         if (result && result.name && result.playlist_modified) {
-          setMostRecentPlaylist(result); // Assuming result has playlist data
-          setError(null); // Clear any previous errors
+          setMostRecentPlaylist(result);
+          setError(null);
         } else {
-          throw new Error('Invalid playlist data');
+          setMostRecentPlaylist(null);
+          setError('No valid playlist data available.');
         }
-      } catch (error: any) {
-        console.error('Error retrieving most recent playlist:', error);
-        setError('Could not fetch the most recent playlist.');
       }
-    };
+    } catch (error: any) {
+      console.error('Error retrieving most recent playlist:', error.message);
+      setError('Could not fetch the most recent playlist.');
+      setMostRecentPlaylist(null);
+    }
+  };
 
-    fetchMostRecentPlaylist();
-  }, []);
+  // Delete the playlist
+  const deletePlaylist = async () => {
+    try {
+      const delete_endpoint = 'http://127.0.0.1:5000/delete';
+      const response = await fetch(delete_endpoint);
+
+      if (!response.ok) {
+        throw new Error('Failed to delete the playlist');
+      }
+
+      const result = await response.json();
+      console.log('Response from backend:', result);
+
+      setMessage('The playlist has been deleted.');
+
+      // Fetch the most recent playlist after deletion
+      await fetchMostRecentPlaylist();
+    } catch (error: any) {
+      console.error('Error deleting playlist:', error.message);
+      setError('Could not delete the playlist.');
+    }
+  };
+
+  useFocusEffect(
+    useCallback(() => {
+      fetchMostRecentPlaylist();
+    }, [])
+  );
+
+  const formatDate = (isoDate) => {
+    const date = new Date(isoDate);
+
+  return new Intl.DateTimeFormat('en-US', {
+    month: 'long',
+    day: 'numeric',
+    year: 'numeric',
+    hour: '2-digit',
+    minute: '2-digit',
+    second: '2-digit',
+    timeZone: 'America/New_York',
+    timeZoneName: 'short',
+  }).format(date);
+};
 
   // Render each item in the profile data
   const renderItem = ({ item }: { item: { title: string; value: string } }) => (
@@ -74,27 +123,47 @@ const ProfilePage: React.FC = () => {
           </TouchableOpacity>
         </Link>
 
-         {/* Most Recent Playlist */}
-         <View style={styles.recentPlaylistContainer}>
+        {/* Most Recent Playlist */}
+        <View style={styles.recentPlaylistContainer}>
           <ThemedText style={styles.recentPlaylistTitle}>Most Recent Playlist:</ThemedText>
           {error ? (
-            <Text style={styles.errorText}>{error}</Text>
+            <Text style={styles.loadingText}>No recent Tune Timer playlists available.</Text>
           ) : mostRecentPlaylist ? (
             <View style={styles.recentPlaylistItem}>
               <Text style={styles.itemTitle}>Name:</Text>
               <Text style={styles.itemValue}>{mostRecentPlaylist.name}</Text>
               <Text style={styles.itemTitle}>Modified Date:</Text>
-              <Text style={styles.itemValue}>{mostRecentPlaylist.playlist_modified}</Text>
+              {mostRecentPlaylist.playlist_modified ? (
+                <Text style={styles.itemValue}>{formatDate(mostRecentPlaylist.playlist_modified)}</Text>
+              ) : (
+                <Text style={styles.errorText}>This playlist has no tracks.</Text>
+              )}
+
+              {/* Yes/No Buttons */}
+              <View style={styles.confirmationContainer}>
+                <ThemedText style={styles.confirmationText}>Do you want to keep this playlist?</ThemedText>
+                <View style={styles.buttonRow}>
+                  <TouchableOpacity style={styles.yesButton} onPress={() => Alert.alert('Playlist kept.')}>
+                    <Text style={styles.buttonText}>Yes</Text>
+                  </TouchableOpacity>
+                  <TouchableOpacity style={styles.noButton} onPress={deletePlaylist}>
+                    <Text style={styles.buttonText}>No</Text>
+                  </TouchableOpacity>
+                </View>
+              </View>
             </View>
           ) : (
             <Text style={styles.loadingText}>No recent Tune Timer playlists available.</Text>
           )}
         </View>
 
+        {/* Success or Error Message */}
+        {message && <Text style={styles.successMessage}>{message}</Text>}
       </ThemedView>
     </ParallaxScrollView>
   );
 };
+
 
 const styles = StyleSheet.create({
   logoContainer: {
@@ -202,6 +271,39 @@ const styles = StyleSheet.create({
     color: 'white',
     fontSize: 16,
     fontWeight: '600',
+  },
+
+  confirmationContainer: {
+    marginTop: 20,
+    alignItems: 'center',
+  },
+  confirmationText: {
+    fontSize: 16,
+    color: '#435f57',
+    marginBottom: 10,
+  },
+  buttonRow: {
+    flexDirection: 'row',
+    gap: 15,
+  },
+  yesButton: {
+    backgroundColor: '#638C80',
+    padding: 12,
+    borderRadius: 25,
+    width: 100,
+    alignItems: 'center',
+  },
+  noButton: {
+    backgroundColor: '#d9534f',
+    padding: 12,
+    borderRadius: 25,
+    width: 100,
+    alignItems: 'center',
+  },
+  successMessage: {
+    marginTop: 15,
+    fontSize: 14,
+    color: 'green',
   },
 });
 

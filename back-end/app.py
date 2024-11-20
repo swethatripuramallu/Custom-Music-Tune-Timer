@@ -367,23 +367,34 @@ def most_recent_playlist():
                 "name": playlist['name']
             }
             break
-    
+
     if playlist_info:
-        playlist = sp.playlist(playlist_info['playlist_info'])
+        playlist = sp.playlist(playlist_info['playlist_id'])
+        print(f"Playlist found: {playlist_info['name']}")  # Debug log
+
         # Extract track added dates
         added_at_dates = [
             item['added_at'] for item in playlist['tracks']['items'] if item['added_at']
         ]
 
-        # Find the earliest added_at date
+        # If the playlist has tracks, return the earliest date
         if added_at_dates:
             earliest_date = min(added_at_dates)
-        return jsonify({
-            "playlist_modified": earliest_date,
-            "name": playlist_info['name'],
-            "message": "Successfully retrieved playlist information."
-        })
+            return jsonify({
+                "playlist_modified": earliest_date,
+                "name": playlist_info['name'],
+                "message": "Successfully retrieved playlist information."
+            })
+
+        # If the playlist has no tracks, return the name and message
+        else:
+            return jsonify({
+                "playlist_modified": None,
+                "name": playlist_info['name'],
+                "message": "This playlist has no tracks."
+            })
     else:
+        print("Playlist not found.")  # Debug log
         return jsonify({
             "error": "Playlist not found."
         }), 404
