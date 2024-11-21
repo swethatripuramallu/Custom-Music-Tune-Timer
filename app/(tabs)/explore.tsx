@@ -7,7 +7,7 @@ import { ThemedText } from '@/components/ThemedText';
 import { ThemedView } from '@/components/ThemedView';
 import { Link } from 'expo-router';
 
-const PORT = 5001; // set port number
+const PORT = 5000; // set port number
 
 export default function ExploreScreen() {
   const [length, setLength] = useState<number>(0); 
