@@ -1,11 +1,11 @@
 import React, { useEffect, useState } from 'react';
-import { Text, StyleSheet, TouchableOpacity, View, Image } from 'react-native';
+import { Text, StyleSheet, TouchableOpacity, View, Image, Alert } from 'react-native';
 import Icon from 'react-native-vector-icons/FontAwesome';
 import { CountdownCircleTimer } from 'react-native-countdown-circle-timer';
 import { ThemedView } from '@/components/ThemedView'; 
 import { ParallaxScrollView } from '@/components/ParallaxScrollView';
 
-const PORT = 5000; // set port number
+const PORT = 5001; // set port number
 
 export default function ExploreScreen() {
   const [isPlaying, setIsPlaying] = useState(false);
@@ -98,11 +98,13 @@ export default function ExploreScreen() {
 
   async function like() {
     console.log('Liked playlist');
+    Alert.alert('Save', 'Playlist will be saved at the end of the timer!')
     setLikePlaylist(true);
   }
 
   async function dislike() {
     console.log('Disliked playlist');
+    Alert.alert('Delete', 'Playlist will be deleted at the end of the timer!')
     setLikePlaylist(false);
   }
 

@@ -6,7 +6,7 @@ import { ThemedView } from '@/components/ThemedView';
 import { Link } from 'expo-router';
 import { useFocusEffect } from '@react-navigation/native';
 
-const PORT = 5000; // set port number
+const PORT = 5001; // set port number
 
 const ProfilePage: React.FC = () => {
   const [mostRecentPlaylist, setMostRecentPlaylist] = useState<{ name: string; playlist_modified: string | null; message?: string } | null>(null);
@@ -129,14 +129,14 @@ const ProfilePage: React.FC = () => {
                   Keep this playlist?
                 </ThemedText>
                 <View style={styles.buttonRow}>
-                  <TouchableOpacity style={styles.yesButton} onPress={() => Alert.alert('Saved', 'Playlist has been successfully saved')}>
+                  <TouchableOpacity style={styles.yesButton} onPress={() => Alert.alert('Saved', 'Playlist saved!')}>
                     <Text style={styles.buttonText}>Yes</Text>
                   </TouchableOpacity>
                   <TouchableOpacity
                         style={styles.noButton}
                         onPress={async () => {
                           await deletePlaylist(); // Call deletePlaylist function
-                          Alert.alert('Deleted', 'Playlist has been succesfully deleted'); // Show success message
+                          Alert.alert('Deleted', 'Playlist deleted!'); // Show success message
                         }}
                       >
                     <Text style={styles.buttonText}>No</Text>
@@ -148,25 +148,6 @@ const ProfilePage: React.FC = () => {
             <Text style={styles.loadingText}>Loading playlist information...</Text>
           )}
         </View>
-
-        {/*message && <Text style={styles.successMessage}>{message}</Text>*/}
-         {/* Modal for success message */}
-         {/* <Modal
-          animationType="slide"
-          transparent={true}
-          visible={isModalVisible}
-          onRequestClose={() => setIsModalVisible(false)} // Close modal on back press
-        >
-          <View style={styles.modalContainer}>
-            <View style={styles.modalContent}>
-              <Text style={styles.modalText}>Playlist has been deleted.</Text>
-              <TouchableOpacity onPress={() => setIsModalVisible(false)} style={styles.closeButton}>
-                <Text style={styles.buttonText}>OK</Text>
-              </TouchableOpacity>
-            </View>
-          </View>
-        </Modal> */}
-
       </ThemedView>
     </ParallaxScrollView>
   );
