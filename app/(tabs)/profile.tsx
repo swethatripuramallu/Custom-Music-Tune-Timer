@@ -11,9 +11,6 @@ const PORT = 5000; // set port number
 const ProfilePage: React.FC = () => {
   const [mostRecentPlaylist, setMostRecentPlaylist] = useState<{ name: string; playlist_modified: string | null; message?: string } | null>(null);
   const [error, setError] = useState<string | null>(null);
-  // const [message, setMessage] = useState<string | null>(null);
-  // const [isModalVisible, setIsModalVisible] = useState(false); // Modal state
-
   const fetchMostRecentPlaylist = async () => {
     try {
       const most_recent_playlist = `http://127.0.0.1:${PORT}/most-recent-playlist`;
@@ -69,38 +66,6 @@ const ProfilePage: React.FC = () => {
       setError('Could not delete the playlist.');
     }
   };
-
-  // const deletePlaylist = async () => {
-  //   try {
-  //     const delete_endpoint = `http://127.0.0.1:${PORT}/delete`;
-
-  //     const response = await fetch(delete_endpoint);
-
-  //     if (!response.ok) {
-  //       throw new Error('Failed to delete the playlist');
-  //     }
-
-  //     const result = await response.json();
-  //     console.log('Response from backend:', result);
-
-  //     // setMessage('The playlist has been deleted.');
-  //     // Show success message after deletion
-  //     // Alert.alert('Playlist Deleted', 'The playlist has been successfully deleted.', [
-  //     //   {
-  //     //     text: 'OK',
-  //     //     onPress: async () => {
-  //     //       await fetchMostRecentPlaylist(); // Refresh playlist data after deletion
-  //     //     },
-  //     //   },
-  //     // ]);
-  //     setIsModalVisible(true); // Show modal after deletion
-  //     await fetchMostRecentPlaylist();
-  //   } catch (error: any) {
-  //     console.error('Error deleting playlist:', error.message);
-  //     setError('Could not delete the playlist.');
-  //   }
-
-  // };
   
   useFocusEffect(
     useCallback(() => {
@@ -167,7 +132,6 @@ const ProfilePage: React.FC = () => {
                   <TouchableOpacity style={styles.yesButton} onPress={() => Alert.alert('Saved', 'Playlist has been successfully saved')}>
                     <Text style={styles.buttonText}>Yes</Text>
                   </TouchableOpacity>
-                  {/* <TouchableOpacity style={styles.noButton} onPress={(deletePlaylist) => Alert.alert('Playlist deleted.')}> */}
                   <TouchableOpacity
                         style={styles.noButton}
                         onPress={async () => {
