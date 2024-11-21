@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { View, Text, FlatList, StyleSheet, Image, TouchableOpacity, Alert } from 'react-native';
+import { View, Text, FlatList, StyleSheet, Image, TouchableOpacity, Alert, Modal } from 'react-native';
 import { ParallaxScrollView } from '@/components/ParallaxScrollView';
 import { ThemedText } from '@/components/ThemedText';
 import { ThemedView } from '@/components/ThemedView';
@@ -11,8 +11,6 @@ const PORT = 5001; // set port number
 const ProfilePage: React.FC = () => {
   const [mostRecentPlaylist, setMostRecentPlaylist] = useState<{ name: string; playlist_modified: string | null; message?: string } | null>(null);
   const [error, setError] = useState<string | null>(null);
-  const [message, setMessage] = useState<string | null>(null);
-
   const fetchMostRecentPlaylist = async () => {
     try {
       const most_recent_playlist = `http://127.0.0.1:${PORT}/most-recent-playlist`;
@@ -60,7 +58,7 @@ const ProfilePage: React.FC = () => {
       const result = await response.json();
       console.log('Response from backend:', result);
 
-      setMessage('The playlist has been deleted.');
+      // setMessage('The playlist has been deleted.');
 
       await fetchMostRecentPlaylist();
     } catch (error: any) {
@@ -68,7 +66,7 @@ const ProfilePage: React.FC = () => {
       setError('Could not delete the playlist.');
     }
   };
-
+  
   useFocusEffect(
     useCallback(() => {
       fetchMostRecentPlaylist();
@@ -131,10 +129,16 @@ const ProfilePage: React.FC = () => {
                   Keep this playlist?
                 </ThemedText>
                 <View style={styles.buttonRow}>
-                  <TouchableOpacity style={styles.yesButton} onPress={() => Alert.alert('Playlist saved.')}>
+                  <TouchableOpacity style={styles.yesButton} onPress={() => Alert.alert('Saved', 'Playlist saved!')}>
                     <Text style={styles.buttonText}>Yes</Text>
                   </TouchableOpacity>
-                  <TouchableOpacity style={styles.noButton} onPress={deletePlaylist}>
+                  <TouchableOpacity
+                        style={styles.noButton}
+                        onPress={async () => {
+                          await deletePlaylist(); // Call deletePlaylist function
+                          Alert.alert('Deleted', 'Playlist deleted!'); // Show success message
+                        }}
+                      >
                     <Text style={styles.buttonText}>No</Text>
                   </TouchableOpacity>
                 </View>
@@ -144,14 +148,37 @@ const ProfilePage: React.FC = () => {
             <Text style={styles.loadingText}>Loading playlist information...</Text>
           )}
         </View>
-
-        {message && <Text style={styles.successMessage}>{message}</Text>}
       </ThemedView>
     </ParallaxScrollView>
   );
 };
 
 const styles = StyleSheet.create({
+  modalContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+  },
+  modalContent: {
+    backgroundColor: 'white',
+    padding: 20,
+    borderRadius: 10,
+    alignItems: 'center',
+    width: 300,
+  },
+  modalText: {
+    fontSize: 18,
+    marginBottom: 15,
+    textAlign: 'center',
+  },
+  closeButton: {
+    backgroundColor: '#638C80',
+    padding: 12,
+    borderRadius: 10,
+    width: 100,
+    alignItems: 'center',
+  },
   logoContainer: {
     justifyContent: 'center',
     alignItems: 'center',
