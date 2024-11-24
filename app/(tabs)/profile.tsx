@@ -6,7 +6,7 @@ import { ThemedView } from '@/components/ThemedView';
 import { Link } from 'expo-router';
 import { useFocusEffect } from '@react-navigation/native';
 
-const PORT = 5001; // set port number
+const PORT = 5000; // set port number
 
 const ProfilePage: React.FC = () => {
   const [mostRecentPlaylist, setMostRecentPlaylist] = useState<{ name: string; playlist_modified: string | null; message?: string } | null>(null);
