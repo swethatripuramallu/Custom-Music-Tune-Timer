@@ -266,7 +266,7 @@ def play_playlist():
 
     # Get TUNE TIMER PLAYLIST ID
     for playlist in sp.user_playlists(user=user_id)['items']:
-        if playlist['name'] == 'Tune Timer Playlist':
+        if "Tune Timer Playlist" in playlist['name']:
             playlist_id = playlist['id']
             break
     print(playlist_id)
