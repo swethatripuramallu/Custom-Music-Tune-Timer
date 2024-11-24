@@ -105,7 +105,7 @@ def encode_image_to_base64(image_path):
 # Function to fetch Spotify data based on user input
 def get_spotify_data(length, happy, sad, dance, productive):
     sp = get_spotify_client()
-
+    playlist_title = "Tune Timer Playlist"
     # Modify recommendations based on moods or user input (happy, sad, etc.)
     min_danceability = 0.0
     target_danceability = 0.5
@@ -132,6 +132,7 @@ def get_spotify_data(length, happy, sad, dance, productive):
         min_energy = 0.6
         target_energy = 0.8
         seed_genres.append('happy')
+        playlist_title = "Tune Timer Playlist - Happy"
     if sad:
         min_acousticness = 0.4
         max_tempo = 80.0
@@ -140,6 +141,7 @@ def get_spotify_data(length, happy, sad, dance, productive):
         target_valence = 0.2
         max_energy = 0.4
         seed_genres.append('sad')
+        playlist_title = "Tune Timer Playlist - Sad"
     if dance:
         min_danceability = 0.6
         target_danceability = 0.8
@@ -148,6 +150,7 @@ def get_spotify_data(length, happy, sad, dance, productive):
         min_tempo = 110.0
         target_tempo = 130.0
         seed_genres.append('dance')
+        playlist_title = "Tune Timer Playlist - Dance"
     if productive:
         max_speechiness = 0.4
         max_loudness = 0.4
@@ -155,6 +158,7 @@ def get_spotify_data(length, happy, sad, dance, productive):
         target_energy = 0.4
         min_instrumentalness = 0.7
         seed_genres.append('study')
+        playlist_title = "Tune Timer Playlist - Productive"
 
     # Seeds based on user tracks and user artists
     top_tracks = sp.current_user_top_tracks(limit=1)
@@ -189,10 +193,9 @@ def get_spotify_data(length, happy, sad, dance, productive):
 
     # Create a new playlist
     user_id = sp.current_user()['id']
-    name = "Tune Timer Playlist"
     description = "A playlist created based on your selected mood and time."
-    playlist = sp.user_playlist_create(user=user_id, name=name, public=True,
-                                       description=description)
+    playlist = sp.user_playlist_create(user=user_id, name=playlist_title,
+                                       public=True, description=description)
     # Get the track URIs for the filtered songs
     track_uris = [f"spotify:track:{track['track_id']}" for track
                   in filtered_songs]
@@ -263,7 +266,7 @@ def play_playlist():
 
     # Get TUNE TIMER PLAYLIST ID
     for playlist in sp.user_playlists(user=user_id)['items']:
-        if playlist['name'] == 'Tune Timer Playlist':
+        if "Tune Timer Playlist" in playlist['name']:
             playlist_id = playlist['id']
             break
     print(playlist_id)
@@ -341,7 +344,8 @@ def delete_playlist():
 
     # Get playlist ID
     for playlist in sp.user_playlists(user=user_id)['items']:
-        if playlist['name'] == 'Tune Timer Playlist':
+        # if playlist['name'] == 'Tune Timer Playlist':
+        if "Tune Timer Playlist" in playlist['name']:
             playlist_id = playlist['id']
             break
 
@@ -361,7 +365,8 @@ def most_recent_playlist():
 
     # Get playlist ID and name
     for playlist in sp.user_playlists(user=user_id)['items']:
-        if playlist['name'] == 'Tune Timer Playlist':
+        # if playlist['name'] == 'Tune Timer Playlist':
+        if "Tune Timer Playlist" in playlist['name']:
             playlist_info = {
                 "playlist_id": playlist['id'],
                 "name": playlist['name']
