@@ -5,7 +5,7 @@ import { CountdownCircleTimer } from 'react-native-countdown-circle-timer';
 import { ThemedView } from '@/components/ThemedView'; 
 import { ParallaxScrollView } from '@/components/ParallaxScrollView';
 
-const PORT = 5000; // set port number
+const PORT = 5001; // set port number
 
 export default function ExploreScreen() {
   const [isPlaying, setIsPlaying] = useState(false);
@@ -16,6 +16,7 @@ export default function ExploreScreen() {
 
   useEffect(() => {
     console.log('Timer duration updated:', length);
+    setLength(length);
   }, [length]);
 
   const onTimerComplete = () => {
