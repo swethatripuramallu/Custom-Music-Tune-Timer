@@ -58,7 +58,7 @@ def parse_songs(recommended):
 
     for item in recommendedTracks:
         track = item['track']
-        print('track', track)
+        # print('track', track)
         track_name = track['name']
         artists = track.get('artists', [])
         artist_names = ", ".join([artist.get('name', 'Unknown Artist')
@@ -177,7 +177,7 @@ def get_spotify_data(length, happy, sad, dance, productive):
 
     # Fetch recommended songs based on mood
     print("Fetching recommendations...")
-    recs = sp.current_user_recently_played(limit=3)
+    recs = sp.current_user_recently_played(limit=50)
     print('recs', recs)
     # recs = sp.recommendations(seed_tracks=seed_tracks,
     #                           seed_artists=seed_artists,
@@ -269,6 +269,7 @@ def play_playlist():
     sp = get_spotify_client()
 
     # Get device ID
+    device_id = None
     for device in sp.devices()['devices']:
         if device['is_active']:
             device_id = device['id']
