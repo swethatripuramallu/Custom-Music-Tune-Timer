@@ -1,7 +1,7 @@
 import { Image, StyleSheet, TouchableOpacity } from 'react-native';
-import { ParallaxScrollView } from '@/components/ParallaxScrollView';
-import { ThemedText } from '@/components/ThemedText';
-import { ThemedView } from '@/components/ThemedView';
+import { ParallaxScrollView } from '../../components/ParallaxScrollView';
+import { ThemedText } from '../../components/ThemedText';
+import { ThemedView } from '../../components/ThemedView';
 import { Link } from 'expo-router';
 
 export default function HomeScreen() {
@@ -11,7 +11,7 @@ export default function HomeScreen() {
       headerImage={
         <ThemedView style={styles.logoContainer}>
           <Image
-            source={require('@/assets/images/5.png')}
+            source={require('../../assets/images/5.png')}
             style={styles.tuneTimerLogo}
           />
         </ThemedView>
