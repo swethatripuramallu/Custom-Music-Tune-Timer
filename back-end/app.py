@@ -53,15 +53,18 @@ def parse_songs(recommended):
 
     tracks = []
 
-    recommendedTracks = recommended.get('tracks', [])
+    # data = recommended.get('items', {})
+    recommendedTracks = recommended.get('items', [])
 
     for item in recommendedTracks:
-        track_name = item['name']
-        artists = item.get('artists', [])
+        track = item['track']
+        # print('track', track)
+        track_name = track['name']
+        artists = track.get('artists', [])
         artist_names = ", ".join([artist.get('name', 'Unknown Artist')
                                   for artist in artists])
-        duration = item['duration_ms']
-        track_id = item.get('id', "Unknown ID")
+        duration = track['duration_ms']
+        track_id = track.get('id', "Unknown ID")
 
         song_info = {
             'track_name': track_name,
@@ -107,91 +110,101 @@ def get_spotify_data(length, happy, sad, dance, productive):
     sp = get_spotify_client()
     playlist_title = "Tune Timer Playlist"
     # Modify recommendations based on moods or user input (happy, sad, etc.)
-    min_danceability = 0.0
-    target_danceability = 0.5
-    min_tempo = 0.0
-    target_tempo = 120.0
-    max_speechiness = 1.0
-    max_loudness = 1.0
-    min_valence = 0.0
-    max_valence = 1.0
-    target_valence = 0.5
-    min_energy = 0.0
-    target_energy = 0.5
-    max_energy = 1.0
-    min_acousticness = 0.0
-    min_instrumentalness = 0.0
-    max_tempo = 200.0
-    target_tempo = 120.0
-    seed_genres = []
+    # min_danceability = 0.0
+    # target_danceability = 0.5
+    # min_tempo = 0.0
+    # target_tempo = 120.0
+    # max_speechiness = 1.0
+    # max_loudness = 1.0
+    # min_valence = 0.0
+    # max_valence = 1.0
+    # target_valence = 0.5
+    # min_energy = 0.0
+    # target_energy = 0.5
+    # max_energy = 1.0
+    # min_acousticness = 0.0
+    # min_instrumentalness = 0.0
+    # max_tempo = 200.0
+    # target_tempo = 120.0
+    # seed_genres = []
     if happy:
-        min_tempo = 100.0
-        target_tempo = 140.0
-        min_valence = 0.5
-        target_valence = 0.8
-        min_energy = 0.6
-        target_energy = 0.8
-        seed_genres.append('happy')
+        # min_tempo = 100.0
+        # target_tempo = 140.0
+        # min_valence = 0.5
+        # target_valence = 0.8
+        # min_energy = 0.6
+        # target_energy = 0.8
+        # seed_genres.append('happy')
         playlist_title = "Tune Timer Playlist - Happy"
     if sad:
-        min_acousticness = 0.4
-        max_tempo = 80.0
-        target_tempo = 60.0
-        max_valence = 0.5
-        target_valence = 0.2
-        max_energy = 0.4
-        seed_genres.append('sad')
+        # min_acousticness = 0.4
+        # max_tempo = 80.0
+        # target_tempo = 60.0
+        # max_valence = 0.5
+        # target_valence = 0.2
+        # max_energy = 0.4
+        # seed_genres.append('sad')
         playlist_title = "Tune Timer Playlist - Sad"
     if dance:
-        min_danceability = 0.6
-        target_danceability = 0.8
-        min_energy = 0.7
-        target_energy = 0.85
-        min_tempo = 110.0
-        target_tempo = 130.0
-        seed_genres.append('dance')
+        # min_danceability = 0.6
+        # target_danceability = 0.8
+        # min_energy = 0.7
+        # target_energy = 0.85
+        # min_tempo = 110.0
+        # target_tempo = 130.0
+        # seed_genres.append('dance')
         playlist_title = "Tune Timer Playlist - Dance"
     if productive:
-        max_speechiness = 0.4
-        max_loudness = 0.4
-        target_tempo = 120.0
-        target_energy = 0.4
-        min_instrumentalness = 0.7
-        seed_genres.append('study')
+        # max_speechiness = 0.4
+        # max_loudness = 0.4
+        # target_tempo = 120.0
+        # target_energy = 0.4
+        # min_instrumentalness = 0.7
+        # seed_genres.append('study')
         playlist_title = "Tune Timer Playlist - Productive"
+    # print('seed_genres', seed_genres)
 
     # Seeds based on user tracks and user artists
+    print("Fetching user's top tracks...")
     top_tracks = sp.current_user_top_tracks(limit=1)
     seed_tracks = [track['id'] for track in top_tracks['items']]
+    print('seed_tracks', seed_tracks)
 
+    print("Fetching user's top artists...")
     top_artists = sp.current_user_top_artists(limit=3, time_range='long_term')
     seed_artists = [artist['id'] for artist in top_artists['items']]
+    print('seed_artists', seed_artists)
 
     # Fetch recommended songs based on mood
-    recs = sp.recommendations(seed_tracks=seed_tracks,
-                              seed_artists=seed_artists,
-                              seed_genres=seed_genres,
-                              min_danceability=min_danceability,
-                              target_danceability=target_danceability,
-                              max_speechiness=max_speechiness,
-                              max_loudness=max_loudness,
-                              min_tempo=min_tempo,
-                              target_tempo=target_tempo,
-                              max_tempo=max_tempo,
-                              min_acousticness=min_acousticness,
-                              min_instrumentalness=min_instrumentalness,
-                              min_energy=min_energy,
-                              target_energy=target_energy,
-                              max_energy=max_energy,
-                              min_valence=min_valence,
-                              max_valence=max_valence,
-                              target_valence=target_valence,
-                              limit=100)
+    print("Fetching recommendations...")
+    recs = sp.current_user_recently_played(limit=50)
+    print('recs', recs)
+    # recs = sp.recommendations(seed_tracks=seed_tracks,
+    #                           seed_artists=seed_artists,
+    #                           seed_genres=seed_genres,
+    #                           min_danceability=min_danceability,
+    #                           target_danceability=target_danceability,
+    #                           max_speechiness=max_speechiness,
+    #                           max_loudness=max_loudness,
+    #                           min_tempo=min_tempo,
+    #                           target_tempo=target_tempo,
+    #                           max_tempo=max_tempo,
+    #                           min_acousticness=min_acousticness,
+    #                           min_instrumentalness=min_instrumentalness,
+    #                           min_energy=min_energy,
+    #                           target_energy=target_energy,
+    #                           max_energy=max_energy,
+    #                           min_valence=min_valence,
+    #                           max_valence=max_valence,
+    #                           target_valence=target_valence,
+    #                           limit=100)
 
+    print("Parsing songs...")
     tracks = parse_songs(recs)
     filtered_songs = filterSongsByDuration(tracks, length)
 
     # Create a new playlist
+    print("Creating playlist...")
     user_id = sp.current_user()['id']
     description = "A playlist created based on your selected mood and time."
     playlist = sp.user_playlist_create(user=user_id, name=playlist_title,
@@ -237,6 +250,7 @@ def create_playlist():
     productive = data.get('productive')
 
     # Get Spotify data based on mood
+    print('length', length)
     spotify_data = get_spotify_data(length, happy, sad, dance, productive)
 
     tracks = spotify_data['tracks']
@@ -255,6 +269,7 @@ def play_playlist():
     sp = get_spotify_client()
 
     # Get device ID
+    device_id = None
     for device in sp.devices()['devices']:
         if device['is_active']:
             device_id = device['id']
